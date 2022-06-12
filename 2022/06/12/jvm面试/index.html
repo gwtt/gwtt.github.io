@@ -17,7 +17,7 @@
 
 
 
-<title>int和interger的区别 | 滚~韬的博客</title>
+<title>Jvm面试 | 滚~韬的博客</title>
 
 
 
@@ -195,7 +195,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">int和interger的区别</h1>
+            <h1 class="post-title">Jvm面试</h1>
             
                 <div class="post-meta">
                     
@@ -204,14 +204,14 @@
 
                     
                         <span class="post-time">
-                        日期: <a href="#">六月 11&nbsp;&nbsp;11:07</a>
+                        日期: <a href="#">六月 12&nbsp;&nbsp;23:08</a>
                         </span>
                     
                     
                         <span class="post-category">
                     分类:
                             
-                                <a href="/categories/java%E5%9F%BA%E7%A1%80/">java基础</a>
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
                             
                         </span>
                     
@@ -221,7 +221,7 @@
 
 字数:
 
-<a href="">588</a> 
+<a href="">901</a> 
 
 </span>
 
@@ -235,7 +235,7 @@
 
 时间:
 
-<a href="">2min</a> 
+<a href="">3min</a> 
 
 </span>
 
@@ -245,33 +245,101 @@
         </header>
 
         <div class="post-content">
-            <h3 id="int和interger的区别"><a href="#int和interger的区别" class="headerlink" title="int和interger的区别"></a>int和interger的区别</h3><blockquote>
+            <h2 id="jvm"><a href="#jvm" class="headerlink" title="jvm"></a>jvm</h2><h3 id="1-垃圾回收机制了解吗"><a href="#1-垃圾回收机制了解吗" class="headerlink" title="1.垃圾回收机制了解吗"></a>1.垃圾回收机制了解吗</h3><blockquote>
+<p>  1.垃圾回收算法</p>
 <ul>
-<li><p>Integer是int的包装类；int是基本数据类型；</p>
+<li>标记清除算法</li>
+<li>复制算法</li>
+<li>标记整理算法。</li>
+<li>分代收集算法。</li>
+</ul>
+<ol start="2">
+<li>什么是标记清除算法？</li>
+</ol>
+<ul>
+<li><p>标记： 从根集合进行扫描，对存活的对象进行标记。</p>
 </li>
-<li><p>Integer变量必须实例化后才能使用；int变量不需要；</p>
-</li>
-<li><p>Integer实际是对象的引用，指向此new的Integer对象；int是直接存储数据值 ；</p>
-</li>
-<li><p>Integer的默认值是null；int的默认值是0。</p>
-<p>延伸：<br>关于Integer和int的比较<br>1、由于Integer变量实际上是对一个Integer对象的引用，所以两个通过new生成的Integer变量永远是不相等的（因为new生成的是两个对象，其内存地址不同）。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Integer</span>(<span class="number">100</span>);</span><br><span class="line"><span class="type">Integer</span> <span class="variable">j</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Integer</span>(<span class="number">100</span>);</span><br><span class="line">System.out.print(i == j); <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
-
-<p>2、Integer变量和int变量比较时，只要两个变量的值是向等的，则结果为true（因为包装类Integer和基本数据类型int比较时，java会自动拆包装为int，然后进行比较，实际上就变为两个int变量的比较）</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> i <span class="operator">=</span> <span class="keyword">new</span> <span class="type">Integer</span>(<span class="number">100</span>);</span><br><span class="line"><span class="type">int</span> j <span class="operator">=</span> <span class="number">100</span>；</span><br><span class="line">System.out.print(i <span class="operator">=</span><span class="operator">=</span> j); <span class="operator">/</span><span class="operator">/</span><span class="literal">true</span></span><br></pre></td></tr></table></figure>
-
-<p>3、非new生成的Integer变量和new Integer()生成的变量比较时，结果为false。（因为 ①当变量值在-128<del>127之间时，非new生成的Integer变量指向的是java常量池中的对象，而new Integer()生成的变量指向堆中新建的对象，两者在内存中的地址不同；②当变量值不在-128</del>127之间时，非new生成Integer变量时，java API中最终会按照new Integer(i)进行处理（参考下面第4条），最终两个Interger的地址同样是不相同的）</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Integer</span>(<span class="number">100</span>);</span><br><span class="line"><span class="type">Integer</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line">System.out.print(i == j); <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
-
-<p>4、对于两个非new生成的Integer对象，进行比较时，如果两个变量的值在区间-128到127之间，则比较结果为true，如果两个变量的值不在此区间，则比较结果为false</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line"><span class="type">Integer</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line">System.out.print(i == j); <span class="comment">//true</span></span><br><span class="line"><span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">128</span>;</span><br><span class="line"><span class="type">Integer</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">128</span>;</span><br><span class="line">System.out.print(i == j); <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
-
-<p>对于第4条的原因：<br>java在编译Integer i = 100 ;时，会翻译成为Integer i = Integer.valueOf(100)；，而java API中对Integer类型的valueOf的定义如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title function_">valueOf</span><span class="params">(<span class="type">int</span> i)</span>&#123;</span><br><span class="line">    <span class="keyword">assert</span> IntegerCache.high &gt;= <span class="number">127</span>;</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)&#123;</span><br><span class="line">        <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Integer</span>(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>java对于-128到127之间的数，会进行缓存，Integer i = 127时，会将127进行缓存，下次再写Integer j = 127时，就会直接从缓存中取，就不会new了</p>
+<li><p>清除： 对堆内存从头到尾进行线性遍历，回收不可达对象内存。</p>
 </li>
 </ul>
+<ol start="3">
+<li>标记-清除算法的缺点是什么？</li>
+</ol>
+<ul>
+<li><p>会造成很多内存碎片。<br>补充： 为什么会造成很多内存碎片？</p>
+</li>
+<li><p>因为标记清除算法。不需要进行对象的移动，并且仅对不存活的对象进行处理，因此标记清除以后，会造成大量的不连续的内存碎片，空间碎片太多，可能会导致，在以后需要创建较大对象时候，无法找到足够的连续内存，而不得不提前触发另一次垃圾回收，</p>
+</li>
+</ul>
+<ol start="4">
+<li>什么是复制算法？（复制算法： 适合对象存活率低的场景）</li>
+</ol>
+<ul>
+<li>复制算法将内存按容量按一定的比例分为对象面和空闲面。</li>
+<li>对象在对象面上创建。</li>
+<li>存活的对象被从对象面复制到空闲面。(这个时候空闲面变为对象面)</li>
+<li>将对象面中所有的对象全部清空。 (这个时候，对象面变为空闲面)。 年轻代很多垃圾收集器，都用这个算法回收。</li>
+</ul>
+<ol start="5">
+<li>复制算法的优点，缺点各是什么？</li>
+</ol>
+<ul>
+<li>优点：<ul>
+<li>解决了内存碎片化的问题。</li>
+<li>顺序分配内存，简单高效。</li>
+<li>适用于对象存活率低的场景。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>对于对象存活率高的场景不适合。</li>
+</ul>
+</li>
+</ul>
+<ol start="6">
+<li>什么是标记-整理算法？</li>
+</ol>
+<ul>
+<li>标记： 从根集合进行扫描，对存活的对象进行标记。</li>
+<li>清除： 移动所有存活的对象， 且按照内存地址次序依次排列，然后将末端内存地址以后的内存全部回收。</li>
+</ul>
+<ol start="7">
+<li>标记-整理算法有什么优点？</li>
+</ol>
+<ul>
+<li>避免了内存的不连续性。</li>
+<li>不用设置两块内存互换。</li>
+<li>适用于存活率高的场景。</li>
+</ul>
+<ol start="8">
+<li>什么是分代收集算法？</li>
+</ol>
+<ul>
+<li>垃圾回收算法的组合拳。</li>
+<li>按照对象生命周期的不同划分区域以 采用不同的垃圾回收算法。</li>
+<li>目的： 提高JVM的 回收效率。</li>
+</ul>
+<p>补充：</p>
+<ul>
+<li>JDK7 ，及以前：垃圾回收区分为三部分： Eden Space（年轻代）， Tenured Space（老年代） , Permanent Space（永久代）.<ul>
+<li>年轻代： 年轻代又被 划分为 Eden Space，(Eden 区 ) ， From Space, To Space.（也就是 两个Survivor 区）</li>
+<li>Eden区： 伊甸园。 如果Eden区放不下，会直接放在 Survivor 区，或者老年区。</li>
+<li>Survivor 区分为：from 区， to 区， 划分不一定。</li>
+</ul>
+</li>
+<li>JDK8 : 垃圾回收区分为两部分： Eden Space， Tenured Space , 没有 Permanent Space。</li>
+</ul>
+</blockquote>
+<h3 id="2-JVM运行时划分哪几个区域？哪些区域是线程共享的？哪些区域是线程独占的？"><a href="#2-JVM运行时划分哪几个区域？哪些区域是线程共享的？哪些区域是线程独占的？" class="headerlink" title="2.JVM运行时划分哪几个区域？哪些区域是线程共享的？哪些区域是线程独占的？"></a>2.<strong>JVM运行时划分哪几个区域？哪些区域是线程共享的？哪些区域是线程独占的？</strong></h3><blockquote>
+<p>JVM运行时一共划分：程序计数器、虚拟机栈、堆、本地方法栈、方法区。</p>
+<p>线程共享的数据区域：堆、方法区。</p>
+<p>线程独享的数据区域区域：程序计数器、虚拟机栈、本地方法栈。</p>
+<h3 id="连问（1）这几个内存区域分别存放什么数据？"><a href="#连问（1）这几个内存区域分别存放什么数据？" class="headerlink" title="连问（1）这几个内存区域分别存放什么数据？"></a>连问（1）<strong>这几个内存区域分别存放什么数据？</strong></h3><blockquote>
+<p><strong>程序计数器</strong>: 记录当前线程执行的位置</p>
+<p><strong>虚拟机栈</strong>: 存储基本数据类型以及对象的引用等</p>
+<p><strong>堆</strong>: 存储对象实例</p>
+<p><strong>本地方法栈</strong>: 与虚拟机栈类似，它为Native方法服务</p>
+<p><strong>方法区</strong>: 存储被JVM加载的类信息、常量、静态变量等。</p>
+</blockquote>
 </blockquote>
 
         </div>
@@ -283,9 +351,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/java/"># java</a>
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
                     
-                        <a href="/tags/%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/"># 基本数据类型</a>
+                        <a href="/tags/Jvm/"># Jvm</a>
                     
                         
                 </span>
@@ -298,8 +366,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2022/06/11/linklist%E5%92%8Carraylist%E7%9A%84%E5%8C%BA%E5%88%AB/">linklist和arraylist的区别</a>
+                <a class="prev" rel="prev" href="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95/">MySQL面试</a>
             
+            
+            <a class="next" rel="next" href="/2022/06/12/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95/">计算机网络面试</a>
             
         </section>
 

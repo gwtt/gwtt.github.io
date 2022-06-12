@@ -17,7 +17,7 @@
 
 
 
-<title>linklist和arraylist的区别 | 滚~韬的博客</title>
+<title>消息队列面试 | 滚~韬的博客</title>
 
 
 
@@ -195,7 +195,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">linklist和arraylist的区别</h1>
+            <h1 class="post-title">消息队列面试</h1>
             
                 <div class="post-meta">
                     
@@ -204,14 +204,14 @@
 
                     
                         <span class="post-time">
-                        日期: <a href="#">六月 11&nbsp;&nbsp;11:22</a>
+                        日期: <a href="#">六月 12&nbsp;&nbsp;23:15</a>
                         </span>
                     
                     
                         <span class="post-category">
                     分类:
                             
-                                <a href="/categories/java%E5%9F%BA%E7%A1%80/">java基础</a>
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
                             
                         </span>
                     
@@ -221,7 +221,7 @@
 
 字数:
 
-<a href="">150</a> 
+<a href="">1k</a> 
 
 </span>
 
@@ -235,7 +235,7 @@
 
 时间:
 
-<a href="">1min</a> 
+<a href="">3min</a> 
 
 </span>
 
@@ -245,17 +245,40 @@
         </header>
 
         <div class="post-content">
-            <h3 id="什么时候用list什么时候用数组，linklist和arraylist的区别以及什么时候用link什么时候用array"><a href="#什么时候用list什么时候用数组，linklist和arraylist的区别以及什么时候用link什么时候用array" class="headerlink" title="什么时候用list什么时候用数组，linklist和arraylist的区别以及什么时候用link什么时候用array"></a>什么时候用list什么时候用数组，linklist和arraylist的区别以及什么时候用link什么时候用array</h3><blockquote>
+            <h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><h3 id="1-消息队列有哪些作用"><a href="#1-消息队列有哪些作用" class="headerlink" title="1.消息队列有哪些作用"></a>1.消息队列有哪些作用</h3><blockquote>
+<p>1．解耦:使用消息队列来作为两个系统直接的通讯方式，两个系统不需要相互依赖了</p>
+<p>2．异步:系统A给消费队列发送完消息之后，就可以继续做其他事情了</p>
+<p>3．流量削峰:如果使用消息队列的方式来调用某个系统，那么消息将在队列中排队，有消费者自己控制消费速度</p>
+</blockquote>
+<h3 id="2-死信队列和延迟队列是什么"><a href="#2-死信队列和延迟队列是什么" class="headerlink" title="2.死信队列和延迟队列是什么"></a>2.死信队列和延迟队列是什么</h3><blockquote>
+<p>1．死信队列也是一个消息队列，它是用来存放那些没有成功消费的消息的，通常可以用来作为消息重试<br>2．延时队列就是用来存放需要在指定时间被处理的元素的队列，通常可以用来处理一些具有过期性操作的业务，比如十分钟内<br>未支付则取消订单</p>
+</blockquote>
+<h4 id="3-Kafka的Pull和Push分别有什么优缺点"><a href="#3-Kafka的Pull和Push分别有什么优缺点" class="headerlink" title="3.Kafka的Pull和Push分别有什么优缺点"></a>3.Kafka的Pull和Push分别有什么优缺点</h4><blockquote>
+<ol>
+<li>pull表示消费者主动拉取，可以批量拉取，也可以单条拉取，所以pull可以由消费者自己控制，根据自己的消息处理能力来进行控制，但是消费者不能及时知道是否有消息，可能会拉到的消息为空</li>
+<li>push表示Broker主动给消费者推送消息，所以肯定是有消息时才会推送，但是消费者不能按自己的能力来消费消息，推过来<br>多少消息，消费者就得消费多少消息，所以可能会造成网络堵塞，消费者压力大等问题</li>
+</ol>
+</blockquote>
+<h3 id="4-Kafka为什么比RocketMQ的吞吐量要高"><a href="#4-Kafka为什么比RocketMQ的吞吐量要高" class="headerlink" title="4.Kafka为什么比RocketMQ的吞吐量要高"></a>4.Kafka为什么比RocketMQ的吞吐量要高</h3><blockquote>
+<p>Kafka的生产者采用的是异步发送消息机制，当发送一条消息时，消息并没有发送到Broker而是缓存起来，然后直接向业务返回成功，当缓存的消息达到一定数量时再批量发送给Broker。这种做法减少了网络io，从而提高了消息发送的吞吐量，但是如果消息生产者宕机，会导致消息丢失，业务出错，所以理论上kafka利用此机制提高了性能却降低了可靠性。</p>
+</blockquote>
+<h3 id="5-RocketMQ的底层实现原理"><a href="#5-RocketMQ的底层实现原理" class="headerlink" title="5.RocketMQ的底层实现原理"></a>5.RocketMQ的底层实现原理</h3><blockquote>
+<p>RocketMQ由NameServer集群、Producer集群、Consumer集群、Broker集群组成，消息生产和消费的大致原理如下:</p>
 <ul>
-<li><p>当数据量固定时或者多维度时，我们可以使用数组，而当我们可以根据需要自动扩充，修改数据时，应该使用list</p>
-<p>linklist和arraylist的区别</p>
-</li>
-<li><p>ArrayList是实现了基于动态数组的数据结构，LinkedList基于链表的数据结构。 </p>
-</li>
-<li><p>对于随机访问get和set，ArrayList优于LinkedList，因为LinkedList要移动指针。</p>
-<p>对于新增和删除操作add和remove，LinkedList比较占优势，因为ArrayList要移动数据。</p>
-</li>
+<li>Broker在启动的时候向所有的NameServer注册，并保持长连接，每30s发送一次心跳</li>
+<li>Producer在发送消息的时候从NameServer获取Broker服务器地址，根据负载均衡算法选择一台服务器来发送消息</li>
+<li>Conusmer消费消息的时候同样从NameServer获取Broker地址，然后主动拉取消息来消费</li>
 </ul>
+</blockquote>
+<h3 id="6-消息队列如何保证消息可靠传输"><a href="#6-消息队列如何保证消息可靠传输" class="headerlink" title="6.消息队列如何保证消息可靠传输"></a>6.消息队列如何保证消息可靠传输</h3><blockquote>
+<ol>
+<li>为了保证消息不多，也就是消息不能重复，也就是生产者不能重复生产消息，或者消费者不能重复消费消息</li>
+<li>首先要确保消息不多发，这个不常出现，也比较难控制，因为如果出现了多发，很大的原因是生产者自己的原因，如果要避免出现问题，就需要在消费端做控制</li>
+<li>要避免不重复消费，最保险的机制就是消费者实现幂等性，保证就算重复消费，也不会有问题，通过幂等性，也能解决生产<br>者重复发送消息的问题</li>
+<li>消息不能少，意思就是消息不能丢失，生产者发送的消息，消费者一定要能消费到，对于这个问题，就要考虑两个方面</li>
+<li>生产者发送消息时，要确认broker确实收到并持久化了这条消息，比如RabbitMQ的confirm机制，Kafka的ack机制都可以保证生产者能正确的将消息发送给broker</li>
+<li>broker要等待消费者真正确认消费到了消息时才删除掉消息，这里通常就是消费端ack机制，消费者接收到一条消息后，如果确认没问题了，就可以给broker发送一个ack，broker接收到ack后才会删除消息</li>
+</ol>
 </blockquote>
 
         </div>
@@ -267,9 +290,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/java/"># java</a>
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
                     
-                        <a href="/tags/%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/"># 基本数据类型</a>
+                        <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"># 消息队列</a>
                     
                         
                 </span>
@@ -282,10 +305,8 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2022/06/11/2022-06-11%E6%97%A5%E5%B8%B8/">第一个客制化键盘</a>
             
-            
-            <a class="next" rel="next" href="/2022/06/11/int%E5%92%8Cinteger%E5%8C%BA%E5%88%AB/">int和interger的区别</a>
+            <a class="next" rel="next" href="/2022/06/12/%E5%88%86%E5%B8%83%E5%BC%8F%E9%9D%A2%E8%AF%95/">分布式面试</a>
             
         </section>
 

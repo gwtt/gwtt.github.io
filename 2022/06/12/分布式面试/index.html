@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>分布式面试 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">滚~韬</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">分布式面试</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">六月 12&nbsp;&nbsp;23:14</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">2.8k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">9min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="分布式"><a href="#分布式" class="headerlink" title="分布式"></a>分布式</h2><h3 id="1-什么是CAP理论"><a href="#1-什么是CAP理论" class="headerlink" title="1.什么是CAP理论"></a>1.什么是CAP理论</h3><blockquote>
+<p>CAP理论是分布式领域中非常重要的一个指导理论，C(Consistency)表示强一致性，A(Availability)表示可用性，P(Partition Tolerance)表示<br>分区容错性，CAP理论指出在目前的硬件条件下，一个分布式系统是必须要保证分区容错性的，而在这个前提下，分布式系统要么保证C，要么保证AP，无法同时保证CAP。</p>
+<p>分区容错性表示，一个系统虽然是分布式的，但是对外看上去应该是一个整体，不能由于分布式系统内部的某个结点挂点，或网络出现了故障，而导致系统对外出现异常。所以，对于分布式系统而言是一定要保证分区容错性的。</p>
+<p>强一致性表示，一个分布式系统中各个结点之间能及时的同步数据，在数据同步过程中，是不能对外提供服务的，不然就会造成数据不一致，所以强一致性和可用性是不能同时满足的。</p>
+<p>可用性表示，一个分布式系统对外要保证可用。</p>
+</blockquote>
+<h3 id="2-什么是BASE理论"><a href="#2-什么是BASE理论" class="headerlink" title="2.什么是BASE理论"></a>2.什么是BASE理论</h3><blockquote>
+<p>由于不能同时满足CAP，所以出现了BASE理论:<br>1.BA: Basically Available，表示基本可用，表示可以允许一定程度的不可用，比如由于系统故障，请求时间变长，或者由于系统故障导致部分<br>非核心功能不可用，都是允许的<br>2.S: Soft state:表示分布式系统可以处于一种中间状态，比如数据正在同步<br>3.E:Eventually consistent，表示最终一致性，不要求分布式系统数据实时达到一致，允许在经过一段时间后再达到一致，在达到一致过程中<br>系统也是可用的</p>
+</blockquote>
+<h3 id="3-什么是RPC"><a href="#3-什么是RPC" class="headerlink" title="3.什么是RPC"></a>3.什么是RPC</h3><blockquote>
+<h2 id="什么是-RPC-？"><a href="#什么是-RPC-？" class="headerlink" title="什么是 RPC ？"></a>什么是 RPC ？</h2><ul>
+<li>RPC (Remote Procedure Call)即<strong>远程过程调用</strong>，是分布式系统常见的一种通信方法。它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。</li>
+<li>除 RPC 之外，常见的多系统数据交互方案还有分布式消息队列、HTTP 请求调用、数据库和分布式缓存等。</li>
+<li>其中 RPC 和 HTTP 调用是没有经过中间件的，它们是端到端系统的直接数据交互。</li>
+</ul>
+<p><strong>简单的说</strong></p>
+<ul>
+<li>RPC就是从一台机器（客户端）上通过参数传递的方式调用另一台机器（服务器）上的一个函数或方法（可以统称为服务）并得到返回的结果。</li>
+<li>RPC会隐藏底层的通讯细节（不需要直接处理Socket通讯或Http通讯）。</li>
+<li>客户端发起请求，服务器返回响应（类似于Http的工作方式）RPC在使用形式上像调用本地函数（或方法）一样去调用远程的函数（或方法）。</li>
+</ul>
+</blockquote>
+<h3 id="4-什么是分布式ID"><a href="#4-什么是分布式ID" class="headerlink" title="4.什么是分布式ID"></a>4.什么是分布式ID</h3><blockquote>
+<p>在分布式系统中，经常需要一些全局唯一的ID对数据、消息、http请求等进行唯一标识。那么这个全局唯一ID就叫分布式ID</p>
+</blockquote>
+<h3 id="5-为什么需要分布式ID"><a href="#5-为什么需要分布式ID" class="headerlink" title="5.为什么需要分布式ID"></a>5.为什么需要分布式ID</h3><blockquote>
+<p>1.如果id我们使用的是数据库的自增长类型，在分布式系统中需要分库和分表时，会有两个相同的表，有可能产生主键冲突。</p>
+<p>2.电商订单号，采用自增方式，是最简单的生成规则。但是！这种与流水号相同的订单号很容易就被竞争对手看出你公司真实的运营信息。</p>
+</blockquote>
+<h3 id="6-分布式ID解决方案"><a href="#6-分布式ID解决方案" class="headerlink" title="6.分布式ID解决方案"></a>6.分布式ID解决方案</h3><blockquote>
+<p>1.uuid，这种方案复杂度最低，但是会影响存储空间和性能<br>⒉利用单机数据库的自增主键，作为分布式ID的生成器，复杂度适中，ID长度较之uuid更短，但是受到单机数据库性能的限制，并发量大的时候此方案也不是最优方案<br>3.利用redis、zookeeper的特性来生成id，比如redis的自增命令、zookeeper的顺序节点，这种方案和单机数据库(mysql)相比，性能有所提高,可以适当选用<br>4.雪花算法，一切问题如果能直接用算法解决，那就是最合适的，利用雪花算法也可以生成分布式ID，底层原理就是通过某台机器在某一毫秒内对某一个数字自增，这种方案也能保证分布式架构中的系统id唯一，但是只能保证趋势递增。业界存在tinyid、 leaf等开源中间件实现了雪花算法</p>
+</blockquote>
+<h3 id="7-分布式锁的使用场景和实现方案"><a href="#7-分布式锁的使用场景和实现方案" class="headerlink" title="7.分布式锁的使用场景和实现方案"></a>7.分布式锁的使用场景和实现方案</h3><blockquote>
+<p>在单体架构中，多个线程都是属于同一个进程的，所以在线程并发执行时，遇到资源竞争时，可以利用ReentrantLock、synchronized等技术来作为锁，来控制共享资源的使用。<br>而在分布式架构中，多个线程是可能处于不同进程中的，而这些线程并发执行遇到资源竞争时，利用ReentrantLock、synchronized等技术是没办法来控制多个进程中的线程的，所以需要分布式锁，意思就是，需要一个分布式锁生成器，分布式系统中的应用程序都可以来使用这个生成器所提供的锁，从而达到多个进程中的线程使用同一把锁。</p>
+<p>目前主流的分布式锁的实现方案有两种:<br>1.zookeeper:利用的是zookeeper的临时节点、顺序节点、watch机制来实现的，zookeeper分布式锁的特点是高一致性，因为zookeeper保证的是CP，所以由它实现的分布式锁更可靠，不会出现混乱<br>2.redis:利用redis的setnw、lua脚本、消费订阅等机制来实现的，redis分布式锁的特点是高可用，因为redis保证的是AP，所以由它实现的分布式锁可能不可靠，不稳定(一旦redis中的数据出现了不一致)，可能会出现多个客户端同时加到锁的情况</p>
+</blockquote>
+<h3 id="8-分布式事务和实现实现方案"><a href="#8-分布式事务和实现实现方案" class="headerlink" title="8.分布式事务和实现实现方案"></a>8.分布式事务和实现实现方案</h3><blockquote>
+<p>在分布式系统中，一次业务处理可能需要多个应用来实现，比如用户发送一次下单请求，就涉及到订单系统创建订单、库存系统减库存，而对于一次下单，订单创建与减库存应该是要同时成功或同时失败的，但在分布式系统中，如果不做处理，就很有可能出现订单创建成功，但是减库存失败，那么解决这类问题，就需要用到分布式事务。常用解决方案有:</p>
+<p>1.本地消息表:创建订单时，将减库存消息加入在本地事务中，一起提交到数据库存入本地消息表，然后调用库存系统，如果调用成功则修改本地消息状态为成功，如果调用库存系统失败，则由后台定时任务从本地消息表中取出未成功的消息，重试调用库存系统</p>
+<p>2.消息队列:目前RocketMQ中支持事务消息，它的工作原理是:<br>a.生产者订单系统先发送一条half消息到Broker，half消息对消费者而言是不可见的</p>
+<p>b.再创建订单，根据创建订单成功与否，向Broker发送commit或rollback</p>
+<p>c.并且生产者订单系统还可以提供Broker回调接口，当Broker发现一段时间half消息没有收到任何操作命令，则会主动调此接口来查询订单是否创建成功</p>
+<p>d.一旦half消息commit了，消费者库存系统就会来消费，如果消费成功，则消息销毁，分布式事务成功结束</p>
+<p>e.如果消费失败，则根据重试策略进行重试，最后还失败则进入死信队列，等待进一步处理<br>3.Seata:阿里开源的分布式事务框架，支持AT、TCC等多种模式，底层都是基于两阶段提交理论来实现的</p>
+</blockquote>
+<h3 id="9-简述zab协议"><a href="#9-简述zab协议" class="headerlink" title="9.简述zab协议"></a>9.简述zab协议</h3><blockquote>
+<p>ZAB协议是Zookeeper用来实现一致性的原子广播协议，该协议描述了Zookeeper是如何实现一致性的，分为三个阶段:</p>
+<p>1.领导者选举阶段:从Zookeeper集群中选出一个节点作为Leader，所有的写请求都会由Leader节点来处理<br>⒉数据同步阶段:集群中所有节点中的数据要和Leader节点保持一致，如果不一致则要进行同步<br>3.请求广播阶段:当Leader节点接收到写请求时，会利用两阶段提交来广播该写请求，使得写请求像事务一样在其他节点上执行，达到节点上的数据实时一致</p>
+<p>但值得注意的是，Zookeeper只是尽量的在达到强一致性，实际上仍然只是最终一致性的。</p>
+</blockquote>
+<h3 id="10-Spring-Cloud和Dubbo有哪些区别"><a href="#10-Spring-Cloud和Dubbo有哪些区别" class="headerlink" title="10.Spring Cloud和Dubbo有哪些区别?"></a>10.Spring Cloud和Dubbo有哪些区别?</h3><blockquote>
+<p>Spring Cloud是一个微服务框架，提供了微服务领域中的很多功能组件，Dubbo一开始是一个RPC调用框架，核心是解决服务调用间的问题，Spring Cloud是一个大而全的框架，Dubbo则更侧重于服务调用，所以Dubbo所提供的功能没有SpringCloud全面，但是Dubbo的服务调用性能比Spring Cloud高，不过Spring Cloud和Dubbo并不是对立的，是可以结合起来一起使用的。</p>
+</blockquote>
+<h3 id="11-什么是服务雪崩-什么是服务限流"><a href="#11-什么是服务雪崩-什么是服务限流" class="headerlink" title="11.什么是服务雪崩?什么是服务限流?"></a>11.什么是服务雪崩?什么是服务限流?</h3><blockquote>
+<p>1.当服务A调用服务B，服务B调用C，此时大量请求突然请求服务A，假如服务A本身能抗住这些请求，但是如果服务C抗<br>不住，导致服务C请求堆积，从而服务B请求堆积，从而服务A不可用，这就是服务雪崩，解决方式就是服务降级和服务熔断。<br>2．服务限流是指在高并发请求下，为了保护系统，可以对访问服务的请求进行数量上的限制，从而防止系统不被大量请求<br>压垮，在秒杀中，限流是非常重要的。</p>
+</blockquote>
+<h3 id="12-什么是服务熔断-什么是服务降级-区别是什么"><a href="#12-什么是服务熔断-什么是服务降级-区别是什么" class="headerlink" title="12.什么是服务熔断?什么是服务降级?区别是什么?"></a>12.什么是服务熔断?什么是服务降级?区别是什么?</h3><blockquote>
+<p>1.服务熔断是指，当服务A调用的某个服务B不可用时，上游服务A为了保证自己不受影响，从而不再调用服务B，直接返回一个结果，减轻服务A和服务B的压力，直到服务B恢复。<br>2服务降级是指，当发现系统压力过载时，可以通过关闭某个服务，或限流某个服务来减轻系统压力，这就是服务降级。</p>
+<p>相同点:<br>1．都是为了防止系统崩溃<br>2．都让用户体验到某些功能暂时不可用</p>
+<p>不同点:熔断是下游服务故障触发的，降级是为了降低系统负载</p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"># 分布式</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/06/12/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%9D%A2%E8%AF%95/">消息队列面试</a>
+            
+            
+            <a class="next" rel="next" href="/2022/06/12/Mybatis%E9%9D%A2%E8%AF%95/">Mybatis面试</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

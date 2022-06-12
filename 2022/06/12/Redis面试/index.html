@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>Redis面试 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">滚~韬</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Redis面试</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">六月 12&nbsp;&nbsp;23:11</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">3.3k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">11min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h2><h3 id="1-redis-的持久化有哪几种方式？不同的持久化机制都有什么优缺点？持久化机制具体底层是如何实现的？"><a href="#1-redis-的持久化有哪几种方式？不同的持久化机制都有什么优缺点？持久化机制具体底层是如何实现的？" class="headerlink" title="1.redis 的持久化有哪几种方式？不同的持久化机制都有什么优缺点？持久化机制具体底层是如何实现的？"></a>1.redis 的持久化有哪几种方式？不同的持久化机制都有什么优缺点？持久化机制具体底层是如何实现的？</h3><blockquote>
+<h3 id="redis-持久化的两种方式"><a href="#redis-持久化的两种方式" class="headerlink" title="redis 持久化的两种方式"></a>redis 持久化的两种方式</h3><ul>
+<li><p>RDB：RDB 持久化机制，是对 redis 中的数据执行周期性的持久化。</p>
+</li>
+<li><p>AOF（append only file）：AOF 机制对每条写入命令作为日志，以 <code>append-only</code> 的模式写入一个日志文件中，在 redis 重启的时候，可以通过回放 AOF 日志中的写入指令来重新构建整个数据集。</p>
+<h4 id="RDB-优缺点"><a href="#RDB-优缺点" class="headerlink" title="RDB 优缺点"></a><strong>RDB 优缺点</strong></h4><ul>
+<li>RDB 会生成多个数据文件，每个数据文件都代表了某一个时刻中 redis 的数据，这种多个数据文件的方式，非常适合做冷备，可以将这种完整的数据文件发送到一些远程的安全存储上去，比如说 Amazon 的 S3 云服务上去，在国内可以是阿里云的 ODPS <a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cos?from=10680">分布式存储</a>上，以预定好的备份策略来定期备份 redis 中的数据。</li>
+<li>RDB 对 redis 对外提供的读写服务，影响非常小，可以让 redis 保持高性能，因为 redis 主进程只需要 fork 一个子进程，让子进程执行磁盘 IO 操作来进行 RDB 持久化即可。</li>
+<li>相对于 AOF 持久化机制来说，直接基于 RDB 数据文件来重启和恢复 redis 进程，更加快速。</li>
+<li>如果想要在 redis 故障时，尽可能少的丢失数据，那么 RDB 没有 AOF 好。一般来说，RDB 数据快照文件，都是每隔 5 分钟，或者更长时间生成一次，这个时候就得接受一旦 redis 进程宕机，那么会丢失最近 5 分钟的数据。</li>
+<li>RDB 每次在 fork 子进程来执行 RDB 快照数据文件生成的时候，如果数据文件特别大，可能会导致对客户端提供的服务暂停数毫秒，或者甚至数秒。</li>
+</ul>
+<h4 id="AOF-优缺点"><a href="#AOF-优缺点" class="headerlink" title="AOF 优缺点"></a>AOF 优缺点</h4><ul>
+<li>AOF 可以更好的保护数据不丢失，一般 AOF 会每隔 1 秒，通过一个后台线程执行一次<code>fsync</code>操作，最多丢失 1 秒钟的数据。</li>
+<li>AOF 日志文件以 <code>append-only</code> 模式写入，所以没有任何磁盘寻址的开销，写入性能非常高，而且文件不容易破损，即使文件尾部破损，也很容易修复。</li>
+<li>AOF 日志文件即使过大的时候，出现后台重写操作，也不会影响客户端的读写。因为在 <code>rewrite</code> log 的时候，会对其中的指令进行压缩，创建出一份需要恢复数据的最小日志出来。在创建新日志文件的时候，老的日志文件还是照常写入。当新的 merge 后的日志文件 ready 的时候，再交换新老日志文件即可。</li>
+<li>AOF 日志文件的命令通过非常可读的方式进行记录，这个特性非常适合做灾难性的误删除的紧急恢复。比如某人不小心用 <code>flushall</code> 命令清空了所有数据，只要这个时候后台 <code>rewrite</code> 还没有发生，那么就可以立即拷贝 AOF 文件，将最后一条 <code>flushall</code> 命令给删了，然后再将该 <code>AOF</code> 文件放回去，就可以通过恢复机制，自动恢复所有数据。</li>
+<li>对于同一份数据来说，AOF 日志文件通常比 RDB 数据快照文件更大。</li>
+<li>AOF 开启后，支持的写 QPS 会比 RDB 支持的写 QPS 低，因为 AOF 一般会配置成每秒 <code>fsync</code> 一次日志文件，当然，每秒一次 <code>fsync</code>，性能也还是很高的。（如果实时写入，那么 QPS 会大降，redis 性能会大大降低）</li>
+<li>以前 AOF 发生过 bug，就是通过 AOF 记录的日志，进行数据恢复的时候，没有恢复一模一样的数据出来。所以说，类似 AOF 这种较为复杂的基于命令日志 / merge / 回放的方式，比基于 RDB 每次持久化一份完整的数据快照文件的方式，更加脆弱一些，容易有 bug。不过 AOF 就是为了避免 rewrite 过程导致的 bug，因此每次 rewrite 并不是基于旧的指令日志进行 merge 的，而是基于当时内存中的数据进行指令的重新构建，这样健壮性会好很多。</li>
+</ul>
+<h3 id="RDB-和-AOF-到底该如何选择"><a href="#RDB-和-AOF-到底该如何选择" class="headerlink" title="RDB 和 AOF 到底该如何选择"></a>RDB 和 AOF 到底该如何选择</h3><ul>
+<li>不要仅仅使用 RDB，因为那样会导致你丢失很多数据；</li>
+<li>也不要仅仅使用 AOF，因为那样有两个问题：第一，你通过 AOF 做冷备，没有 RDB 做冷备来的恢复速度更快；第二，RDB 每次简单粗暴生成数据快照，更加健壮，可以避免 AOF 这种复杂的备份和恢复机制的 bug；</li>
+<li>redis 支持同时开启开启两种持久化方式，我们可以综合使用 AOF 和 RDB 两种持久化机制，用 AOF 来保证数据不丢失，作为数据恢复的第一选择; 用 RDB 来做不同程度的冷备，在 AOF 文件都丢失或损坏不可用的时候，还可以使用 RDB 来进行快速的数据恢复。</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h3 id="2-说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？"><a href="#2-说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？" class="headerlink" title="2.说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？"></a>2.<strong>说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？</strong></h3><blockquote>
+<h2 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a><strong>缓存雪崩</strong></h2><p><strong>出现过程</strong></p>
+<p>假设有如下一个系统，高峰期请求为5000次/秒，4000次走了缓存，只有1000次落到了<a target="_blank" rel="noopener" href="https://cloud.tencent.com/solution/database?from=10680">数据库</a>上，数据库每秒1000的并发是一个正常的指标，完全可以正常工作，<strong>但如果缓存宕机了，或者缓存设置了相同的过期时间，导致缓存在同一时刻同时失效</strong>，每秒5000次的请求会全部落到数据库上，数据库立马就死掉了，因为数据库一秒最多抗2000个请求，如果DBA重启数据库，立马又会被新的请求打死了，这就是缓存雪崩。</p>
+<p><strong>解决方法</strong></p>
+<ol>
+<li>事前：redis高可用，主从+哨兵，redis cluster，避免全盘崩溃</li>
+<li>事中：本地ehcache缓存 + hystrix限流&amp;降级，避免<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cdb?from=10680">MySQL</a>被打死</li>
+<li>事后：redis持久化RDB+AOF，快速恢复缓存数据</li>
+<li>缓存的失效时间设置为随机值，避免同时失效</li>
+</ol>
+<h2 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a><strong>缓存穿透</strong></h2><p><strong>出现过程</strong></p>
+<p>假如客户端每秒发送5000个请求，其中4000个为黑客的恶意攻击，即在数据库中也查不到。举个例子，用户id为正数，黑客构造的用户id为负数，如果黑客每秒一直发送这4000个请求，缓存就不起作用，数据库也很快被打死。</p>
+<p><strong>解决方法</strong></p>
+<ol>
+<li>对请求参数进行校验，不合理直接返回</li>
+<li>查询不到的数据也放到缓存，value为空，如 set -999 “”</li>
+<li>使用布隆过滤器，快速判断key是否在数据库中存在，不存在直接返回</li>
+</ol>
+<h2 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a><strong>缓存击穿</strong></h2><p><strong>出现过程</strong></p>
+<p>设置了过期时间的key，承载着高并发，是一种热点数据。从这个key过期到重新从MySQL加载数据放到缓存的一段时间，大量的请求有可能把数据库打死。缓存雪崩是指大量缓存失效，缓存击穿是指热点数据的缓存失效</p>
+<p><strong>解决方法</strong></p>
+<ol>
+<li><p>设置key永远不过期，或者快过期时，通过另一个异步线程重新设置key</p>
+</li>
+<li><p>当从缓存拿到的数据为null，重新从数据库加载数据的过程上锁，下面写个分布式锁实现的demo</p>
+</li>
+</ol>
+   <figure class="highlight md"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1，缓存雪崩:如果缓存中某一时刻大批热点数据同时过期，那么就可能导致大量请求直接访问Mysql了，解决办法就是在过期时间上增加一点随机值，另外如果搭建一个高可用的Redis集群也是防止缓存雪崩的有效手段</span><br><span class="line">2．缓存击穿:和缓存雪崩类似，缓存雪崩是大批热点数据失效，而缓存击穿是指某一个热点key突然失效，也导致了大量请求直接访问Mysql数据库，这就是缓存击穿，解决方案就是考虑这个热点key不设过期时间</span><br><span class="line">3．缓存穿透:假如某一时刻访问redis的大量key都在redis中不存在(比如黑客故意伪造一些乱七八糟的key)，那么也会给数据造成压力，这就是缓存穿透，解决方案是使用布隆过滤器，它的作用就是如果它认为一个key不存在，那么这个key就肯定不存在，所以可以在缓存之前加一层布隆过滤器来拦截不存在的key</span><br></pre></td></tr></table></figure>
+
+
+</blockquote>
+<h3 id="3-redis为什么快"><a href="#3-redis为什么快" class="headerlink" title="3.redis为什么快"></a>3.redis为什么快</h3><blockquote>
+<ul>
+<li>1、<code>Redis</code> 是一款纯内存结构，避免了磁盘 <code>I/O</code> 等耗时操作。</li>
+<li>2、<code>Redis</code> 命令处理的核心模块为单线程，减少了锁竞争，以及频繁创建线程和销毁线程的代价，减少了线程上下文切换的消耗。</li>
+<li>3、采用了 <code>I/O</code> 多路复用机制，大大提升了并发效率。</li>
+</ul>
+</blockquote>
+<h3 id="4-redis缓存淘汰策略"><a href="#4-redis缓存淘汰策略" class="headerlink" title="4.redis缓存淘汰策略"></a>4.redis缓存淘汰策略</h3><blockquote>
+<p>Redis内存不足的缓存淘汰策略提供了8种。<br>noeviction：当内存使用超过配置的时候会返回错误，不会驱逐任何键<br>allkeys-lru：加入键的时候，如果过限，首先通过LRU算法驱逐最久没有使用的键<br>volatile-lru：加入键的时候如果过限，首先从设置了过期时间的键集合中驱逐最久没有使用的键<br>allkeys-random：加入键的时候如果过限，从所有key随机删除<br>volatile-random：加入键的时候如果过限，从过期键的集合中随机驱逐<br>volatile-ttl：从配置了过期时间的键中驱逐马上就要过期的键<br>volatile-lfu：从所有配置了过期时间的键中驱逐使用频率最少的键<br>allkeys-lfu：从所有键中驱逐使用频率最少的键</p>
+<figure class="highlight md"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">这八种大体上可以分为4中，lru、lfu、random、ttl。</span><br><span class="line">lru：Least Recently Used)，最近最少使用</span><br><span class="line">lfu：Least Frequently Used，最不经常使用法</span><br><span class="line">ttl：Time To Live，生存时间</span><br><span class="line">random：随机</span><br><span class="line">默认是noeviction。对于写请求不再提供服务，直接返回错误（DEL请求和部分特殊请求除外</span><br><span class="line">eviction：“逐出；赶出；收回”。</span><br><span class="line">volatile：“不稳定的”。</span><br></pre></td></tr></table></figure>
+
+<p><strong>Redis默认的过期策略是noeviction, 最暴力那个, 如果内存满了那就是一场“华丽”的故事了。</strong></p>
+</blockquote>
+<h3 id="5-Redis有哪些数据结构？分别有哪些典型的应用场景"><a href="#5-Redis有哪些数据结构？分别有哪些典型的应用场景" class="headerlink" title="5.Redis有哪些数据结构？分别有哪些典型的应用场景?"></a>5.Redis有哪些数据结构？分别有哪些典型的应用场景?</h3><blockquote>
+<p>Redis的数据结构有:</p>
+<ul>
+<li>字符串:可以用来做最简单的数据缓存，可以缓存某个简单的字符串，也可以缓存某个json格式的字符串，Redis分布式锁的实现就利用了这种数据结构，还包括可以实现计数器、Session共享、分布式ID</li>
+<li>哈希表:可以用来存储一些key-value对，更适合用来存储对象</li>
+<li>列表: Redis的列表通过命令的组合，既可以当做栈，也可以当做队列来使用，可以用来缓存类似微信公众号、微博等消息流数据</li>
+<li>集合:和列表类似，也可以存储多个元素，但是不能重复，集合可以进行交集、并集、差集操作，从而可以实现类似,<br>我和某人共同关注的人、朋友圈点赞等功能</li>
+<li>有序集合:集合是无序的，有序集合可以设置顺序，可以用来实现排行榜功能</li>
+</ul>
+</blockquote>
+<h3 id="6-Redis分布式锁底层是如何实现的"><a href="#6-Redis分布式锁底层是如何实现的" class="headerlink" title="6.Redis分布式锁底层是如何实现的"></a>6.Redis分布式锁底层是如何实现的</h3><blockquote>
+<ul>
+<li>首先利用setnx来保证:如果key不存在才能获取到锁，如果key存在，则获取不到锁</li>
+<li>然后还要利用lua脚本来保证多个redis操作的原子性</li>
+<li>同时还要考虑到锁过期，所以需要额外的一个看门狗定时任务来监听锁是否需要续约</li>
+<li>同时还要考虑到redis书点挂掉后的情况，所以需要采用红锁的方式来同时向N/2+1个节点申请锁，都申请到了才证明获取锁成功，这样就算其中某个redis节点挂掉了，锁也不能被其他客户端获取到</li>
+</ul>
+</blockquote>
+<h3 id="7-Redis和Mysql如何保证数据一致"><a href="#7-Redis和Mysql如何保证数据一致" class="headerlink" title="7.Redis和Mysql如何保证数据一致"></a>7.Redis和Mysql如何保证数据一致</h3><blockquote>
+<p>1．先更新Mysql，再更新Redis，如果更新Redis失败，可能仍然不一致<br>2．先删除Redis缓存数据，再更新Mysql，再次查询的时候在将数据添加到缓存中，这种方案能解决1方案的问题，但是在高并发<br>下性能较低，而且仍然会出现数据不一致的问题，比如线程1删除了Redis缓存数据，正在更新Mysql，此时另外一个查询再查询，那么就会把Mysql中老数据又查到Redis中<br>3，延时双删，步骤是:先删除Redis缓存数据，再更新Mysql，延迟几百毫秒再删除Redis缓存数据，这样就算在更新Mysql时，有其他线程读了Mysql，把老数据读到了Redis中，那么也会被删除掉，从而把数据保持一致</p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Redis/"># Redis</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/06/12/Mybatis%E9%9D%A2%E8%AF%95/">Mybatis面试</a>
+            
+            
+            <a class="next" rel="next" href="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95/">MySQL面试</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

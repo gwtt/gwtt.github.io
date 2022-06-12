@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>计算机网络面试 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">滚~韬</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">计算机网络面试</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">六月 12&nbsp;&nbsp;23:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">3.4k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">12min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="计算机网络相关"><a href="#计算机网络相关" class="headerlink" title="计算机网络相关"></a>计算机网络相关</h2><h3 id="1-get和post的区别"><a href="#1-get和post的区别" class="headerlink" title="1.get和post的区别"></a>1.get和post的区别</h3><blockquote>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">GET</th>
+<th>POST</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">后退按钮/刷新</td>
+<td align="left">无害</td>
+<td>数据会被重新提交（浏览器应该告知用户数据会被重新提交）。</td>
+</tr>
+<tr>
+<td align="left">书签</td>
+<td align="left">可收藏为书签</td>
+<td>不可收藏为书签</td>
+</tr>
+<tr>
+<td align="left">缓存</td>
+<td align="left">能被缓存</td>
+<td>不能缓存</td>
+</tr>
+<tr>
+<td align="left">编码类型</td>
+<td align="left">application/x-www-form-urlencoded</td>
+<td>application/x-www-form-urlencoded 或 multipart/form-data。为二进制数据使用多重编码。</td>
+</tr>
+<tr>
+<td align="left">历史</td>
+<td align="left">参数保留在浏览器历史中。</td>
+<td>参数不会保存在浏览器历史中。</td>
+</tr>
+<tr>
+<td align="left">对数据长度的限制</td>
+<td align="left">是的。当发送数据时，GET 方法向 URL 添加数据；URL 的长度是受限制的（URL 的最大长度是 2048 个字符）。</td>
+<td>无限制。</td>
+</tr>
+<tr>
+<td align="left">对数据类型的限制</td>
+<td align="left">只允许 ASCII 字符。</td>
+<td>没有限制。也允许二进制数据。</td>
+</tr>
+<tr>
+<td align="left">安全性</td>
+<td align="left">与 POST 相比，GET 的安全性较差，因为所发送的数据是 URL 的一部分。在发送密码或其他敏感信息时绝不要使用 GET ！</td>
+<td>POST 比 GET 更安全，因为参数不会被保存在浏览器历史或 web 服务器日志中。</td>
+</tr>
+<tr>
+<td align="left">可见性</td>
+<td align="left">数据在 URL 中对所有人都是可见的。</td>
+<td>数据不会显示在 URL 中。</td>
+</tr>
+</tbody></table>
+<p>从标准上来看，GET 和 POST 的区别如下：</p>
+<p>GET 用于获取信息，是无副作用的，是幂等的，且可缓存 POST 用于修改<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cvm?from=10680">服务器</a>上的数据，有副作用，非幂等，不可缓存</p>
+</blockquote>
+<h3 id="2-http和https的区别"><a href="#2-http和https的区别" class="headerlink" title="2.http和https的区别"></a>2.http和https的区别</h3><blockquote>
+<p>HTTP协议传输的数据都是未加密的，也就是明文的，因此使用HTTP协议传输隐私信息非常不安全，为了保证这些隐私数据能加密传输，于是网景公司设计了SSL（Secure Sockets Layer）协议用于对HTTP协议传输的数据进行加密，从而就诞生了HTTPS。</p>
+<p>简单来说，HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全。</p>
+<p>HTTPS和HTTP的区别主要如下：</p>
+<p>1、https协议需要到ca申请证书，一般免费证书较少，因而需要一定费用。</p>
+<p>2、http是超文本传输协议，信息是明文传输，https则是具有安全性的ssl加密传输协议。</p>
+<p>3、http和https使用的是完全不同的连接方式，用的端口也不一样，前者是80，后者是443。</p>
+<p>4、http的连接很简单，是无状态的；HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，比http协议安全。</p>
+</blockquote>
+<h3 id="3-TCP和udp的区别"><a href="#3-TCP和udp的区别" class="headerlink" title="3.TCP和udp的区别"></a>3.TCP和udp的区别</h3><blockquote>
+<ul>
+<li><p>TCP面向连接（如打电话要先拨号建立连接）；UDP是无连接的，即发送数据之前不需要建立连接</p>
+</li>
+<li><p>TCP要求的系统资源较多，UDP较少</p>
+</li>
+<li><p>TCP提供可靠的服务。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达；UDP尽最大努力交付，即不保证可靠交付</p>
+</li>
+<li><p>TCP面向字节流，实际上是TCP把数据看成一连串无结构的字节流；UDP是面向报文的UDP没有拥塞控制，因此网络出现拥塞不会使源主机的发送速率降低（对实时应用很有用，如IP电话，实时视频会议等）</p>
+</li>
+<li><p>每一条TCP连接只能是点到点的；UDP支持一对一，一对多，多对一和多对多的交互通信</p>
+</li>
+<li><p>TCP首部开销20字节；UDP的首部开销小，只有8个字节</p>
+</li>
+<li><p>TCP的逻辑通信信道是全双工的可靠信道；UDP则是不可靠信道</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="4-说说浏览器输入网址到返回页面的过程？"><a href="#4-说说浏览器输入网址到返回页面的过程？" class="headerlink" title="4.说说浏览器输入网址到返回页面的过程？"></a>4.说说浏览器输入网址到返回页面的过程？</h3><blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">基础版本：</span><br><span class="line">浏览器根据请求的 URL 交给 DNS 域名解析，找到真实 IP ，向服务器发起请求；</span><br><span class="line">服务器交给后台处理完成后返回数据，浏览器接收⽂件（ HTML、JS、CSS 、图象等）；</span><br><span class="line">浏览器对加载到的资源（ HTML、JS、CSS 等）进⾏语法解析，建立相应的内部数据结构 （如 HTML 的 DOM）；</span><br><span class="line">载⼊解析到的资源⽂件，渲染页面，完成。</span><br></pre></td></tr></table></figure>
+
+<p>1、用户在输入栏输入地址</p>
+<p>　　(1) 如果有 beforeunload 事件会先执行判断继续还是跳出操作</p>
+<p>　　(2) 浏览器进程识别是 地址还是关键字检索</p>
+<p>　　(3) 将正确的 url 地址发送给网络进程</p>
+<p>2、网络进程查看有没有缓存</p>
+<p>　　(1) 有缓存直接返回数据</p>
+<p>　　(2) 没有缓存直接进入网络进程请求流程</p>
+<p>3、浏览器进程查询 DNS 获取服务器 ip 地址</p>
+<p>　　(1) 如果请求协议是 https 那么还需要建立TLS连接</p>
+<p>　　(2) 利用ip地址和服务器建立 tcp 连接</p>
+<p>　　(3) 如果浏览器的 tcp 连接请求有超过浏览器设定限额，则需要排队等待</p>
+<p>4、tcp 连接协议通过与服务器进行3次握手确立连接</p>
+<p>　　(1) 浏览器即用户端发起第一次握手</p>
+<p>　　(2) 服务器接收到用户端的消息发起接收到信息</p>
+<p>　　(3) 用户端接收到信息后向服务器发起第三次握手表示已经接收到信息可以连接 </p>
+<p>　　(4) 如果第二次握手发送数据包丢失或者用户端发起第三次握手数据包丢失，服务器在长时间未接收到信息会再次发起，总共会尝试6次</p>
+<p>5、tcp 接受信息</p>
+<p>6、网络进程接收到数据后将返回头和返回体发送给浏览器</p>
+<p>7、浏览器进程读取返回头查看返回信息，是否重定向或者响应数据类型处理</p>
+<p>　　(1) 重定向即回到第3步</p>
+<p>　　(2) 会根据 Content-Type 的值来决定如何显示响应体的内容。</p>
+<p>　　(3) Content-Type 为下载类型就会把请求交给浏览器的下载管理器，导航结束</p>
+<p>　　(4) 如果是 HTML，那么浏览器则会继续进行导航流程</p>
+<p>8、准备渲染进程</p>
+<p>9、浏览器进程接收到网络进程的响应头数据之后，便向渲染进程发起“提交文档”的消息</p>
+<p>10、渲染进程就和网络进程直接建立连接进行管道数据传输</p>
+<p>11、数据传输完成后tcp发起4次挥手断开连接并且渲染进程同时向浏览器进程发起确认提交</p>
+<p>12、浏览器进程收到确认提交后会更新浏览器界面状态，包括了安全状态、地址栏的 URL、前进后退的历史状态。</p>
+<p>13、渲染进程开始页面解析和子资源加载</p>
+<h3 id="相关的题目"><a href="#相关的题目" class="headerlink" title="相关的题目"></a>相关的题目</h3><h3 id="浏览器发出一个请求到收到响应经历了哪些步骤"><a href="#浏览器发出一个请求到收到响应经历了哪些步骤" class="headerlink" title="浏览器发出一个请求到收到响应经历了哪些步骤?"></a>浏览器发出一个请求到收到响应经历了哪些步骤?</h3><figure class="highlight md"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.浏览器解析用户输入的URL，生成一个HTTP格式的请求</span><br><span class="line">⒉先根据URL域名从本地hosts文件查找是否有映射IP，如果没有就将域名发送给电脑所配置的DNS进行域名解析，得到IP地址                               3.浏览器通过操作系统将请求通过四层网络协议发送出去</span><br><span class="line">4.途中可能会经过各种路由器、交换机，最终到达服务器</span><br><span class="line">5.服务器搜到请求后，根据请求所指定的端口，将请求传递给绑定了该端口的应用程序，比如8080被tomcat占用了                                         6.tomcat接收到请求数据后，按照http协议的格式进行解析，解析得到所要访问的servlet</span><br><span class="line">7.然后servlet来处理这个请求，如果是SpringMVC中的DispatcherSservlet，那么则会找到对应的Controller中的方法，并执行该方法得到结果             8.Tomcat得到响应结果后封装成HTTP响应的格式，并再次通过网络发送给浏览器所在的服务器</span><br><span class="line">9.浏览器所在的服务器拿到结果后再传递给浏览器，浏览器则负责解析并渲染</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="5-cookie做什么的？session又是什么？它们直接的关系？"><a href="#5-cookie做什么的？session又是什么？它们直接的关系？" class="headerlink" title="5.cookie做什么的？session又是什么？它们直接的关系？"></a>5.cookie做什么的？session又是什么？它们直接的关系？</h3><blockquote>
+<p>什么是Cookie？<br>Cookie实际上是一小段的文本信息。客户端请求服务器，如果服务器需要记录该用户状态，就使用response向客户端浏览器颁发一个Cookie。客户端会把Cookie保存起来。</p>
+<p>当浏览器再请求该网站时，浏览器把请求的网址连同该Cookie一同提交给服务器。服务器检查该Cookie，以此来辨认用户状态。服务器还可以根据需要修改Cookie的内容。<br>信息保存的时间可以根据需要设置.</p>
+<p><strong>如果没有设置Cookie失效日期,它们仅保存到关闭浏览器程序为止.<br>如果将Cookie对象的Expires属性设置为Minvalue,则表示Cookie永远不会过期.</strong></p>
+<p><strong>Cookie存储的数据量很受限制,大多数浏览器支持最大容量为4K,因此不要用来保存数据集及其他大量数据.</strong></p>
+<p><strong>由于并非所有的浏览器都支持Cookie,并且数据信息是以明文文本的形式保存在客户端的计算机中,</strong><br><strong>因此最好不要保存敏感的,未加密的数据,否则会影响网站的安全性</strong></p>
+<p>什么是Session？<br>Session是另一种记录客户状态的机制，不同的是Cookie保存在客户端浏览器中，而Session保存在服务器上。客户端浏览器访问服务器的时候，服务器把客户端信息以某种形式记录在服务器上。这就是Session。客户端浏览器再次访问时只需要从该Session中查找该客户的状态就可以了。</p>
+<p>每个用户访问服务器都会建立一个session，那服务器是怎么标识用户的唯一身份呢？事实上，用户与服务器建立连接的同时，服务器会自动为其分配一个SessionId。</p>
+<p>Session和Cookie的区别？<br>1、数据存储位置：cookie数据存放在客户的浏览器上，session数据放在服务器上。</p>
+<p>2、安全性：cookie不是很安全，别人可以分析存放在本地的cookie并进行cookie欺骗，考虑到安全应当使用session。</p>
+<p>3、服务器性能：session会在一定时间内保存在服务器上。当访问增多，会比较占用你服务器的性能，考虑到减轻服务器性能方面，应当使用cookie。</p>
+<p>4、数据大小：单个cookie保存的数据不能超过4K，很多浏览器都限制一个站点最多保存20个cookie。</p>
+<p>5、信息重要程度：可以考虑将登陆信息等重要信息存放为session，其他信息如果需要保留，可以放在cookie中。</p>
+</blockquote>
+<h3 id="6-跨域请求是什么-有什么问题-怎么解决"><a href="#6-跨域请求是什么-有什么问题-怎么解决" class="headerlink" title="6.跨域请求是什么?有什么问题?怎么解决?"></a>6.跨域请求是什么?有什么问题?怎么解决?</h3><blockquote>
+<p>跨域是指浏览器在发起网络请求时，会检查该请求所对应的协议、域名、端口和当前网页是否一致，如果不一致则浏览器会进行限制，比如在<br><a target="_blank" rel="noopener" href="http://www.baidu.com的某个网页中,如果使用ajax去访问www.jd.com是不行的,但是如果是img、iframe、scipt等标签的sc属性去访问则是可以的,之所以浏览器要做这层限制,是为了用户信息安全.但是如果开发者想要绕过这层限制也是可以的/">www.baidu.com的某个网页中，如果使用ajax去访问www.jd.com是不行的，但是如果是img、iframe、scipt等标签的sc属性去访问则是可以的，之所以浏览器要做这层限制，是为了用户信息安全。但是如果开发者想要绕过这层限制也是可以的</a>:</p>
+<p>1.response添加header，比如resp.setHeader(“Access-Control-Allow-Origin””*);表示可以访问所有网站，不受是否同源的限制                                            2. jsonp的方式，该技术底层就是基于script标签来实现的，因为script标签是可以跨域的<br>3.后台自己控制，先访问同域名下的接口，然后在接口中再去使用HTTPClient等工具去调用目标接口                                                                                  4.网关，和第三种方式类似，都是交给后台服务来进行跨域访问</p>
+</blockquote>
+<h3 id="7-Netty是什么？和Tomcat有什么区别？特点是什么？"><a href="#7-Netty是什么？和Tomcat有什么区别？特点是什么？" class="headerlink" title="7.Netty是什么？和Tomcat有什么区别？特点是什么？"></a>7.Netty是什么？和Tomcat有什么区别？特点是什么？</h3><blockquote>
+<p>Netty是一个基于NIO的异步网络通信框架，性能高，封装了原生NIO编码的复杂度，开发者可以直接使用Netty来开发高效率的各种网络服务器，并且编码简单。<br>Tomcat是一个Web服务器，是一个Servlet容器，基本上Tomcat内部只会运行Servlet程序，并处理HTTP请求，而Netty封装的是底层IO模型，关注的是网络数据的传输，而不关心具体的协议，可定制性更高。</p>
+<p>Netty的特点:</p>
+<ul>
+<li>异步、NIO的网络通信框架</li>
+<li>高性能</li>
+<li>高扩展，高定制性</li>
+<li>易用性</li>
+</ul>
+</blockquote>
+<h3 id="8-TCP的三次握手和四次挥手过程"><a href="#8-TCP的三次握手和四次挥手过程" class="headerlink" title="8.TCP的三次握手和四次挥手过程"></a>8.TCP的三次握手和四次挥手过程</h3><blockquote>
+<p>TCP协议是7层网络协议中的传输层协议，负责数据的可靠传输。在建立TCP连接时，需要通过三次握手来建立，过程是:</p>
+<ol>
+<li>客户端向服务端发送一个SYN</li>
+<li>服务端接收到SYN后，给客户端发送一个SYN_ACK</li>
+<li>客户端接收到SYN_ACK后，再给服务端发送一个ACK</li>
+</ol>
+<p>在断开TCP连接时，需要通过四次挥手来断开，过程是:</p>
+<ol>
+<li>客户端向服务端发送FIN</li>
+<li>服务端接收FIN后，向客户端发送ACK，表示我接收到了断开连接的请求，客户端你可以不发数据了，不过服务端这边可能还<br>有数据正在处理</li>
+<li>服务端处理完所有数据后，向客户端发送FIN，表示服务端现在可以断开连接</li>
+<li>客户端收到服务端的FIN，向服务端发送ACK，表示客户端也会断开连接了</li>
+</ol>
+<p><code>SYN表示建立连接，FIN表示关闭连接，ACK表示响应，PSH表示有 DATA数据传输，RST表示连接重置。</code></p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"># 计算机网络</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/">Jvm面试</a>
+            
+            
+            <a class="next" rel="next" href="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95/">Springboot面试</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>Juc面试 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">滚~韬</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Juc面试</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">六月 11&nbsp;&nbsp;11:22</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">4.5k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">15min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="juc"><a href="#juc" class="headerlink" title="juc"></a>juc</h2><h3 id="1-了解线程吗，他和进程有什么区别"><a href="#1-了解线程吗，他和进程有什么区别" class="headerlink" title="1.了解线程吗，他和进程有什么区别"></a>1.了解线程吗，他和进程有什么区别</h3><blockquote>
+<p>线程的基本概念<br>　　线程是进程中执行运算的最小单位，是进程中的一个实体，是被系统独立调度和分派的基本单位，线程基本上自己不拥有系统资源，只拥有一点在运行中必不可少的资源，但它可与同属一个进程的其它线程共享进程所拥有的全部资源。一个线程可以创建和撤消另一个线程，同一进程中的多个线程之间可以<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E5%B9%B6%E5%8F%91&spm=1001.2101.3001.7020">并发</a>执行。</p>
+<p>好处 ：</p>
+<p>​        （1）易于调度。</p>
+<p>​        （2）提高并发性。通过线程可方便有效地实现并发性。进程可创建多个线程来执行同一程序的不同部分。</p>
+<p>​        （3）开销少。创建线程比创建进程要快，所需开销很少。。/</p>
+<p>​        （4）利于充分发挥多处理器的功能。通过创建多线程进程，每个线程在一个处理器上运行，从而实现应用程序的并发性，使每个处理器都得到充分运行</p>
+<p>线程和进程的区别一</p>
+<p>　　简单地讲,任何的一个程序都必须有且有一个以上的进程,而相对于一个进程而言也必须要有且有一个以上的线程。相对于进程而言，对线程进行划分的尺度一般要小很多，这就导致了多线程的一些程序能够出现更高的并发性。</p>
+<p><strong>（线程相比进程划分尺度小，迸发性更高）</strong></p>
+<p>线程和进程的区别二</p>
+<p>　　在执行进程的时候，一般会具有相互独立的多个内存单元。但是多个线程是可以共享内存的，这样运行效率就很大的程度上被提高了。相对于单个的独立进程而言都会有相应程序的运行入口以及一些程序等出口。线程就不一样了，它不能独立的去执行而必须要依附在相应的应用程序里面。这样的话应用程序就可以执行多个线程并进行相应的控制。</p>
+<p><strong>（同一进程的线程共享内存，运行效率高）</strong></p>
+<p>线程和进程的区别三</p>
+<p>　　通过了解逻辑角度我们可以得知，多线程这样的意义是相对于在一个应用程序里面的，能够同时的执行。而操作系统不会认为多个线程就是多个独立应用，因此也就不会使其调度以及管理实现资源的分配。</p>
+<p><strong>(线程没有资源分配</strong>)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">了解的，线程时进程中执行运算的最小单位，是被系统独立调度和分派的基本单位。可以创建线程或者撤销另一个线程，可以迸发执行。</span><br><span class="line">区别：</span><br><span class="line">	（<span class="number">1</span>）调度：线程作为调度和分配的基本单位，进程作为拥有资源的基本单位</span><br><span class="line"></span><br><span class="line">（<span class="number">2</span>）并发性：不仅进程之间可以并发执行，同一个进程的多个线程之间也可并发执行</span><br><span class="line"></span><br><span class="line">（<span class="number">3</span>）拥有资源：进程是拥有资源的一个独立单位，线程不拥有系统资源，但可以访问隶属于进程的资源.</span><br><span class="line"></span><br><span class="line">（<span class="number">4</span>）系统开销：在创建或撤消进程时，由于系统都要为之分配和回收资源，导致系统的开销明显大于创建或撤消线程时的开销。</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="2-线程和进程的通信方式了解吗"><a href="#2-线程和进程的通信方式了解吗" class="headerlink" title="2.线程和进程的通信方式了解吗"></a>2.线程和进程的通信方式了解吗</h3><blockquote>
+<p><strong>进程间通信方式</strong><br>进程间通信主要包括<strong>管道、系统IPC（包括消息队列、信号量、信号、共享内存等）、以及套接字socket</strong>。</p>
+<p>　　（1）管道（Pipe）：管道可用于具有亲缘关系进程间的通信，允许一个进程和另一个与它有共同祖先的进程之间进行通信。<br>　　（2）命名管道（named pipe）：命名管道克服了管道没有名字的限制，除具有管道所具有的功能外，它还允许无亲缘关系进程间的通信。<br>　　（3）信号（Signal）：信号是比较复杂的通信方式，用于通知接受进程有某种事件发生，除了用于进程间通信外，进程还可以发送 信号给进程本身。<br>　　（4）消息（Message）队列：消息队列是消息的链接表，包括Posix消息队列system V消息队列。<br>　　（5）共享内存：使得多个进程可以访问同一块内存空间，是最快的可用IPC形式。是针对其他通信机制运行效率较低而设计的。<br>　　（6）内存映射（mapped memory）：内存映射允许任何多个进程间通信，每一个使用该机制的进程通过把一个共享的文件映射到自己的进程地址空间来实现它。<br>　　（7）信号量（semaphore）：主要作为进程间以及同一进程不同线程之间的同步手段。<br>　　（8）套接口（Socket）：更为一般的进程间通信机制，可用于不同机器之间的进程间通信。</p>
+<p><strong>线程间通信的方式</strong></p>
+<p><strong>临界区</strong>：通过多线程的串行化来访问公共资源或一段代码，速度快，适合控制数据访问；<br><strong>互斥量</strong>: Synchronized/Lock：采用互斥对象机制，只有拥有互斥对象的线程才有访问公共资源的权限。因为互斥对象只有一个，所以可以保证公共资源不会被多个线程同时访问<br><strong>信号量</strong>: Semphare：为控制具有有限数量的用户资源而设计的，它允许多个线程在同一时刻去访问同一个资源，但一般需要限制同一时刻访问此资源的最大线程数目。<br><strong>事件</strong>(信号)，Wait/Notify：通过通知操作的方式来保持多线程同步，还可以方便的实现多线程优先级的比较</p>
+</blockquote>
+<h3 id="3-线程的创建方式"><a href="#3-线程的创建方式" class="headerlink" title="3.线程的创建方式"></a>3.线程的创建方式</h3><blockquote>
+<p>四种方式</p>
+<p>（1）通过继承Thread类来创建新的线程。</p>
+<p>（2）通过实现Runnable接口来创建线程。</p>
+<p><strong>Thread和Runnable区别：</strong></p>
+<ul>
+<li>Thread 是类，需要继承，但是一个类只能继承一个类，一旦继承 Thread 之后，无法在继承其他的类。</li>
+<li>Runnable 是接口，一个类可以实现多个接口，所以实现Runnable接口可拓展性更好</li>
+<li>Thread是Runnable接口的实现类</li>
+</ul>
+<p>（3）通过实现Callable接口来创建线程。</p>
+<p><strong>Runnable和Callable的区别</strong></p>
+<ul>
+<li>Runnable没有返回值。</li>
+<li>Callable可以返回值。</li>
+</ul>
+<p>（4）自定义线程池（推荐）,从中获取线程。</p>
+</blockquote>
+<h3 id="4-sleep和wait的区别"><a href="#4-sleep和wait的区别" class="headerlink" title="4.sleep和wait的区别"></a>4.sleep和wait的区别</h3><blockquote>
+<p>(1)限制</p>
+<p>使用 sleep 方法可以让让当前线程休眠，时间一到当前线程继续往下执行，在任何地方都能使用，但需要捕获 InterruptedException 异常。</p>
+<p>而使用 wait 方法则必须放在 synchronized 块里面，同样需要捕获 InterruptedException 异常，并且需要获取对象的锁。而且 wait 还需要额外的方法 notify/ notifyAll 进行唤醒，它们同样需要放在 synchronized 块里面，且获取对象的锁。</p>
+<p>(2)使用场景</p>
+<p>sleep 一般用于当前线程休眠，或者轮循暂停操作，wait 则多用于多线程之间的通信。</p>
+<p>(3)类不同</p>
+<p>sleep 是 Thread 类的静态本地方法，wait 则是 Object 类的本地方法。</p>
+<p>(4)释放锁</p>
+<p>wait 可以释放当前线程对 lock 对象锁的持有，而 sleep 则不会。</p>
+<p>(5)线程切换</p>
+<p>sleep 会让出 CPU 执行时间且强制上下文切换，而 wait 则不一定，wait 后可能还是有机会重新竞争到锁继续执行的。</p>
+</blockquote>
+<h3 id="5-run和start的区别"><a href="#5-run和start的区别" class="headerlink" title="5.run和start的区别"></a>5.run和start的区别</h3><blockquote>
+<p>1.线程中的start()方法和run()方法的主要区别在于，当程序调用start()方法，将会创建一个新线程去执行run()方法中的代码。但是如果直接调用run()方法的话，会直接在当前线程中执行run()中的代码，注意，这里不会创建新线程。这样run()就像一个<strong>普通方法</strong>一样。</p>
+<p>2.另外当一个线程启动之后，不能重复调用start()，否则会报IllegalStateException异常。但是可以重复调用run()方法。</p>
+<p>总结起来就是run()就是一个普通的方法，而start()会创建一个新线程去执行run()的代码。</p>
+</blockquote>
+<h3 id="6-了解synchronize吗"><a href="#6-了解synchronize吗" class="headerlink" title="6.了解synchronize吗"></a>6.了解synchronize吗</h3><blockquote>
+<ol>
+<li>修饰实例方法，对于普通同步方法，锁是当前的实例对象</li>
+<li>修饰静态方法，对于静态同步方法，锁是当前的Class对象</li>
+<li>修饰方法代码块，对于同步方法块，锁是synchronized括号里面配置的对象！</li>
+</ol>
+</blockquote>
+<h3 id="7-创建线程池的核心参数有哪些？多讲几个"><a href="#7-创建线程池的核心参数有哪些？多讲几个" class="headerlink" title="7.创建线程池的核心参数有哪些？多讲几个?"></a>7.创建线程池的核心参数有哪些？多讲几个?</h3><blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize,</span></span><br><span class="line"><span class="params">                           <span class="type">int</span> maximumPoolSize,</span></span><br><span class="line"><span class="params">                           <span class="type">long</span> keepAliveTime,</span></span><br><span class="line"><span class="params">                           TimeUnit unit,</span></span><br><span class="line"><span class="params">                           BlockingQueue&lt;Runnable&gt; workQueue,</span></span><br><span class="line"><span class="params">                           ThreadFactory threadFactory,</span></span><br><span class="line"><span class="params">                           RejectedExecutionHandler handler)</span> &#123;</span><br><span class="line">     <span class="keyword">if</span> (corePoolSize &lt; <span class="number">0</span> ||</span><br><span class="line">         maximumPoolSize &lt;= <span class="number">0</span> ||</span><br><span class="line">         maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">         keepAliveTime &lt; <span class="number">0</span>)</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">     <span class="keyword">if</span> (workQueue == <span class="literal">null</span> || threadFactory == <span class="literal">null</span> || handler == <span class="literal">null</span>)</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">     <span class="built_in">this</span>.acc = System.getSecurityManager() == <span class="literal">null</span> ?</span><br><span class="line">             <span class="literal">null</span> :</span><br><span class="line">             AccessController.getContext();</span><br><span class="line">     <span class="built_in">this</span>.corePoolSize = corePoolSize;</span><br><span class="line">     <span class="built_in">this</span>.maximumPoolSize = maximumPoolSize;</span><br><span class="line">     <span class="built_in">this</span>.workQueue = workQueue;</span><br><span class="line">     <span class="built_in">this</span>.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">     <span class="built_in">this</span>.threadFactory = threadFactory;</span><br><span class="line">     <span class="built_in">this</span>.handler = handler;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>corePoolSize：线程池的核心线程数。核心线程会一直存活，即便没有任务需要执行，当线程数小于核心线程数时，即使有线程空闲，线程池也会优先创建新线程处理。设置allowCoreThreadTimeout=true（默认false）时，核心线程会超时关闭。</p>
+</li>
+<li><p>maximumPoolSize：线程池允许的最大线程数。当线程数&gt;=corePoolSize，且任务队列已满时。线程池会创建新线程来处理任务。当线程数=maxPoolSize，且任务队列已满时，线程池会拒绝处理任务而抛出异常。</p>
+</li>
+<li><p>keepAliveTime：线程空闲时间。当线程空闲时间达到keepAliveTime时，线程会退出，直到线程数量=corePoolSize。如果allowCoreThreadTimeout=true，则会直到线程数量=0。</p>
+</li>
+<li><p>unit：keepAliveTime的时间单位。</p>
+</li>
+<li><p>workQueue：当核心线程数达到最大时，新任务会放在队列中排队等待执行。</p>
+</li>
+<li><p>threadFactory：线程工厂，ThreadFactory是一个接口，只有一个方法，即newThread(Runnable r)。从这个方法名字就可以知道，这接口是用来创建新的线程的。其使用也很简单，仅仅只需要实现newThread方法，根据自己的需要进行线程的创建即可。</p>
+</li>
+<li><p>handler：任务拒绝处理器。两种情况会拒绝处理任务：1）、当线程数已经达到maxPoolSize，切队列已满，会拒绝新任务；2）、当线程池被调用shutdown()后，会等待线程池里的任务执行完毕，再shutdown。如果在调用shutdown()和线程池真正shutdown之间提交任务，会拒绝新任务线程池会调用rejectedExecutionHandler来处理这个任务。如果没有设置默认是AbortPolicy，会抛出异常。拒绝策略有如下几种：</p>
+</li>
+<li><ul>
+<li>AbortPolicy 丢弃任务，抛运行时异常。</li>
+</ul>
+</li>
+<li><ul>
+<li>CallerRunsPolicy 如果任务被拒绝了，则由调用线程（提交任务的线程）直接执行此任务</li>
+</ul>
+</li>
+<li><ul>
+<li>DiscardPolicy 丢弃任务，不抛出异常</li>
+</ul>
+</li>
+<li><ul>
+<li>DiscardOldestPolicy 从队列中踢出最先进入队列（最后一个执行）的任务，重新提交被拒绝的任务。</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<h3 id="8-线程同步"><a href="#8-线程同步" class="headerlink" title="8.线程同步"></a>8.线程同步</h3><blockquote>
+<p>线程同步主要包括四种方式：</p>
+<ul>
+<li>互斥量<code>pthread_mutex_</code></li>
+<li>读写锁<code>pthread_rwlock_</code></li>
+<li>条件变量<code>pthread_cond_</code></li>
+<li>信号量<code>sem_</code></li>
+</ul>
+</blockquote>
+<h3 id="9-说说你对volatile关键字的理解"><a href="#9-说说你对volatile关键字的理解" class="headerlink" title="9.说说你对volatile关键字的理解"></a>9.说说你对volatile关键字的理解</h3><blockquote>
+<p>被volatile修饰的共享变量，就具有了以下两点特性：</p>
+<p>1 . 保证了不同线程对该变量操作的内存可见性;</p>
+<p>2 . 禁止指令重排序</p>
+<h2 id="连环问-1-能不能详细说下什么是内存可见性，什么又是重排序呢？"><a href="#连环问-1-能不能详细说下什么是内存可见性，什么又是重排序呢？" class="headerlink" title="连环问(1)能不能详细说下什么是内存可见性，什么又是重排序呢？"></a>连环问(1)能不能详细说下什么是内存可见性，什么又是重排序呢？</h2><blockquote>
+<p><strong>内存可见性是指当一个线程修改了某个变量的值，其它线程总是能知道这个变量变化。 也就是说，如果线程 A 修改了共享变量 V 的值，那么线程 B 在使用 V 的值时，能立即读到 V 的最新值。</strong></p>
+<p><strong>重排序是指编译器和处理器为了优化程序性能而对指令序列进行重新排序的一种手段。</strong></p>
+</blockquote>
+</blockquote>
+<h3 id="10-说一下公平锁和非公平锁区别"><a href="#10-说一下公平锁和非公平锁区别" class="headerlink" title="10.说一下公平锁和非公平锁区别"></a>10.说一下公平锁和非公平锁区别</h3><blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">公平锁：多个线程按照申请锁的顺序去获得锁，线程会直接进入队列去排队，永远都是队列的第一位才能得到锁。</span><br><span class="line"></span><br><span class="line">优点：所有的线程都能得到资源，不会饿死在队列中。</span><br><span class="line">缺点：吞吐量会下降很多，队列里面除了第一个线程，其他的线程都会阻塞，cpu唤醒阻塞线程的开销会很大。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">非公平锁：多个线程去获取锁的时候，会直接去尝试获取，获取不到，再去进入等待队列，如果能获取到，就直接获取到锁。</span><br><span class="line"></span><br><span class="line">优点：可以减少CPU唤醒线程的开销，整体的吞吐效率会高点，CPU也不必取唤醒所有线程，会减少唤起线程的数量。</span><br><span class="line">缺点：你们可能也发现了，这样可能导致队列中间的线程一直获取不到锁或者长时间获取不到锁，导致饿死。</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="11-ReentrantLock的trylock和lock区别"><a href="#11-ReentrantLock的trylock和lock区别" class="headerlink" title="11.ReentrantLock的trylock和lock区别"></a>11.ReentrantLock的trylock和lock区别</h3><blockquote>
+<p>1: lock拿不到锁会一直等待，并且没有返回值。tryLock是去尝试，<strong>拿不到就返回false，拿到返回true。</strong></p>
+<p>2: tryLock是可以被打断的，被中断的，lock是不可以。</p>
+</blockquote>
+<h3 id="12-CountDownLatch和Semaphore的区别和底层原理"><a href="#12-CountDownLatch和Semaphore的区别和底层原理" class="headerlink" title="12.CountDownLatch和Semaphore的区别和底层原理"></a>12.CountDownLatch和Semaphore的区别和底层原理</h3><blockquote>
+<p>CountDownLatch表示计数器，可以给CountDownLatch设置一个数字，一个线程调用CountDownLatch的await()将会阻塞，其他线程可以调用CountDownLatch的countDown()方法来对CountDownLatch中的数字减一，当数字被减成o后，所有await的线程都将被唤醒.</p>
+<p>对应的底层原理就是，调用await()方法的线程会利用AQS排队，一旦数字被减为O，则会将AQS中排队的线程依次唤醒。</p>
+<p>Semaphore表示信号量，可以设置许可的个数，表示同时允许最多多少个线程使用该信号量，通过acquire()来获取许可，如果没有许可可用则线程阻塞，并通过AQS来排队，可以通过release()方法来释放许可，当某个线程释放了某个许可后，会从AQS中正在排队的第一个线程开始依次唤醒，直到没有空闲许可。</p>
+</blockquote>
+<h3 id="13-Sychronized的偏向锁、轻量级锁、重量级锁"><a href="#13-Sychronized的偏向锁、轻量级锁、重量级锁" class="headerlink" title="13.Sychronized的偏向锁、轻量级锁、重量级锁"></a>13.Sychronized的偏向锁、轻量级锁、重量级锁</h3><blockquote>
+<p>1.<strong>偏向锁</strong>:在锁对象的对象头中记录一下当前获取到该锁的线程ID，该线程下次如果又来获取该锁就可以直接获取到了</p>
+<p>⒉<strong>轻量级锁</strong>:由偏向锁升级而来，当一个线程获取到锁后，此时这把锁是偏向锁，此时如果有第二个线程来竞争锁，偏向锁就会升级为轻量级锁,之所以叫轻量级锁，是为了和重量级锁区分开来，轻量级锁底层是通过自旋来实现的，并不会阻塞线程</p>
+<p>3.如果自旋次数过多仍然没有获取到锁，则会升级为<strong>重量级锁</strong>，重量级锁会导致线程阻塞</p>
+<p>4.<strong>自旋锁</strong>:自旋锁就是线程在获取锁的过程中，不会去阻塞线程，也就无所谓唤醒线程。阻塞和唤醒这两个步骤都是需要操作系统去进行的，比较消耗时间，自旋锁是线程通过CAS获取预期的一个标记，如果没有获取到，则继续循环获取，如果获取到了则表示获取到了锁，这个过程线程一直在运行中，相对而言没有使用太多的操作系统资源，比较轻量。</p>
+</blockquote>
+<h3 id="14-Sychronized和ReentrantLock的区别"><a href="#14-Sychronized和ReentrantLock的区别" class="headerlink" title="14.Sychronized和ReentrantLock的区别"></a>14.Sychronized和ReentrantLock的区别</h3><blockquote>
+<ol>
+<li>sychronized是一个关键字，ReentrantLock是一个类</li>
+<li>sychronized会自动的加锁与释放锁,ReentrantLock需要程序员手动加锁与释放锁</li>
+<li>sychronized的底层是JVM层面的锁，ReentrantLock是APl层面的锁</li>
+<li>sychronized是非公平锁，ReentrantLock可以选择公平锁或非公平锁</li>
+<li>sychronized锁的是对象，锁信息保存在对象头中，ReentrantLock通过代码中int类型的state标识来标识锁的状态</li>
+<li>sychronized底层有一个锁升级的过程</li>
+</ol>
+</blockquote>
+<h3 id="15-线程池的底层工作原理"><a href="#15-线程池的底层工作原理" class="headerlink" title="15.线程池的底层工作原理"></a>15.线程池的底层工作原理</h3><blockquote>
+<p>线程池内部是通过队列+线程实现的，当我们利用线程池执行任务时:</p>
+<p>1.如果此时线程池中的线程数量小于corePoolSize，即使线程池中的线程都处于空闲状态，也要创建新的线程来处理被添加的任务。</p>
+<p>⒉.如果此时线程池中的线程数量等于corePoolSize，但是缓冲队列workQueue未满，那么任务被放入缓冲队列。</p>
+<p>3.如果此时线程池中的线程数量大于等于corePoolSize，缓冲队列workQueue满，并且线程池中的数量小于maximumPoolSize，建新的线程来处理被添加的任务。</p>
+<p>4.如果此时线程池中的线程数量大于corePoolSize，缓冲队列workQueue满，并且线程池中的数量等于maximumPoolSize，那么通过 handler所指定的策略来处理此任务。</p>
+<p>5.当线程池中的线程数量大于corePoolSize时，如果某线程空闲时间超过keepAlieTime，线程将被终止。这样，线程池可以动态的调整池中的线程数</p>
+</blockquote>
+<h3 id="16-BIO-NIO-AIO分别是什么"><a href="#16-BIO-NIO-AIO分别是什么" class="headerlink" title="16.BIO,NIO,AIO分别是什么"></a>16.BIO,NIO,AIO分别是什么</h3><blockquote>
+<p>1.BIO:同步阻塞lo，使用BIo读取数据时，线程会阻塞住，并且需要线程主动去查询是否有数据可读，并且需要处理完一个Socket之后才能处理下一个Socket<br>2.NIO:同步非阻塞lO，使用NIO读取数据时，线程不会阻塞，但需要线程主动的去查询是否有Ilo事件<br>3，AlO:也叫做NIO 2.0，异步非阻塞lO，使用AIO读取数据时，线程不会阻塞，并且当有数据可读时会通知给线程，不需要线程主动去查询</p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/juc/"># juc</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/06/11/2022-06-11%E6%97%A5%E5%B8%B8/">第一个客制化键盘</a>
+            
+            
+            <a class="next" rel="next" href="/2022/06/11/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80/">Java面试基础</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

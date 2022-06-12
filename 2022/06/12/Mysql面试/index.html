@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>MySQL面试 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">滚~韬</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">文章</a>
+                
+                    <a class="menu-item" href="/category">分类</a>
+                
+                    <a class="menu-item" href="/tag">标签</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">MySQL面试</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">六月 12&nbsp;&nbsp;23:09</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">2.3k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">8min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h2><hr>
+<h3 id="1-跟-的区别"><a href="#1-跟-的区别" class="headerlink" title="1.$跟#的区别"></a>1.$跟#的区别</h3><blockquote>
+<p>#相当于对数据 加上 双引号，$相当于直接显示数据。</p>
+</blockquote>
+<h3 id="2-MySQL的事务隔离级别有哪些？默认隔离级别是？"><a href="#2-MySQL的事务隔离级别有哪些？默认隔离级别是？" class="headerlink" title="2.MySQL的事务隔离级别有哪些？默认隔离级别是？"></a>2.MySQL的事务隔离级别有哪些？默认隔离级别是？</h3><blockquote>
+<p>READ-UNCOMMITTED(读取未提交)： 最低的隔离级别，允许读取尚未提交的数据变更，可能会导致脏读、幻读或不可重复读。</p>
+<p>READ-COMMITTED(读取已提交)： 允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。</p>
+<p>REPEATABLE-READ(可重复读)： 对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。(默认)</p>
+<p>SERIALIZABLE(可串行化)： 最高的隔离级别，完全服从ACID的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">脏读：一个事务读取另外一个事务还没有提交的数据。</span><br><span class="line"></span><br><span class="line">不可重复读：事务 T1 读到某行；事务 T2 修改或删除这行，提交事务；T1 重新读取发现这行数据已经被修改或删除。</span><br><span class="line"></span><br><span class="line">幻读：事务 T1 读取了 N 行；事务 T2 在事务 T1 读取的条件范围内生成了一行或多行数据；T1 重新读取获得与之前不同集合的行数据。</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="3-explain语句结果各个字段分别表示什么"><a href="#3-explain语句结果各个字段分别表示什么" class="headerlink" title="3.explain语句结果各个字段分别表示什么"></a>3.explain语句结果各个字段分别表示什么</h3><blockquote>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>查询序号</td>
+</tr>
+<tr>
+<td>select_type</td>
+<td>查询类型</td>
+</tr>
+<tr>
+<td>table</td>
+<td>表名</td>
+</tr>
+<tr>
+<td>partitions</td>
+<td>匹配的分区</td>
+</tr>
+<tr>
+<td>type</td>
+<td>join类型</td>
+</tr>
+<tr>
+<td>prossible_keys</td>
+<td>可能会选择的索引</td>
+</tr>
+<tr>
+<td>key</td>
+<td>实际选择的索引</td>
+</tr>
+<tr>
+<td>key_len</td>
+<td>索引的长度</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>与索引作比较的列</td>
+</tr>
+<tr>
+<td>rows</td>
+<td>要检索的行数(估算值)</td>
+</tr>
+<tr>
+<td>filtered</td>
+<td>查询条件过滤的行数的百分比</td>
+</tr>
+<tr>
+<td>Extra</td>
+<td>额外信息</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>id: SQL查询中的序列号。</p>
+</li>
+<li><p>select_type: 查询的类型，可以是下表的任何一种类型：</p>
+<table>
+<thead>
+<tr>
+<th>select_type</th>
+<th>类型说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SIMPLE</td>
+<td>简单SELECT(不使用UNION或子查询)</td>
+</tr>
+<tr>
+<td>PRIMARY</td>
+<td>最外层的SELECT</td>
+</tr>
+<tr>
+<td>UNION</td>
+<td>UNION中第二个或之后的SELECT语句</td>
+</tr>
+<tr>
+<td>DEPENDENT UNION</td>
+<td>UNION中第二个或之后的SELECT语句取决于外面的查询</td>
+</tr>
+<tr>
+<td>UNION RESULT</td>
+<td>UNION的结果</td>
+</tr>
+<tr>
+<td>SUBQUERY</td>
+<td>子查询中的第一个SELECT</td>
+</tr>
+<tr>
+<td>DEPENDENT SUBQUERY</td>
+<td>子查询中的第一个SELECT, 取决于外面的查询</td>
+</tr>
+<tr>
+<td>DERIVED</td>
+<td>衍生表(FROM子句中的子查询)</td>
+</tr>
+<tr>
+<td>MATERIALIZED</td>
+<td>物化子查询</td>
+</tr>
+<tr>
+<td>UNCACHEABLE SUBQUERY</td>
+<td>结果集无法缓存的子查询，必须重新评估外部查询的每一行</td>
+</tr>
+<tr>
+<td>UNCACHEABLE UNION</td>
+<td>UNION中第二个或之后的SELECT，属于无法缓存的子查询</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><code>table</code> 表名或者表的别名。</p>
+</li>
+<li><p><code>partitions</code> 分区信息，非分区表为null。</p>
+</li>
+<li><p><code>type</code> 访问类型，表示找到所查询数据的方法，也是本文重点介绍的属性。该属性的常见值如下，性能从好到差：</p>
+<ul>
+<li><em>NULL</em>：无需访问表或者索引，比如获取一个索引列的最大值或最小值。</li>
+<li><em>system/const</em>：当查询最多匹配一行时，常出现于where条件是＝的情况。system是const的一种特殊情况，既表本身只有一行数据的情况。</li>
+<li><em>eq_ref</em>：多表关联查询时，根据唯一非空索引进行查询的情况。</li>
+<li><em>ref</em>：多表查询时，根据非唯一非空索引进行查询的情况。</li>
+<li><em>range</em>：在一个索引上进行范围查找。</li>
+<li><em>index</em>：遍历索引树查询，通常发生在查询结果只包含索引字段时。</li>
+<li><em>ALL</em>：全表扫描，没有任何索引可以使用时。这是最差的情况，应该避免。</li>
+</ul>
+</li>
+<li><p><code>possible_keys</code> 表示mysql此次查询中可能使用的索引。</p>
+</li>
+<li><p><code>key</code> 表示mysql实际在此次查询中使用的索引。</p>
+</li>
+<li><p><code>key_len</code> 表示mysql使用的索引的长度。该值越小越好。</p>
+</li>
+<li><p><code>ref</code>如果是使用的常数等值查询，这里会显示const，如果是连接查询，被驱动表的执行计划这里会显示驱动表的关联字段，如果是条件使用了表达式或者函数，或者条件列发生了内部隐式转换，这里可能显示为func</p>
+</li>
+<li><p><code>rows </code>也是一个重要的字段。 这是mysql估算的需要扫描的行数（不是精确值）。这个值非常直观显示 SQL 的效率好坏, 原则上 rows 越少越好.</p>
+</li>
+<li><p>extra（重要）</p>
+<p>explain 中的很多额外的信息会在 Extra 字段显示, 常见的有以下几种内容:</p>
+<ul>
+<li><strong>distinct</strong>：在select部分使用了distinc关键字</li>
+<li><strong>Using filesort</strong>：当 Extra 中有 Using filesort 时, 表示 MySQL 需额外的排序操作, 不能通过索引顺序达到排序效果. 一般有 Using filesort, 都建议优化去掉, 因为这样的查询 CPU 资源消耗大.</li>
+<li><strong>Using index</strong><br>“覆盖索引扫描”, 表示查询在索引树中就可查找所需数据, 不用扫描表数据文件, 往往说明<strong>性能不错</strong></li>
+<li><strong>Using temporary</strong><br>查询有使用临时表, 一般出现于排序, 分组和多表 join 的情况, 查询效率不高, 建议优化.</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h3 id="4-什么是覆盖索引？"><a href="#4-什么是覆盖索引？" class="headerlink" title="4.什么是覆盖索引？"></a>4.什么是覆盖索引？</h3><blockquote>
+<p>覆盖索引（covering index ，或称为索引覆盖）即从非主键索引中就能查到的记录，而不需要查询主键索引中的记录，避免了回表的产生减少了树的搜索次数，显著提升性能。</p>
+</blockquote>
+<h3 id="5-最左前缀原则是什么"><a href="#5-最左前缀原则是什么" class="headerlink" title="5.最左前缀原则是什么"></a>5.最左前缀原则是什么</h3><blockquote>
+<p>当一个SQL想要利用索引是，就一定要提供该索引所对应的字段中最左边的字段，也就是排在最前面的字段，比如针对a,b,c三个字段建立了一个联合索引，那么在写一个sql时就一定要提供a字段的条件，这样才能用到联合索引，这是由于在建立a,b,c三个字段的联合索引时，底层的B+树是按照a,b.c三个字段从左往右去比较大小进行排序的，所以如果想要利用B+树进行快速查找也得符合这个规则</p>
+</blockquote>
+<h3 id="6-lnnodb是如何实现事务的"><a href="#6-lnnodb是如何实现事务的" class="headerlink" title="6.lnnodb是如何实现事务的"></a>6.lnnodb是如何实现事务的</h3><blockquote>
+<p>Innodb通过Buffer Pool，LogBuffer，Redo Log, Undo Log来实现事务，以一个update语句为例:</p>
+<ul>
+<li>Innodb在收到一个update语句后，会先根据条件找到数据所在的页，并将该页缓存在Buffer Pool中</li>
+<li>执行update语句，修改Buffer Pool中的数据，也就是内存中的数据</li>
+<li>针对update语句生成一个RedoLog对象，并存入LogBuffer中</li>
+<li>针对update语句生成undolog日志，用于事务回滚</li>
+<li>如果事务提交，那么则把RedoLog对象进行持久化，后续还有其他机制将Buffer Pool中所修改的数据页持久化到磁盘中6．如果事务回滚，则利用undolog日志进行回滚</li>
+</ul>
+</blockquote>
+<h3 id="7-B树和B-树的区别，为什么Mysql使用B-树"><a href="#7-B树和B-树的区别，为什么Mysql使用B-树" class="headerlink" title="7.B树和B+树的区别，为什么Mysql使用B+树"></a>7.B树和B+树的区别，为什么Mysql使用B+树</h3><blockquote>
+<p>B树的特点:</p>
+<p>1．节点排序<br>2.一个节点了可以存多个元素，多个元素也排序了</p>
+<p>B+树的特点:</p>
+<p>1．拥有B树的特点<br>2．叶子节点之间有指针<br>3．非叶子节点上的元素在叶子节点上都冗余了，也就是叶子节点中存储了所有的元素，并且排好顺序</p>
+<p>Mysql索引使用的是B+树，因为索引是用来加快查询的，而B+树通过对数据进行排序所以是可以提高查询速度的，然后通过一个节点中可以存储多个元素，从而可以使得B+树的高度不会太高，在Mysql中一个Innodb页就是一个B+树节点，一个Innodb页默认16kb，所以一般情况下一颗两层的B+树可以存2000万行左右的数据，然后通过利用B+树叶子节点存储了所有数据并且进行了排序，并且叶子节点之间有指针，可以很好的支持全表扫描，范围查找等sQL语句。</p>
+<p><img src="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95/webp-16550466299441.webp" alt="img"></p>
+<p><img src="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95/webp-16544345372523-16550466299442.webp" alt="img"></p>
+</blockquote>
+<h3 id="8-Mysql锁有哪些，如何理解"><a href="#8-Mysql锁有哪些，如何理解" class="headerlink" title="8.Mysql锁有哪些，如何理解"></a>8.Mysql锁有哪些，如何理解</h3><blockquote>
+<p>按锁粒度分类:</p>
+<ul>
+<li>行锁:锁某行数据，锁粒度最小，并发度高</li>
+<li>表锁:锁整张表，锁粒度最大，并发度低</li>
+<li>间隙锁:锁的是一个区间</li>
+</ul>
+<p>还可以分为:</p>
+<ul>
+<li>共享锁:也就是读锁，一个事务给某行数据加了读锁，其他事务也可以读，但是不能写-</li>
+<li>排它锁:也就是写锁，一个事务给某行数据加了写锁，其他事务不能读，也不能写</li>
+</ul>
+<p>还可以分为:</p>
+<ul>
+<li>乐观锁:并不会真正的去锁某行记录，而是通过一个版本号来实现的</li>
+<li>悲观锁:上面所的行锁、表锁等都是悲观锁</li>
+</ul>
+<p>在事务的隔离级别实现中，就需要利用锁来解决幻读</p>
+</blockquote>
+<h3 id="9-Mysql慢查询该如何优化"><a href="#9-Mysql慢查询该如何优化" class="headerlink" title="9.Mysql慢查询该如何优化?"></a>9.Mysql慢查询该如何优化?</h3><blockquote>
+<ul>
+<li>检查是否走了索引，如果没有则优化SQL利用索引</li>
+<li>检查所利用的索引，是否是最优索引</li>
+<li>检查所查字段是否都是必须的，是否查询了过多字段，查出了多余数据</li>
+<li>检查表中数据是否过多，是否应该进行分库分表了</li>
+<li>检查数据库实例所在机器的性能配置，是否太低，是否可以适当增加资源</li>
+</ul>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/MySQL/"># MySQL</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/06/12/Redis%E9%9D%A2%E8%AF%95/">Redis面试</a>
+            
+            
+            <a class="next" rel="next" href="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/">Jvm面试</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
