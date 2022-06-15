@@ -453,7 +453,7 @@
 
 字数:
 
-<a href="">4.1k</a> 
+<a href="">4.2k</a> 
 
 </span>
 
@@ -617,8 +617,9 @@
 <p>　　缺点也很明显，<strong>一是内存占用问题</strong>，毕竟每次执行写操作都要将原容器拷贝一份，数据量大时，对内存压力较大，可能会引起频繁GC；<strong>二是无法保证实时性</strong>，Vector对于读写操作均加锁同步，可以保证读和写的强一致性。而CopyOnWriteArrayList由于其实现策略的原因，写和读分别作用在新老不同容器上，在写操作执行过程中，读不会阻塞但读取到的却是老容器的数据。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">add</span><span class="params">(E e)</span> &#123;</span><br><span class="line">     <span class="comment">//ReentrantLock加锁，保证线程安全</span></span><br><span class="line">     <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="built_in">this</span>.lock;</span><br><span class="line">     lock.lock();</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">         Object[] elements = getArray();</span><br><span class="line">         <span class="type">int</span> <span class="variable">len</span> <span class="operator">=</span> elements.length;</span><br><span class="line">         <span class="comment">//拷贝原容器，长度为原容器长度加一</span></span><br><span class="line">         Object[] newElements = Arrays.copyOf(elements, len + <span class="number">1</span>);</span><br><span class="line">         <span class="comment">//在新副本上执行添加操作</span></span><br><span class="line">         newElements[len] = e;</span><br><span class="line">         <span class="comment">//将原容器引用指向新副本</span></span><br><span class="line">         setArray(newElements);</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">     &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">         <span class="comment">//解锁</span></span><br><span class="line">         lock.unlock();</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
 
-
 </blockquote>
+<h3 id="14-深拷贝和浅拷贝的区别"><a href="#14-深拷贝和浅拷贝的区别" class="headerlink" title="14.深拷贝和浅拷贝的区别"></a>14.深拷贝和浅拷贝的区别</h3><p>对于基本数据类型，两者都是值传递</p>
+<p>对于引用数据类型，浅拷贝是地址拷贝，而深拷贝是创建一个新的对象，将值复制进去</p>
 
         </div>
 
@@ -629,9 +630,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
-                    
                         <a href="/tags/java%E5%9F%BA%E7%A1%80/"># java基础</a>
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
                     
                         
                 </span>
