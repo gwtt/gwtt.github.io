@@ -533,7 +533,7 @@
 </tr>
 </tbody></table>
 <p>从标准上来看，GET 和 POST 的区别如下：</p>
-<p>GET 用于获取信息，是无副作用的，是幂等的，且可缓存 POST 用于修改<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cvm?from=10680">服务器</a>上的数据，有副作用，非幂等，不可缓存</p>
+<p>GET 用于获取信息，是无副作用的，是幂等的，且可缓存 POST 用于修改服务器上的数据，有副作用，非幂等，不可缓存</p>
 </blockquote>
 <h3 id="2-http和https的区别"><a href="#2-http和https的区别" class="headerlink" title="2.http和https的区别"></a>2.http和https的区别</h3><blockquote>
 <p>HTTP协议传输的数据都是未加密的，也就是明文的，因此使用HTTP协议传输隐私信息非常不安全，为了保证这些隐私数据能加密传输，于是网景公司设计了SSL（Secure Sockets Layer）协议用于对HTTP协议传输的数据进行加密，从而就诞生了HTTPS。</p>
@@ -604,7 +604,8 @@
 <p><strong>由于并非所有的浏览器都支持Cookie,并且数据信息是以明文文本的形式保存在客户端的计算机中,</strong><br><strong>因此最好不要保存敏感的,未加密的数据,否则会影响网站的安全性</strong></p>
 <p>什么是Session？<br>Session是另一种记录客户状态的机制，不同的是Cookie保存在客户端浏览器中，而Session保存在服务器上。客户端浏览器访问服务器的时候，服务器把客户端信息以某种形式记录在服务器上。这就是Session。客户端浏览器再次访问时只需要从该Session中查找该客户的状态就可以了。</p>
 <p>每个用户访问服务器都会建立一个session，那服务器是怎么标识用户的唯一身份呢？事实上，用户与服务器建立连接的同时，服务器会自动为其分配一个SessionId。</p>
-<p>Session和Cookie的区别？<br>1、数据存储位置：cookie数据存放在客户的浏览器上，session数据放在服务器上。</p>
+<p>Session和Cookie的区别？</p>
+<p>1、数据存储位置：cookie数据存放在客户的浏览器上，session数据放在服务器上。</p>
 <p>2、安全性：cookie不是很安全，别人可以分析存放在本地的cookie并进行cookie欺骗，考虑到安全应当使用session。</p>
 <p>3、服务器性能：session会在一定时间内保存在服务器上。当访问增多，会比较占用你服务器的性能，考虑到减轻服务器性能方面，应当使用cookie。</p>
 <p>4、数据大小：单个cookie保存的数据不能超过4K，很多浏览器都限制一个站点最多保存20个cookie。</p>
@@ -612,7 +613,10 @@
 </blockquote>
 <h3 id="6-跨域请求是什么-有什么问题-怎么解决"><a href="#6-跨域请求是什么-有什么问题-怎么解决" class="headerlink" title="6.跨域请求是什么?有什么问题?怎么解决?"></a>6.跨域请求是什么?有什么问题?怎么解决?</h3><blockquote>
 <p>跨域是指浏览器在发起网络请求时，会检查该请求所对应的协议、域名、端口和当前网页是否一致，如果不一致则浏览器会进行限制，比如在<br><a target="_blank" rel="noopener" href="http://www.baidu.com的某个网页中,如果使用ajax去访问www.jd.com是不行的,但是如果是img、iframe、scipt等标签的sc属性去访问则是可以的,之所以浏览器要做这层限制,是为了用户信息安全.但是如果开发者想要绕过这层限制也是可以的/">www.baidu.com的某个网页中，如果使用ajax去访问www.jd.com是不行的，但是如果是img、iframe、scipt等标签的sc属性去访问则是可以的，之所以浏览器要做这层限制，是为了用户信息安全。但是如果开发者想要绕过这层限制也是可以的</a>:</p>
-<p>1.response添加header，比如resp.setHeader(“Access-Control-Allow-Origin””*);表示可以访问所有网站，不受是否同源的限制                                            2. jsonp的方式，该技术底层就是基于script标签来实现的，因为script标签是可以跨域的<br>3.后台自己控制，先访问同域名下的接口，然后在接口中再去使用HTTPClient等工具去调用目标接口                                                                                  4.网关，和第三种方式类似，都是交给后台服务来进行跨域访问</p>
+<p>1.response添加header，比如resp.setHeader(“Access-Control-Allow-Origin”*);表示可以访问所有网站，不受是否同源的限制                                            </p>
+<p>2.jsonp的方式，该技术底层就是基于script标签来实现的，因为script标签是可以跨域的</p>
+<p>3.后台自己控制，先访问同域名下的接口，然后在接口中再去使用HTTPClient等工具去调用目标接口                                                                                  </p>
+<p>4.网关，和第三种方式类似，都是交给后台服务来进行跨域访问</p>
 </blockquote>
 <h3 id="7-Netty是什么？和Tomcat有什么区别？特点是什么？"><a href="#7-Netty是什么？和Tomcat有什么区别？特点是什么？" class="headerlink" title="7.Netty是什么？和Tomcat有什么区别？特点是什么？"></a>7.Netty是什么？和Tomcat有什么区别？特点是什么？</h3><blockquote>
 <p>Netty是一个基于NIO的异步网络通信框架，性能高，封装了原生NIO编码的复杂度，开发者可以直接使用Netty来开发高效率的各种网络服务器，并且编码简单。<br>Tomcat是一个Web服务器，是一个Servlet容器，基本上Tomcat内部只会运行Servlet程序，并处理HTTP请求，而Netty封装的是底层IO模型，关注的是网络数据的传输，而不关心具体的协议，可定制性更高。</p>

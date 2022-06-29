@@ -492,7 +492,7 @@
 <p>2、Integer变量和int变量比较时，只要两个变量的值是相等的，则结果为true（因为包装类Integer和基本数据类型int比较时，java会自动拆包装为int，然后进行比较，实际上就变为两个int变量的比较）</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> i <span class="operator">=</span> <span class="keyword">new</span> <span class="type">Integer</span>(<span class="number">100</span>);</span><br><span class="line"><span class="type">int</span> j <span class="operator">=</span> <span class="number">100</span>；</span><br><span class="line">System.out.print(i <span class="operator">=</span><span class="operator">=</span> j); <span class="operator">/</span><span class="operator">/</span><span class="literal">true</span></span><br></pre></td></tr></table></figure>
 
-<p>3、非new生成的Integer变量和new Integer()生成的变量比较时，结果为false。（因为 ①当变量值在-128<del>127之间时，非new生成的Integer变量指向的是java常量池中的对象，而new Integer()生成的变量指向堆中新建的对象，两者在内存中的地址不同；②当变量值不在-128</del>127之间时，非new生成Integer变量时，java API中最终会按照new Integer(i)进行处理（参考下面第4条），最终两个Interger的地址同样是不相同的）</p>
+<p>3、非new生成的Integer变量和new Integer()生成的变量比较时，结果为false。（因为 ①当变量值在-128-127之间时，非new生成的Integer变量指向的是java常量池中的对象，而new Integer()生成的变量指向堆中新建的对象，两者在内存中的地址不同；②当变量值不在-128-127之间时，非new生成Integer变量时，java API中最终会按照new Integer(i)进行处理（参考下面第4条），最终两个Interger的地址同样是不相同的）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Integer</span>(<span class="number">100</span>);</span><br><span class="line"><span class="type">Integer</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line">System.out.print(i == j); <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
 
 <p>4、对于两个非new生成的Integer对象，进行比较时，如果两个变量的值在区间-128到127之间，则比较结果为true，如果两个变量的值不在此区间，则比较结果为false</p>
@@ -568,8 +568,7 @@
 <p>情况2： 如果算出该元素的存储位置目前已经存在有其他的元素了，那么会调用该元素的equals方法与该位置的元素再比较一次</p>
 <p>，如果equals返回的是true，那么该元素与这个位置上的元素就视为重复元素，不允许添加，如果equals方法返回的是false，那么该元素运行添加。</p>
 <p>注意:现在Hashmap不是数组加链表实现，而是数组，链表，红黑树，链表节点数大于8时会从链表结构变成树结构。</p>
-<p><img src="/2022/06/11/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80/../../../../../%E5%9B%BE%E7%89%87/SouthEast" alt="img"></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ConcurrentHashMap线程安全，锁部分</span><br><span class="line">Hashtable线程安全，锁全部</span><br><span class="line">上者效率更高</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;ConcurrentHashMap线程安全，锁部分</span><br><span class="line">Hashtable线程安全，锁全部</span><br><span class="line">上者效率更高</span><br></pre></td></tr></table></figure>
 </blockquote>
 <h3 id="8-io有哪些类型"><a href="#8-io有哪些类型" class="headerlink" title="8.io有哪些类型"></a>8.io有哪些类型</h3><blockquote>
 <p>Java IO方式大体上可以分为三类，基于不同的io模型可以简单分为同步阻塞的BIO,同步非阻塞的NIO和异步非阻塞的AIO.</p>
@@ -630,9 +629,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
-                    
                         <a href="/tags/java%E5%9F%BA%E7%A1%80/"># java基础</a>
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
                     
                         
                 </span>

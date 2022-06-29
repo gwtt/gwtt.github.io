@@ -478,11 +478,11 @@
 
         <div class="post-content">
             <h2 id="juc"><a href="#juc" class="headerlink" title="juc"></a>juc</h2><h3 id="1-了解线程吗，他和进程有什么区别"><a href="#1-了解线程吗，他和进程有什么区别" class="headerlink" title="1.了解线程吗，他和进程有什么区别"></a>1.了解线程吗，他和进程有什么区别</h3><blockquote>
-<p>线程的基本概念<br>　　线程是进程中执行运算的最小单位，是进程中的一个实体，是被系统独立调度和分派的基本单位，线程基本上自己不拥有系统资源，只拥有一点在运行中必不可少的资源，但它可与同属一个进程的其它线程共享进程所拥有的全部资源。一个线程可以创建和撤消另一个线程，同一进程中的多个线程之间可以<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E5%B9%B6%E5%8F%91&spm=1001.2101.3001.7020">并发</a>执行。</p>
+<p>线程的基本概念<br>　　线程是进程中执行运算的最小单位，是进程中的一个实体，是被系统独立调度和分派的基本单位，线程基本上自己不拥有系统资源，只拥有一点在运行中必不可少的资源，但它可与同属一个进程的其它线程共享进程所拥有的全部资源。一个线程可以创建和撤消另一个线程，同一进程中的多个线程之间可以并发执行。</p>
 <p>好处 ：</p>
 <p>​        （1）易于调度。</p>
 <p>​        （2）提高并发性。通过线程可方便有效地实现并发性。进程可创建多个线程来执行同一程序的不同部分。</p>
-<p>​        （3）开销少。创建线程比创建进程要快，所需开销很少。。/</p>
+<p>​        （3）开销少。创建线程比创建进程要快，所需开销很少。</p>
 <p>​        （4）利于充分发挥多处理器的功能。通过创建多线程进程，每个线程在一个处理器上运行，从而实现应用程序的并发性，使每个处理器都得到充分运行</p>
 <p>线程和进程的区别一</p>
 <p>　　简单地讲,任何的一个程序都必须有且有一个以上的进程,而相对于一个进程而言也必须要有且有一个以上的线程。相对于进程而言，对线程进行划分的尺度一般要小很多，这就导致了多线程的一些程序能够出现更高的并发性。</p>
@@ -545,7 +545,7 @@
 </ol>
 </blockquote>
 <h3 id="7-创建线程池的核心参数有哪些？多讲几个"><a href="#7-创建线程池的核心参数有哪些？多讲几个" class="headerlink" title="7.创建线程池的核心参数有哪些？多讲几个?"></a>7.创建线程池的核心参数有哪些？多讲几个?</h3><blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize,</span></span><br><span class="line"><span class="params">                           <span class="type">int</span> maximumPoolSize,</span></span><br><span class="line"><span class="params">                           <span class="type">long</span> keepAliveTime,</span></span><br><span class="line"><span class="params">                           TimeUnit unit,</span></span><br><span class="line"><span class="params">                           BlockingQueue&lt;Runnable&gt; workQueue,</span></span><br><span class="line"><span class="params">                           ThreadFactory threadFactory,</span></span><br><span class="line"><span class="params">                           RejectedExecutionHandler handler)</span> &#123;</span><br><span class="line">     <span class="keyword">if</span> (corePoolSize &lt; <span class="number">0</span> ||</span><br><span class="line">         maximumPoolSize &lt;= <span class="number">0</span> ||</span><br><span class="line">         maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">         keepAliveTime &lt; <span class="number">0</span>)</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">     <span class="keyword">if</span> (workQueue == <span class="literal">null</span> || threadFactory == <span class="literal">null</span> || handler == <span class="literal">null</span>)</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">     <span class="built_in">this</span>.acc = System.getSecurityManager() == <span class="literal">null</span> ?</span><br><span class="line">             <span class="literal">null</span> :</span><br><span class="line">             AccessController.getContext();</span><br><span class="line">     <span class="built_in">this</span>.corePoolSize = corePoolSize;</span><br><span class="line">     <span class="built_in">this</span>.maximumPoolSize = maximumPoolSize;</span><br><span class="line">     <span class="built_in">this</span>.workQueue = workQueue;</span><br><span class="line">     <span class="built_in">this</span>.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">     <span class="built_in">this</span>.threadFactory = threadFactory;</span><br><span class="line">     <span class="built_in">this</span>.handler = handler;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize,</span></span><br><span class="line"><span class="params">                        <span class="type">int</span> maximumPoolSize,</span></span><br><span class="line"><span class="params">                        <span class="type">long</span> keepAliveTime,</span></span><br><span class="line"><span class="params">                        TimeUnit unit,</span></span><br><span class="line"><span class="params">                        BlockingQueue&lt;Runnable&gt; workQueue,</span></span><br><span class="line"><span class="params">                        ThreadFactory threadFactory,</span></span><br><span class="line"><span class="params">                        RejectedExecutionHandler handler)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (corePoolSize &lt; <span class="number">0</span> ||</span><br><span class="line">      maximumPoolSize &lt;= <span class="number">0</span> ||</span><br><span class="line">      maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">      keepAliveTime &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">  <span class="keyword">if</span> (workQueue == <span class="literal">null</span> || threadFactory == <span class="literal">null</span> || handler == <span class="literal">null</span>)</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">  <span class="built_in">this</span>.acc = System.getSecurityManager() == <span class="literal">null</span> ?</span><br><span class="line">          <span class="literal">null</span> :</span><br><span class="line">          AccessController.getContext();</span><br><span class="line">  <span class="built_in">this</span>.corePoolSize = corePoolSize;</span><br><span class="line">  <span class="built_in">this</span>.maximumPoolSize = maximumPoolSize;</span><br><span class="line">  <span class="built_in">this</span>.workQueue = workQueue;</span><br><span class="line">  <span class="built_in">this</span>.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">  <span class="built_in">this</span>.threadFactory = threadFactory;</span><br><span class="line">  <span class="built_in">this</span>.handler = handler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol>
 <li><p>corePoolSize：线程池的核心线程数。核心线程会一直存活，即便没有任务需要执行，当线程数小于核心线程数时，即使有线程空闲，线程池也会优先创建新线程处理。设置allowCoreThreadTimeout=true（默认false）时，核心线程会超时关闭。</p>
@@ -560,22 +560,18 @@
 </li>
 <li><p>threadFactory：线程工厂，ThreadFactory是一个接口，只有一个方法，即newThread(Runnable r)。从这个方法名字就可以知道，这接口是用来创建新的线程的。其使用也很简单，仅仅只需要实现newThread方法，根据自己的需要进行线程的创建即可。</p>
 </li>
-<li><p>handler：任务拒绝处理器。两种情况会拒绝处理任务：1）、当线程数已经达到maxPoolSize，切队列已满，会拒绝新任务；2）、当线程池被调用shutdown()后，会等待线程池里的任务执行完毕，再shutdown。如果在调用shutdown()和线程池真正shutdown之间提交任务，会拒绝新任务线程池会调用rejectedExecutionHandler来处理这个任务。如果没有设置默认是AbortPolicy，会抛出异常。拒绝策略有如下几种：</p>
+<li><p>handler：任务拒绝处理器。两种情况会拒绝处理任务：</p>
+<p>1）、当线程数已经达到maxPoolSize，切队列已满，会拒绝新任务；</p>
+<p>2）、当线程池被调用shutdown()后，会等待线程池里的任务执行完毕，再shutdown。如果在调用shutdown()和线程池真正shutdown之间提交任务，会拒绝新任务线程池会调用rejectedExecutionHandler来处理这个任务。如果没有设置默认是AbortPolicy，会抛出异常。拒绝策略有如下几种：</p>
+<ul>
+<li><p>AbortPolicy 丢弃任务，抛运行时异常。</p>
 </li>
-<li><ul>
-<li>AbortPolicy 丢弃任务，抛运行时异常。</li>
-</ul>
+<li><p>CallerRunsPolicy 如果任务被拒绝了，则由调用线程（提交任务的线程）直接执行此任务</p>
 </li>
-<li><ul>
-<li>CallerRunsPolicy 如果任务被拒绝了，则由调用线程（提交任务的线程）直接执行此任务</li>
-</ul>
+<li><p>DiscardPolicy 丢弃任务，不抛出异常</p>
 </li>
-<li><ul>
-<li>DiscardPolicy 丢弃任务，不抛出异常</li>
-</ul>
+<li><p>DiscardOldestPolicy 从队列中踢出最先进入队列（最后一个执行）的任务，重新提交被拒绝的任务。</p>
 </li>
-<li><ul>
-<li>DiscardOldestPolicy 从队列中踢出最先进入队列（最后一个执行）的任务，重新提交被拒绝的任务。</li>
 </ul>
 </li>
 </ol>
@@ -634,10 +630,12 @@
 <p>⒉.如果此时线程池中的线程数量等于corePoolSize，但是缓冲队列workQueue未满，那么任务被放入缓冲队列。</p>
 <p>3.如果此时线程池中的线程数量大于等于corePoolSize，缓冲队列workQueue满，并且线程池中的数量小于maximumPoolSize，建新的线程来处理被添加的任务。</p>
 <p>4.如果此时线程池中的线程数量大于corePoolSize，缓冲队列workQueue满，并且线程池中的数量等于maximumPoolSize，那么通过 handler所指定的策略来处理此任务。</p>
-<p>5.当线程池中的线程数量大于corePoolSize时，如果某线程空闲时间超过keepAlieTime，线程将被终止。这样，线程池可以动态的调整池中的线程数</p>
+<p>5.当线程池中的线程数量大于corePoolSize时，如果某线程空闲时间超过keepAliveTime，线程将被终止。这样，线程池可以动态的调整池中的线程数</p>
 </blockquote>
 <h3 id="16-BIO-NIO-AIO分别是什么"><a href="#16-BIO-NIO-AIO分别是什么" class="headerlink" title="16.BIO,NIO,AIO分别是什么"></a>16.BIO,NIO,AIO分别是什么</h3><blockquote>
-<p>1.BIO:同步阻塞lo，使用BIo读取数据时，线程会阻塞住，并且需要线程主动去查询是否有数据可读，并且需要处理完一个Socket之后才能处理下一个Socket<br>2.NIO:同步非阻塞lO，使用NIO读取数据时，线程不会阻塞，但需要线程主动的去查询是否有Ilo事件<br>3，AlO:也叫做NIO 2.0，异步非阻塞lO，使用AIO读取数据时，线程不会阻塞，并且当有数据可读时会通知给线程，不需要线程主动去查询</p>
+<p>1.BIO:同步阻塞lO，使用BIO读取数据时，线程会阻塞住，并且需要线程主动去查询是否有数据可读，并且需要处理完一个Socket之后才能处理下一个Socket</p>
+<p>2.NIO:同步非阻塞lO，使用NIO读取数据时，线程不会阻塞，但需要线程主动的去查询是否有IO事件</p>
+<p>3.AlO:也叫做NIO 2.0，异步非阻塞lO，使用AIO读取数据时，线程不会阻塞，并且当有数据可读时会通知给线程，不需要线程主动去查询</p>
 </blockquote>
 
         </div>
@@ -649,9 +647,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/juc/"># juc</a>
-                    
                         <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/juc/"># juc</a>
                     
                         
                 </span>

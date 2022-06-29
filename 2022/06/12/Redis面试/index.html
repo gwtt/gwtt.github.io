@@ -483,7 +483,7 @@
 </li>
 <li><p>AOF（append only file）：AOF 机制对每条写入命令作为日志，以 <code>append-only</code> 的模式写入一个日志文件中，在 redis 重启的时候，可以通过回放 AOF 日志中的写入指令来重新构建整个数据集。</p>
 <h4 id="RDB-优缺点"><a href="#RDB-优缺点" class="headerlink" title="RDB 优缺点"></a><strong>RDB 优缺点</strong></h4><ul>
-<li>RDB 会生成多个数据文件，每个数据文件都代表了某一个时刻中 redis 的数据，这种多个数据文件的方式，非常适合做冷备，可以将这种完整的数据文件发送到一些远程的安全存储上去，比如说 Amazon 的 S3 云服务上去，在国内可以是阿里云的 ODPS <a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cos?from=10680">分布式存储</a>上，以预定好的备份策略来定期备份 redis 中的数据。</li>
+<li>RDB 会生成多个数据文件，每个数据文件都代表了某一个时刻中 redis 的数据，这种多个数据文件的方式，非常适合做冷备，可以将这种完整的数据文件发送到一些远程的安全存储上去，比如说 Amazon 的 S3 云服务上去，在国内可以是阿里云的 ODPS 分布式存储上，以预定好的备份策略来定期备份 redis 中的数据。</li>
 <li>RDB 对 redis 对外提供的读写服务，影响非常小，可以让 redis 保持高性能，因为 redis 主进程只需要 fork 一个子进程，让子进程执行磁盘 IO 操作来进行 RDB 持久化即可。</li>
 <li>相对于 AOF 持久化机制来说，直接基于 RDB 数据文件来重启和恢复 redis 进程，更加快速。</li>
 <li>如果想要在 redis 故障时，尽可能少的丢失数据，那么 RDB 没有 AOF 好。一般来说，RDB 数据快照文件，都是每隔 5 分钟，或者更长时间生成一次，这个时候就得接受一旦 redis 进程宕机，那么会丢失最近 5 分钟的数据。</li>
@@ -508,11 +508,11 @@
 </blockquote>
 <h3 id="2-说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？"><a href="#2-说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？" class="headerlink" title="2.说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？"></a>2.<strong>说说缓存雪崩、缓存击穿、缓存穿透吧，解决办法？</strong></h3><blockquote>
 <h2 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a><strong>缓存雪崩</strong></h2><p><strong>出现过程</strong></p>
-<p>假设有如下一个系统，高峰期请求为5000次/秒，4000次走了缓存，只有1000次落到了<a target="_blank" rel="noopener" href="https://cloud.tencent.com/solution/database?from=10680">数据库</a>上，数据库每秒1000的并发是一个正常的指标，完全可以正常工作，<strong>但如果缓存宕机了，或者缓存设置了相同的过期时间，导致缓存在同一时刻同时失效</strong>，每秒5000次的请求会全部落到数据库上，数据库立马就死掉了，因为数据库一秒最多抗2000个请求，如果DBA重启数据库，立马又会被新的请求打死了，这就是缓存雪崩。</p>
+<p>假设有如下一个系统，高峰期请求为5000次/秒，4000次走了缓存，只有1000次落到了数据库上，数据库每秒1000的并发是一个正常的指标，完全可以正常工作，<strong>但如果缓存宕机了，或者缓存设置了相同的过期时间，导致缓存在同一时刻同时失效</strong>，每秒5000次的请求会全部落到数据库上，数据库立马就死掉了，因为数据库一秒最多抗2000个请求，如果DBA重启数据库，立马又会被新的请求打死了，这就是缓存雪崩。</p>
 <p><strong>解决方法</strong></p>
 <ol>
 <li>事前：redis高可用，主从+哨兵，redis cluster，避免全盘崩溃</li>
-<li>事中：本地ehcache缓存 + hystrix限流&amp;降级，避免<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cdb?from=10680">MySQL</a>被打死</li>
+<li>事中：本地ehcache缓存 + hystrix限流&amp;降级，避免MySQL被打死</li>
 <li>事后：redis持久化RDB+AOF，快速恢复缓存数据</li>
 <li>缓存的失效时间设置为随机值，避免同时失效</li>
 </ol>
@@ -569,7 +569,9 @@
 </ul>
 </blockquote>
 <h3 id="7-Redis和Mysql如何保证数据一致"><a href="#7-Redis和Mysql如何保证数据一致" class="headerlink" title="7.Redis和Mysql如何保证数据一致"></a>7.Redis和Mysql如何保证数据一致</h3><blockquote>
-<p>1．先更新Mysql，再更新Redis，如果更新Redis失败，可能仍然不一致<br>2．先删除Redis缓存数据，再更新Mysql，再次查询的时候在将数据添加到缓存中，这种方案能解决1方案的问题，但是在高并发<br>下性能较低，而且仍然会出现数据不一致的问题，比如线程1删除了Redis缓存数据，正在更新Mysql，此时另外一个查询再查询，那么就会把Mysql中老数据又查到Redis中<br>3，延时双删，步骤是:先删除Redis缓存数据，再更新Mysql，延迟几百毫秒再删除Redis缓存数据，这样就算在更新Mysql时，有其他线程读了Mysql，把老数据读到了Redis中，那么也会被删除掉，从而把数据保持一致</p>
+<p>1．先更新Mysql，再更新Redis，如果更新Redis失败，可能仍然不一致</p>
+<p>2．先删除Redis缓存数据，再更新Mysql，再次查询的时候在将数据添加到缓存中，这种方案能解决1方案的问题，但是在高并发下性能较低，而且仍然会出现数据不一致的问题，比如线程1删除了Redis缓存数据，正在更新Mysql，此时另外一个查询再查询，那么就会把Mysql中老数据又查到Redis中</p>
+<p>3，延时双删，步骤是:先删除Redis缓存数据，再更新Mysql，延迟几百毫秒再删除Redis缓存数据，这样就算在更新Mysql时，有其他线程读了Mysql，把老数据读到了Redis中，那么也会被删除掉，从而把数据保持一致</p>
 </blockquote>
 
         </div>
