@@ -697,7 +697,7 @@
 </blockquote>
 <h3 id="10-mysql有哪些引擎"><a href="#10-mysql有哪些引擎" class="headerlink" title="10.mysql有哪些引擎"></a>10.mysql有哪些引擎</h3><blockquote>
 <p>所谓的存储引擎是指用于存储、处理和保护数据的核心服务。也就是存储引擎是数据库的底层软件组织。在 MySQL 中可以使用“show engines”来查询数据库的所有存储引擎</p>
-<h2 id="nnoDB-存储引擎"><a href="#nnoDB-存储引擎" class="headerlink" title="nnoDB 存储引擎"></a>nnoDB 存储引擎</h2><p>InnoDB是一种兼顾高可靠性和高性能的通用存储引擎，在 MySQL 5.5 之后，InnoDB是默认的 MySQL 存储引擎。</p>
+<h2 id="InnoDB-存储引擎"><a href="#InnoDB-存储引擎" class="headerlink" title="InnoDB 存储引擎"></a>InnoDB 存储引擎</h2><p>InnoDB是一种兼顾高可靠性和高性能的通用存储引擎，在 MySQL 5.5 之后，InnoDB是默认的 MySQL 存储引擎。</p>
 <h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>(1) 支持自动增长列AUTO_INCREMENT。自动增长列的值不能为空，且值必须唯一。MySQL中规定自增列必须为主键。<br>(2) 支持外键，保证数据的完整性和正确性。外键所在表为子表，外键所依赖的表为父表。父表中被子表外键关联的字段必须为主键。<br>(3) DML(数据库操作)操作遵循ACID模型，支持事务。<br>(4) 行级锁 ，提高并发访问性能。</p>
 <h2 id="MyISAM-存储引擎"><a href="#MyISAM-存储引擎" class="headerlink" title="MyISAM 存储引擎"></a>MyISAM 存储引擎</h2><p>MyISAM是MySQL早期的默认存储引擎。</p>
 <h2 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h2><p>(1) 不支持事务，不支持外键<br>(2) 支持表锁，不支持行锁<br>(3) 占用空间小，访问速度快</p>
