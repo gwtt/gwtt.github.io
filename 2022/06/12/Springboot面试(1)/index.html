@@ -17,7 +17,7 @@
 
 
 
-<title>Springboot面试 | 滚~韬的博客</title>
+<title>Springboot面试(1) | 滚~韬的博客</title>
 
 
 
@@ -427,7 +427,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Springboot面试</h1>
+            <h1 class="post-title">Springboot面试(1)</h1>
             
                 <div class="post-meta">
                     
@@ -477,7 +477,7 @@
         </header>
 
         <div class="post-content">
-            <h2 id="springboot"><a href="#springboot" class="headerlink" title="springboot"></a>springboot</h2><h3 id="1-说说对springmvc的理解"><a href="#1-说说对springmvc的理解" class="headerlink" title="1.说说对springmvc的理解"></a>1.说说对springmvc的理解</h3><blockquote>
+            <h2 id="springboot-1"><a href="#springboot-1" class="headerlink" title="springboot(1)"></a>springboot(1)</h2><h3 id="1-说说对springmvc的理解"><a href="#1-说说对springmvc的理解" class="headerlink" title="1.说说对springmvc的理解"></a>1.说说对springmvc的理解</h3><blockquote>
 <p><strong>什么是MVC</strong><br>mvc是一种设计模式（设计模式就是日常开发中编写代码的一种好的方法和经验的总结）。模型（model）-视图（view）-控制器（controller），三层架构的设计模式。用于实现前端页面的展现与后端业务数据处理的分离。</p>
 <p><strong>mvc设计模式的好处</strong></p>
 <p>1.分层设计，实现了业务系统各个组件之间的解耦，有利于业务系统的可扩展性，可维护性。</p>
@@ -566,7 +566,7 @@
 <h3 id="策略模式"><a href="#策略模式" class="headerlink" title="策略模式"></a>策略模式</h3><p>Spring 框架的资源访问接口就是基于策略设计模式实现的。该接口提供了更强的资源访问能力，Spring框架本身大量使用了Resource接口来访问底层资源。Resource接口本身没有提供访问任何底层资源的实现逻辑，针对不同的额底层资源，Spring将会提供不同的Resource实现类，不同的实现类负责不同的资源访问类型。</p>
 </blockquote>
 <h3 id="11-springmvc的工作流程"><a href="#11-springmvc的工作流程" class="headerlink" title="11.springmvc的工作流程"></a>11.springmvc的工作流程</h3><blockquote>
-<p><img src="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl81MzYwMTM1OQ==,size_16,color_FFFFFF,t_70-16550458353951.png" alt="在这里插入图片描述"></p>
+<p><img src="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95(1)/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl81MzYwMTM1OQ==,size_16,color_FFFFFF,t_70-16550458353951.png" alt="在这里插入图片描述"></p>
 <p>1、 <strong>用户发送http请求至前端控制器DispatcherServlet</strong>，中途会有过滤器Filter进行数据过滤。DispatcherServlet执行doService方法经过数据灌入后调用doDispatch方法，得到请求资源标识符（URI）</p>
 <p>2、 DispatcherServlet收到请求后调用HandlerMapping处理器映射器。HandlerMapping找到具体的Handler处理器(可以根据xml配置、注解进行查找)。将生成的Handler（处理器对象）及HandlerInterceptor（处理器拦截器）一并返回给DispatcherServlet。</p>
 <p>3，将封装好的HandlerExecutionChain类型的Handler处理器执行链和适合这个Handler的HandlerAdapter（里面定义了执行Handler的特定规则）返回给DispatcherServlet。</p>
@@ -707,7 +707,7 @@
                 <a class="prev" rel="prev" href="/2022/06/12/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95/">计算机网络面试</a>
             
             
-            <a class="next" rel="next" href="/2022/06/11/Juc%E9%9D%A2%E8%AF%95/">Juc面试</a>
+            <a class="next" rel="next" href="/2022/06/11/Juc%E9%9D%A2%E8%AF%95(1)/">Juc面试(1)</a>
             
         </section>
 

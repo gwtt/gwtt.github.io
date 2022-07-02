@@ -17,7 +17,7 @@
 
 
 
-<title>Mybatis面试 | 滚~韬的博客</title>
+<title>Git面试 | 滚~韬的博客</title>
 
 
 
@@ -427,7 +427,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Mybatis面试</h1>
+            <h1 class="post-title">Git面试</h1>
             
                 <div class="post-meta">
                     
@@ -436,7 +436,7 @@
 
                     
                         <span class="post-time">
-                        日期: <a href="#">六月 12&nbsp;&nbsp;23:12</a>
+                        日期: <a href="#">七月 2&nbsp;&nbsp;17:55</a>
                         </span>
                     
                     
@@ -453,7 +453,7 @@
 
 字数:
 
-<a href="">424</a> 
+<a href="">429</a> 
 
 </span>
 
@@ -477,19 +477,38 @@
         </header>
 
         <div class="post-content">
-            <h2 id="Mybatis"><a href="#Mybatis" class="headerlink" title="Mybatis"></a>Mybatis</h2><h3 id="1-Mybatis的优缺点"><a href="#1-Mybatis的优缺点" class="headerlink" title="1.Mybatis的优缺点"></a>1.Mybatis的优缺点</h3><blockquote>
-<p>Mybaits 的优点：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1.基于 SQL 语句编程，相当灵活，不会对应用程序或者数据库的现有设计造成任 何影响，SQL 写在 XML 里，解除 sql 与程序代码的耦合，便于统一管理；提供 XML 标签，支持编写动态 SQL 语句，并可重用。</span><br><span class="line"></span><br><span class="line">2.与 JDBC 相比，减少了 50%以上的代码量，消除了 JDBC 大量冗余的代码，不 需要手动开关连接；</span><br><span class="line"></span><br><span class="line">3.很好的与各种数据库兼容（因为 MyBatis 使用 JDBC 来连接数据库，所以只要 JDBC 支持的数据库 MyBatis 都支持）。</span><br><span class="line"></span><br><span class="line">4.能够与 Spring 很好的集成；</span><br><span class="line"></span><br><span class="line">5.提供映射标签，支持对象与数据库的 ORM 字段关系映射；提供对象关系映射 标签，支持对象关系组件维护。</span><br></pre></td></tr></table></figure>
-
-<p>MyBatis 框架的缺点：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.SQL 语句的编写工作量较大，尤其当字段多、关联表多时，对开发人员编写 SQL 语句的功底有一定要求。</span><br><span class="line"></span><br><span class="line">2.SQL 语句依赖于数据库，导致数据库移植性差，不能随意更换数据库。</span><br></pre></td></tr></table></figure>
+            <h2 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h2><h3 id="1-什么是git"><a href="#1-什么是git" class="headerlink" title="1.什么是git?"></a>1.什么是git?</h3><blockquote>
+<p>git是一个常用的分布式版本管理工具。</p>
 </blockquote>
-<h3 id="2-Mybatis中的-和-区别是什么"><a href="#2-Mybatis中的-和-区别是什么" class="headerlink" title="2.Mybatis中的#{}和${}区别是什么"></a>2.Mybatis中的#{}和${}区别是什么</h3><blockquote>
-<p>1.#{}是预编译处理、是占位符，${}是字符串替换、是拼接符</p>
-<p>2.Mybatis在处理#{}时，会将sql中的#替换为?号，调用PreparedStatement来赋值</p>
-<p>3.Mybatis在处理${}时，就是把$替换成变量的值，调用Statement来赋值</p>
-<p>4.使用#{}可以很大程度上防止SQL注入，提高系统安全性</p>
-<p>5.#号防止sql注入的原理就是对参数及参数中的特殊字符进行了转义，从而达到防止sql注入的效果。</p>
+<h3 id="2-git常用的命令"><a href="#2-git常用的命令" class="headerlink" title="2.git常用的命令"></a>2.git常用的命令</h3><blockquote>
+<ul>
+<li>git add 添加文件到暂存区</li>
+<li>git commit 提交文件到本地仓库</li>
+<li>git pull 从远程仓库拉取项目到本地</li>
+<li>git push 将本地仓库的新的改变推送到远程仓库</li>
+<li>git clone 将远程仓库复制到本地</li>
+<li>git fetch 抓取</li>
+<li>git merge 合并</li>
+</ul>
+</blockquote>
+<h3 id="3-git-pull、git-merge、git-fetch三个命令的区别？"><a href="#3-git-pull、git-merge、git-fetch三个命令的区别？" class="headerlink" title="3.git pull、git merge、git fetch三个命令的区别？"></a>3.<code>git pull</code>、<code>git merge</code>、<code>git fetch</code>三个命令的区别？</h3><blockquote>
+<p>git clone：是在本地没有版本库的情况下，从远程仓库克隆一份到本地，是一个本地版本库从无到有的过程</p>
+<p>git pull：是在本地仓库已经存在的情况下，将远程最新的commits抓取并合并到本地版本库的过程</p>
+<p>git fetch： 从远程版本库抓取最新的commits，不会进行合并</p>
+<p>git merge：合并</p>
+<p>所以git pull = git fetch + git merge</p>
+</blockquote>
+<h3 id="4-push之前一定要进行哪个操作？"><a href="#4-push之前一定要进行哪个操作？" class="headerlink" title="4.push之前一定要进行哪个操作？"></a>4.push之前一定要进行哪个操作？</h3><blockquote>
+<p>push之前一定要进行本地更新操作。使用<code>git pull</code>命令或者使用<code>git fetch</code>和<code>git merge</code>的命令组合。这时候，可能会出现版本冲突，如果出现的话，需要解决完冲突再进行代码push。</p>
+</blockquote>
+<h3 id="5-如何解决版本冲突"><a href="#5-如何解决版本冲突" class="headerlink" title="5.如何解决版本冲突"></a>5.如何解决版本冲突</h3><blockquote>
+<p>版本冲突多出现在合并操作(合并远程仓库代码或者合并分支代码)中。如果出现版本冲突，需要具体分析出现冲突的代码区，手动进行代码合并，然后再进行提交。</p>
+</blockquote>
+<h3 id="6-别人在远程推送的新分支怎么合并在自己上面"><a href="#6-别人在远程推送的新分支怎么合并在自己上面" class="headerlink" title="6.别人在远程推送的新分支怎么合并在自己上面"></a>6.别人在远程推送的新分支怎么合并在自己上面</h3><blockquote>
+<p>假设别人分支是A，我是B</p>
+<p>git checkouu B;//到自己分区</p>
+<p>git merge A;//合并分支</p>
+<p>git push;//提交</p>
 </blockquote>
 
         </div>
@@ -501,9 +520,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                        <a href="/tags/Git/"># Git</a>
                     
-                        <a href="/tags/Mybatis/"># Mybatis</a>
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
                     
                         
                 </span>
@@ -516,10 +535,8 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2022/06/12/%E5%88%86%E5%B8%83%E5%BC%8F%E9%9D%A2%E8%AF%95/">分布式面试</a>
             
-            
-            <a class="next" rel="next" href="/2022/06/12/Redis%E9%9D%A2%E8%AF%95/">Redis面试</a>
+            <a class="next" rel="next" href="/2022/07/02/Springboot%E9%9D%A2%E8%AF%95(2)/">Springboot面试(2)</a>
             
         </section>
 

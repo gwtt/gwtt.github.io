@@ -17,7 +17,7 @@
 
 
 
-<title>Category: 面试 | 滚~韬的博客</title>
+<title>Java面试基础（2） | 滚~韬的博客</title>
 
 
 
@@ -361,115 +361,194 @@
     }
 </script>
             <div class="main">
-                
-
-
+                <div class="container">
     
-<div class="container">
-    <div class="post-wrap categories">
-        <h2 class="post-title">-&nbsp;分类&nbsp;·&nbsp;面试-</h2>
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
     </div>
-    <div class="post-wrap archive">
-    
-    
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/07/02/Git%E9%9D%A2%E8%AF%95/">Git面试</a>
-            <span class="archive-item-date">七月 2</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/07/02/Springboot%E9%9D%A2%E8%AF%95(2)/">Springboot面试(2)</a>
-            <span class="archive-item-date">七月 2</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/07/02/Juc%E9%9D%A2%E8%AF%95(2)/">Juc面试(2)</a>
-            <span class="archive-item-date">七月 2</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/07/02/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80(2)/">Java面试基础（2）</a>
-            <span class="archive-item-date">七月 2</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%9D%A2%E8%AF%95/">消息队列面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E5%88%86%E5%B8%83%E5%BC%8F%E9%9D%A2%E8%AF%95/">分布式面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Mybatis%E9%9D%A2%E8%AF%95(1)/">Mybatis面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Redis%E9%9D%A2%E8%AF%95/">Redis面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95(1)/">MySQL面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/">Jvm面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-    
-    <nav class="pagination">
-        <span class="page-number current">1</span><a class="page-number" href="/categories/%E9%9D%A2%E8%AF%95/page/2/">2</a>
-    </nav>
-
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Java面试基础（2）</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">七月 2&nbsp;&nbsp;14:37</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">634</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">2min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="java基础-2"><a href="#java基础-2" class="headerlink" title="java基础(2)"></a>java基础(2)</h2><h3 id="1-java你用过的jdk版本"><a href="#1-java你用过的jdk版本" class="headerlink" title="1..java你用过的jdk版本"></a>1..java你用过的jdk版本</h3><blockquote>
+<p>jdk1.8或者jdk11</p>
+<p>关键问:</p>
+<h3 id="你知道jdk1-8相较于1-7有什么新特性吗"><a href="#你知道jdk1-8相较于1-7有什么新特性吗" class="headerlink" title="你知道jdk1.8相较于1.7有什么新特性吗"></a>你知道jdk1.8相较于1.7有什么新特性吗</h3><ul>
+<li>新增<strong>Lambda表达式</strong> ：Lambda允许把函数作为一个方法的参数（函数作为参数传递到方法中）。</li>
+<li>新增<strong>Stream API</strong>:对容器功能加强，可以对容器进行高效操作</li>
+<li>新增<strong>方法引用</strong>:通过方法的名字来指向一个方法，用::</li>
+<li>新增<strong>Optional类</strong>:解决空指针异常</li>
+<li>新增default:接口可以有具体方法</li>
+<li>新增<strong>日期API</strong></li>
+</ul>
+<p>(接下来可能会问Lambda表达式和StreamAPI)</p>
+<h3 id="你知道jdk11有什么新特性吗"><a href="#你知道jdk11有什么新特性吗" class="headerlink" title="你知道jdk11有什么新特性吗"></a>你知道jdk11有什么新特性吗</h3><ul>
+<li>新增本地类型推断:用var直接定义变量，编译器能自动推断类型</li>
+<li>Optianal类增强，可以转换成流使用</li>
+<li>字符类增加一些功能API</li>
+</ul>
+</blockquote>
+<h3 id="2-用过final关键字吗？它有什么作用"><a href="#2-用过final关键字吗？它有什么作用" class="headerlink" title="2.用过final关键字吗？它有什么作用"></a>2.用过final关键字吗？它有什么作用</h3><blockquote>
+<p> final关键字表示不可变，它可以修饰在类、方法、成员变量中。</p>
+<ol>
+<li>如果修饰在类上，则表示该类不允许被继承</li>
+<li>修饰在方法上，表示该方法无法被重写</li>
+<li>修饰在变量上，表示该变量无法被修改，而且JVM会隐性定义为一个常量。(但是可以通过反射去破坏，但是<strong>反射无法修改被final和static同时修饰的变量</strong>)</li>
+</ol>
+<p> 另外，<code>final</code>修饰的关键字，还可以避免因为指令重排序带来的可见性问题，原因是，final遵循两个重排序规则</p>
+<ol>
+<li>构造函数内，对一个 final 变量的写入，与随后把这个被构造对象的引用赋值给一个变量，这两个操作之间不可重排序。</li>
+<li>首次读一个包含 final 变量的对象，与随后首次读这个 final 变量，这两个操作之间不可以重排序。</li>
+</ol>
+</blockquote>
+<h3 id="3-反射知道吗-通过反射可以获取到一些什么东西"><a href="#3-反射知道吗-通过反射可以获取到一些什么东西" class="headerlink" title="3.反射知道吗 通过反射可以获取到一些什么东西"></a>3.反射知道吗 通过反射可以获取到一些什么东西</h3><blockquote>
+<p>反射是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为 Java 语言的反射机制。</p>
+<p><strong>① 通过反射获取类中的属性和属性值</strong></p>
+<p><strong>② 通过反射获取反射类中的构造方法</strong></p>
+<p><strong>③ 通过反射获取反射类的父类（超类）和接口</strong></p>
+<p><strong>④通过反射获取反射类的方法</strong></p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/java%E5%9F%BA%E7%A1%80/"># java基础</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/07/02/Juc%E9%9D%A2%E8%AF%95(2)/">Juc面试(2)</a>
+            
+            
+            <a class="next" rel="next" href="/2022/06/12/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%9D%A2%E8%AF%95/">消息队列面试</a>
+            
+        </section>
+
+
+    </article>
 </div>
 
             </div>
