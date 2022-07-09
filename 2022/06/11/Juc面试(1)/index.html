@@ -467,7 +467,7 @@
 
 时间:
 
-<a href="">15min</a> 
+<a href="">16min</a> 
 
 </span>
 
@@ -493,7 +493,10 @@
 <p>线程和进程的区别三</p>
 <p>　　通过了解逻辑角度我们可以得知，多线程这样的意义是相对于在一个应用程序里面的，能够同时的执行。而操作系统不会认为多个线程就是多个独立应用，因此也就不会使其调度以及管理实现资源的分配。</p>
 <p><strong>(线程没有资源分配</strong>)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">了解的，线程时进程中执行运算的最小单位，是被系统独立调度和分派的基本单位。可以创建线程或者撤销另一个线程，可以迸发执行。</span><br><span class="line">区别：</span><br><span class="line">	（<span class="number">1</span>）调度：线程作为调度和分配的基本单位，进程作为拥有资源的基本单位</span><br><span class="line"></span><br><span class="line">（<span class="number">2</span>）并发性：不仅进程之间可以并发执行，同一个进程的多个线程之间也可并发执行</span><br><span class="line"></span><br><span class="line">（<span class="number">3</span>）拥有资源：进程是拥有资源的一个独立单位，线程不拥有系统资源，但可以访问隶属于进程的资源.</span><br><span class="line"></span><br><span class="line">（<span class="number">4</span>）系统开销：在创建或撤消进程时，由于系统都要为之分配和回收资源，导致系统的开销明显大于创建或撤消线程时的开销。</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">了解的，线程时进程中执行运算的最小单位，是被系统独立调度和分派的基本单位。可以创建线程或者撤销另一个线程，可以迸发执行。</span><br><span class="line">区别：</span><br><span class="line">	（<span class="number">1</span>）调度：线程作为调度和分配的基本单位，进程作为拥有资源的基本单位</span><br><span class="line"></span><br><span class="line">（<span class="number">2</span>）并发性：不仅进程之间可以并发执行，同一个进程的多个线程之间也可并发执行</span><br><span class="line"></span><br><span class="line">（<span class="number">3</span>）拥有资源：进程是拥有资源的一个独立单位，线程不拥有系统资源，但可以访问隶属于进程的资源.</span><br><span class="line"></span><br><span class="line">（<span class="number">4</span>）系统开销：在创建或撤消进程时，由于系统都要为之分配和回收资源，导致系统的开销明显大于创建或撤消线程时的开销。  </span><br></pre></td></tr></table></figure>
+
+<p><strong>进程和线程的区别是什么？</strong></p>
+<p>进程是执行着的应用程序，而线程是进程内部的一个执行序列。一个进程可以有多个线程。线程又叫做轻量级进程。</p>
 </blockquote>
 <h3 id="2-线程和进程的通信方式了解吗"><a href="#2-线程和进程的通信方式了解吗" class="headerlink" title="2.线程和进程的通信方式了解吗"></a>2.线程和进程的通信方式了解吗</h3><blockquote>
 <p><strong>进程间通信方式</strong><br>进程间通信主要包括<strong>管道、系统IPC（包括消息队列、信号量、信号、共享内存等）、以及套接字socket</strong>。</p>

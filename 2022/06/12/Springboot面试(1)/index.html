@@ -453,7 +453,7 @@
 
 字数:
 
-<a href="">5.1k</a> 
+<a href="">4.8k</a> 
 
 </span>
 
@@ -467,7 +467,7 @@
 
 时间:
 
-<a href="">18min</a> 
+<a href="">17min</a> 
 
 </span>
 
@@ -565,17 +565,7 @@
 <h3 id="装饰者模式"><a href="#装饰者模式" class="headerlink" title="装饰者模式"></a>装饰者模式</h3><p>装饰者设计模式可以动态地给对象增加些额外的属性或行为。相比于使用继承，装饰者模式更加灵活。Spring 中配置DataSource的时候，DataSource可能是不同的数据库和数据源。我们能否根据客户的需求在少修改原有类的代码下切换不同的数据源？这个时候据需要用到装饰者模式。</p>
 <h3 id="策略模式"><a href="#策略模式" class="headerlink" title="策略模式"></a>策略模式</h3><p>Spring 框架的资源访问接口就是基于策略设计模式实现的。该接口提供了更强的资源访问能力，Spring框架本身大量使用了Resource接口来访问底层资源。Resource接口本身没有提供访问任何底层资源的实现逻辑，针对不同的额底层资源，Spring将会提供不同的Resource实现类，不同的实现类负责不同的资源访问类型。</p>
 </blockquote>
-<h3 id="11-springmvc的工作流程"><a href="#11-springmvc的工作流程" class="headerlink" title="11.springmvc的工作流程"></a>11.springmvc的工作流程</h3><blockquote>
-<p><img src="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95(1)/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl81MzYwMTM1OQ==,size_16,color_FFFFFF,t_70-16550458353951.png" alt="在这里插入图片描述"></p>
-<p>1、 <strong>用户发送http请求至前端控制器DispatcherServlet</strong>，中途会有过滤器Filter进行数据过滤。DispatcherServlet执行doService方法经过数据灌入后调用doDispatch方法，得到请求资源标识符（URI）</p>
-<p>2、 DispatcherServlet收到请求后调用HandlerMapping处理器映射器。HandlerMapping找到具体的Handler处理器(可以根据xml配置、注解进行查找)。将生成的Handler（处理器对象）及HandlerInterceptor（处理器拦截器）一并返回给DispatcherServlet。</p>
-<p>3，将封装好的HandlerExecutionChain类型的Handler处理器执行链和适合这个Handler的HandlerAdapter（里面定义了执行Handler的特定规则）返回给DispatcherServlet。</p>
-<p>4，通过获取到适合的HandlerAdapter执行HandlerAdapter中的 handle方法（这个handle只是处理器适配器中的一个方法而已），方法调用Handler里对应的bean，执行该bean对应的Controller类。</p>
-<p>5， 最终将执行结果封装成ModelAndView对象返回给DispatcherServlet。</p>
-<p>6， DispatcherServlet将ModelAndView传给ViewReslover视图解析器，并根据View进行渲染视图（即将模型数据填充至视图中）</p>
-<p>7，将处理过后的ModelAndView视图交给DispatcherServlet，并由DispatcherServlet响应给客户端（展示画面）。</p>
-</blockquote>
-<h3 id="12-Springboot中常用注解有哪些，简述一下注解的作用"><a href="#12-Springboot中常用注解有哪些，简述一下注解的作用" class="headerlink" title="12.Springboot中常用注解有哪些，简述一下注解的作用"></a>12.Springboot中常用注解有哪些，简述一下注解的作用</h3><blockquote>
+<h3 id="11-Springboot中常用注解有哪些，简述一下注解的作用"><a href="#11-Springboot中常用注解有哪些，简述一下注解的作用" class="headerlink" title="11.Springboot中常用注解有哪些，简述一下注解的作用"></a>11.Springboot中常用注解有哪些，简述一下注解的作用</h3><blockquote>
 <h3 id="SpringBootApplication"><a href="#SpringBootApplication" class="headerlink" title="@SpringBootApplication"></a>@SpringBootApplication</h3><ul>
 <li>这个注解很常见了，每次在启动SpringBoot项目的时候，都会见到它，它作用在类上，标识该类为SpringBoot项目启动类。<br>并且让SpringBoot自动给程序进行必要的配置，等同于@Configuration、@EnableAutoConfiguration、@ComponentScan这三个注解。</li>
 </ul>

@@ -453,7 +453,7 @@
 
 字数:
 
-<a href="">634</a> 
+<a href="">1.1k</a> 
 
 </span>
 
@@ -467,7 +467,7 @@
 
 时间:
 
-<a href="">2min</a> 
+<a href="">3min</a> 
 
 </span>
 
@@ -515,6 +515,27 @@
 <p><strong>③ 通过反射获取反射类的父类（超类）和接口</strong></p>
 <p><strong>④通过反射获取反射类的方法</strong></p>
 </blockquote>
+<h3 id="4-序列化ID有什么作用？怎么生成的？"><a href="#4-序列化ID有什么作用？怎么生成的？" class="headerlink" title="4.序列化ID有什么作用？怎么生成的？"></a>4.序列化ID有什么作用？怎么生成的？</h3><blockquote>
+<p>作用:验证版本一致性</p>
+<p>反序列化时，程序会比较磁盘中的序列化版本号ID是否与当前类结构生成的版本号ID一致，如果一致，则反序列化成功</p>
+<p>下图就是反序列化异常情况</p>
+<p><img src="/2022/07/02/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80(2)/image-20220709221426112.png" alt="image-20220709221426112"></p>
+<p>生成方式：</p>
+<p>首先，相关的类要实现Serializable接口</p>
+<ul>
+<li><p>手动生成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line">好处就是即使在原来类上加字段，也不会发生上图的反序列化失败，老版本兼容</span><br></pre></td></tr></table></figure></li>
+<li><p>代码调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ObjectStreamClass c = ObjectStreamClass.lookup(Student.class);</span><br><span class="line">long serialVersionUID = c.getSerialVersionUID();</span><br></pre></td></tr></table></figure></li>
+<li><p>ide快捷工具</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="5-为什么重写-equals-的同时必须重写-hashCode"><a href="#5-为什么重写-equals-的同时必须重写-hashCode" class="headerlink" title="5.为什么重写 equals 的同时必须重写 hashCode"></a>5.为什么重写 equals 的同时必须重写 hashCode</h3><blockquote>
+<p>程序先进行 hashcode 的比较，如果不同，那没就不必在进行 equals 的比较了，这样就大大减少了 equals 比较的次数，这对比需要比较的数量很大的效率提高是很明显的，一个很好的例子就是在集合中的使用</p>
+<p>hashCode 和 equals 两个方法是用来协同判断两个对象是否相等的，采用这种方式的原因是可以提高程序插入和查询的速度，如果在重写 equals 时，不重写 hashCode，就会导致在某些场景下，例如将两个相等的自定义对象存储在 Set 集合时，就会出现程序执行的异常，为了保证程序的正常执行，所以我们就需要在重写 equals 时，也一并重写 hashCode 方法才行。</p>
+<p>回答:因为程序会先进行hashcode，我们希望Set集合能过滤相同数值的对象，因为涉及对象的值比较，我们重写equals，但我们要保证两个对象 equals 相等，那么hashcode也要相同，所以要重写hashcode，否则还是不能去重。（hashcode不是内存地址，跟内存地址相关）</p>
+</blockquote>
 
         </div>
 
@@ -525,9 +546,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/java%E5%9F%BA%E7%A1%80/"># java基础</a>
-                    
                         <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/java%E5%9F%BA%E7%A1%80/"># java基础</a>
                     
                         
                 </span>
