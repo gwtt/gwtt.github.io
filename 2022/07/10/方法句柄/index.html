@@ -17,7 +17,7 @@
 
 
 
-<title>Git面试 | 滚~韬的博客</title>
+<title>java7新特性之方法句柄 | 滚~韬的博客</title>
 
 
 
@@ -427,7 +427,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Git面试</h1>
+            <h1 class="post-title">java7新特性之方法句柄</h1>
             
                 <div class="post-meta">
                     
@@ -436,14 +436,14 @@
 
                     
                         <span class="post-time">
-                        日期: <a href="#">七月 2&nbsp;&nbsp;17:55</a>
+                        日期: <a href="#">七月 10&nbsp;&nbsp;14:02</a>
                         </span>
                     
                     
                         <span class="post-category">
                     分类:
                             
-                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                                <a href="/categories/java%E7%9F%A5%E8%AF%86/">java知识</a>
                             
                         </span>
                     
@@ -453,7 +453,7 @@
 
 字数:
 
-<a href="">429</a> 
+<a href="">1.1k</a> 
 
 </span>
 
@@ -467,7 +467,7 @@
 
 时间:
 
-<a href="">1min</a> 
+<a href="">4min</a> 
 
 </span>
 
@@ -477,38 +477,43 @@
         </header>
 
         <div class="post-content">
-            <h2 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h2><h3 id="1-什么是git"><a href="#1-什么是git" class="headerlink" title="1.什么是git?"></a>1.什么是git?</h3><blockquote>
-<p>git是一个常用的分布式版本管理工具。</p>
-</blockquote>
-<h3 id="2-git常用的命令"><a href="#2-git常用的命令" class="headerlink" title="2.git常用的命令"></a>2.git常用的命令</h3><blockquote>
+            <h1 id="方法句柄"><a href="#方法句柄" class="headerlink" title="方法句柄"></a>方法句柄</h1><p>JDK6之前我们会使用java反射来实现动态方法调用，多数框架用反射的比较多，例如mybatis、spring等。在JDK7中，新增了java.lang.invoke.MethodHandle（方法句柄），称之为“现代化反射”。其实反射和java.lang.invoke.MethodHandle都是间接调用方法的途径，但java.lang.invoke.MethodHandle比反射更简洁，用反射功能会写一大堆冗余代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">race</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Horse</span> <span class="keyword">implements</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">race</span><span class="params">()</span> &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Horse.race()&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">.....</span><br><span class="line"><span class="comment">// 利用接口抽象方法</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="type">Animal</span> <span class="variable">animal</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Horse</span>();</span><br><span class="line">    animal.race();</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">// 反射调用</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="type">Horse</span> <span class="variable">object</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Horse</span>();</span><br><span class="line">    <span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> object.getClass().getMethod(<span class="string">&quot;race&quot;</span>);</span><br><span class="line">    method.invoke(object);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>MethodType用来描述方法的返回值类型以及入参类型。<br>MehodHandle包含一个指向Method对象（方法在jvm内部的对等体）的指针。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;hello,&quot;</span> + s + <span class="string">&quot;MethodHandle&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">Main</span> <span class="variable">main</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Main</span>();</span><br><span class="line">        <span class="type">MethodHandle</span> <span class="variable">mh</span> <span class="operator">=</span> getToStringMH();</span><br><span class="line">        System.out.println((String) mh.invokeExact(main, <span class="string">&quot;ss&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> MethodHandle <span class="title function_">getToStringMH</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">MethodType</span> <span class="variable">mt</span> <span class="operator">=</span> MethodType.methodType(String.class, String.class);  <span class="comment">//获取方法类型 参数为:1.返回值类型,2方法中参数类型</span></span><br><span class="line"></span><br><span class="line">        <span class="type">MethodHandle</span> <span class="variable">mh</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            mh = MethodHandles.lookup().findVirtual(Main.class, <span class="string">&quot;toString&quot;</span>, mt);  <span class="comment">//查找方法句柄</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException | IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> mh;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法句柄是一个强类型的，能够被直接执行的引用。该引用可以指向常规的静态方法或者实例方法，也可以指向构造器或者字段。当指向字段时，方法句柄实则指向包含字段访问字节码的虚构方法，语义上等价于目标字段的 getter 或者 setter 方法。</p>
+<p>方法句柄的类型（MethodType）是由所指向方法的参数类型以及返回类型组成的。它是用来确认方法句柄是否适配的唯一关键。当使用方法句柄时，我们其实并不关心方法句柄所指向方法的类名或者方法名。</p>
+<p><strong>MethodHandle 的创建方式：</strong></p>
+<p>方式一、通过反射创建 MethodHandle（不符合初衷）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">race</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> MethodHandles.Lookup <span class="title function_">lookup</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> MethodHandles.lookup();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> Main.class.getDeclaredMethod(<span class="string">&quot;race&quot;</span>);</span><br><span class="line">        <span class="type">MethodHandle</span> <span class="variable">methodHandle</span> <span class="operator">=</span> Main.lookup().unreflect(method);</span><br><span class="line">        methodHandle.invoke();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出: hello</span><br></pre></td></tr></table></figure>
+
+<p>方式二、根据 MethodType 创建 MethodHandle</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">race</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;race&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">say</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;say&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> MethodHandles.Lookup <span class="title function_">lookup</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> MethodHandles.lookup();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        MethodHandles.<span class="type">Lookup</span> <span class="variable">lookup</span> <span class="operator">=</span> Main.lookup();</span><br><span class="line">        <span class="type">MethodType</span> <span class="variable">methodType</span> <span class="operator">=</span> MethodType.methodType(<span class="keyword">void</span>.class);</span><br><span class="line">        <span class="type">MethodHandle</span> <span class="variable">methodHandle</span> <span class="operator">=</span> lookup.findStatic(Main.class, <span class="string">&quot;race&quot;</span>, methodType);</span><br><span class="line"></span><br><span class="line">        <span class="type">MethodHandle</span> <span class="variable">methodHandle2</span> <span class="operator">=</span> lookup.findVirtual(Main.class, <span class="string">&quot;say&quot;</span>, methodType);</span><br><span class="line">        methodHandle.invoke();</span><br><span class="line">        methodHandle2.invoke(<span class="keyword">new</span> <span class="title class_">Main</span>());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">输出:</span><br><span class="line">race</span><br><span class="line">say</span><br></pre></td></tr></table></figure>
+
+<p>小结一下：</p>
+<p>1、<strong>方法句柄的访问权限不取决于方法句柄的创建位置，而是取决于 Lookup 对象的创建位置。</strong></p>
+<p>2、如果 JDK 版本大于8，那么可以在其他类中，也能够通过该 Lookup 对象对类私有属性进行赋值、取值操作。</p>
+<h4 id="外类中操控私有字段"><a href="#外类中操控私有字段" class="headerlink" title="外类中操控私有字段"></a>外类中操控私有字段</h4><p>因为权限问题，外类中创建的 Lookup 对象无法操控私有字段，那么有什么替代方案呢？</p>
 <ul>
-<li>git add 添加文件到暂存区</li>
-<li>git commit 提交文件到本地仓库</li>
-<li>git pull 从远程仓库拉取项目到本地</li>
-<li>git push 将本地仓库的新的改变推送到远程仓库</li>
-<li>git clone 将远程仓库复制到本地</li>
-<li>git fetch 抓取</li>
-<li>git merge 合并</li>
+<li>通过操控get和set方法</li>
+<li>反射</li>
 </ul>
+<p>关于invoke和invokeExtract方法的区别：</p>
+<blockquote>
+<p>invokeExtract要求更加精确，<br>如下 methodHandle2.invokeExact(test1,5.1,new Integer(1));可以执行，<br>methodHandle2.invokeExact(test1,5.1,1);会报错，因为要将1转换为integer，所以不合要求。这个方法要求不能有任何类型转换，也就是参数严格一致。<br>invoke相对要轻松很多。</p>
 </blockquote>
-<h3 id="3-git-pull、git-merge、git-fetch三个命令的区别？"><a href="#3-git-pull、git-merge、git-fetch三个命令的区别？" class="headerlink" title="3.git pull、git merge、git fetch三个命令的区别？"></a>3.<code>git pull</code>、<code>git merge</code>、<code>git fetch</code>三个命令的区别？</h3><blockquote>
-<p>git clone：是在本地没有版本库的情况下，从远程仓库克隆一份到本地，是一个本地版本库从无到有的过程</p>
-<p>git pull：是在本地仓库已经存在的情况下，将远程最新的commits抓取并合并到本地版本库的过程</p>
-<p>git fetch： 从远程版本库抓取最新的commits，不会进行合并</p>
-<p>git merge：合并</p>
-<p>所以git pull = git fetch + git merge</p>
+<p>关键概念</p>
+<blockquote>
+<p>Lookup<br>MethodHandle 的创建工厂，通过它可以创建MethodHandle，值得注意的是检查工作是在创建时处理的，而不是在调用时处理。</p>
+<p>MethodType<br>顾名思义，就是代表方法的签名。一个方法的返回值类型是什么，有几个参数，每个参数的类型什么？</p>
+<p>MethodHandle<br>方法句柄，通过它我们就可以动态访问类型信息了。</p>
 </blockquote>
-<h3 id="4-push之前一定要进行哪个操作？"><a href="#4-push之前一定要进行哪个操作？" class="headerlink" title="4.push之前一定要进行哪个操作？"></a>4.push之前一定要进行哪个操作？</h3><blockquote>
-<p>push之前一定要进行本地更新操作。使用<code>git pull</code>命令或者使用<code>git fetch</code>和<code>git merge</code>的命令组合。这时候，可能会出现版本冲突，如果出现的话，需要解决完冲突再进行代码push。</p>
-</blockquote>
-<h3 id="5-如何解决版本冲突"><a href="#5-如何解决版本冲突" class="headerlink" title="5.如何解决版本冲突"></a>5.如何解决版本冲突</h3><blockquote>
-<p>版本冲突多出现在合并操作(合并远程仓库代码或者合并分支代码)中。如果出现版本冲突，需要具体分析出现冲突的代码区，手动进行代码合并，然后再进行提交。</p>
-</blockquote>
-<h3 id="6-别人在远程推送的新分支怎么合并在自己上面"><a href="#6-别人在远程推送的新分支怎么合并在自己上面" class="headerlink" title="6.别人在远程推送的新分支怎么合并在自己上面"></a>6.别人在远程推送的新分支怎么合并在自己上面</h3><blockquote>
-<p>假设别人分支是A，我是B</p>
-<p>git checkout B;//到自己分区</p>
-<p>git merge A;//合并分支</p>
-<p>git push;//提交</p>
+<p>如何使用</p>
+<blockquote>
+<p>当理解了上面几个关键概念后使用起来就比较简单了，总的来说只需要4步：</p>
+<p>创建Lookup<br>创建MethodType<br>基于Lookup与MethodType获得MethodHandle<br>调用MethodHandle</p>
 </blockquote>
 
         </div>
@@ -520,9 +525,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/Git/"># Git</a>
+                        <a href="/tags/java%E5%9F%BA%E7%A1%80/"># java基础</a>
                     
-                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                        <a href="/tags/%E6%96%B9%E6%B3%95%E5%8F%A5%E6%9F%84%EF%BC%8C-JVM/"># 方法句柄， JVM</a>
                     
                         
                 </span>
@@ -535,10 +540,10 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2022/07/10/%E6%96%B9%E6%B3%95%E5%8F%A5%E6%9F%84/">java7新特性之方法句柄</a>
+                <a class="prev" rel="prev" href="/2022/07/10/lock%E9%94%81%E5%92%8CSynchronized%E9%94%81/">lock锁和Synchronized锁</a>
             
             
-            <a class="next" rel="next" href="/2022/07/02/Springboot%E9%9D%A2%E8%AF%95(2)/">Springboot面试(2)</a>
+            <a class="next" rel="next" href="/2022/07/02/Git%E9%9D%A2%E8%AF%95/">Git面试</a>
             
         </section>
 
