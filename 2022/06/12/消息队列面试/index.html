@@ -453,7 +453,7 @@
 
 字数:
 
-<a href="">1k</a> 
+<a href="">2.3k</a> 
 
 </span>
 
@@ -467,7 +467,7 @@
 
 时间:
 
-<a href="">3min</a> 
+<a href="">8min</a> 
 
 </span>
 
@@ -511,6 +511,42 @@
 <li>生产者发送消息时，要确认broker确实收到并持久化了这条消息，比如RabbitMQ的confirm机制，Kafka的ack机制都可以保证生产者能正确的将消息发送给broker</li>
 <li>broker要等待消费者真正确认消费到了消息时才删除掉消息，这里通常就 是消费端ack机制，消费者接收到一条消息后，如果确认没问题了，就可以给broker发送一个ack，broker接收到ack后才会删除消息</li>
 </ol>
+</blockquote>
+<h3 id="7-消息丢失怎么办"><a href="#7-消息丢失怎么办" class="headerlink" title="7.消息丢失怎么办"></a>7.消息丢失怎么办</h3><blockquote>
+<p>丢失我们从三个角度出发(以下是RabbitMQ案例 )</p>
+<h4 id="消费者丢数据"><a href="#消费者丢数据" class="headerlink" title="消费者丢数据"></a>消费者丢数据</h4><blockquote>
+<p>此时可以选择用 RabbitMQ 提供的事务功能，就是生产者发送数据之前开启 RabbitMQ <strong>事务channel.txSelect</strong>，然后发送消息，如果消息没有成功被 RabbitMQ 接收到，那么生产者会收到异常报错，此时就可以回滚事务 channel.txRollback，然后重试发送消息；如果收到了消息，那么可以提交事务channel.txCommit。</p>
+<p><strong>缺点:吞吐量减少</strong></p>
+<p>所以一般来说，如果你要确保说写 RabbitMQ 的消息别丢，可以开启 <strong>confirm</strong> 模式，在生产者那里设置开启 confirm 模式之后，你每次写的消息都会分配一个唯一的 id，然后如果写入了 RabbitMQ 中，RabbitMQ会给你回传一个 ack 消息，告诉你说这个消息 ok 了。如果 RabbitMQ 没能处理这个消息，会回调你的一个 nack 接口，告诉你这个消息接收失败，你可以重试。而且你可以结合这个机制自己在内存里维护每个消息 id 的状态，如果超过一定时间还没接收到这个消息的回调，那么你可以重发。</p>
+<p>事务机制和 confirm 机制最大的不同在于，事务机制是同步的，你提交一个事务之后会阻塞在那儿，但是confirm 机制是异步的，你发送个消息之后就可以发送下一个消息，然后那个消息 RabbitMQ 接收了之后会异步回调你的一个接口通知你这个消息接收到了。</p>
+<p><strong>所以一般在生产者这块避免数据丢失，都是用 confirm 机制的。</strong></p>
+</blockquote>
+<h4 id="消息队列丢数据"><a href="#消息队列丢数据" class="headerlink" title="消息队列丢数据"></a>消息队列丢数据</h4><blockquote>
+<p>就是 RabbitMQ 自己弄丢了数据，这个你必须开启 RabbitMQ 的持久化，就是消息写入之后会持久化到磁盘，哪怕是 RabbitMQ 自己挂了，恢复之后会自动读取之前存储的数据，一般数据不会丢。除非极其罕见的是，RabbitMQ 还没持久化，自己就挂了，可能导致少量数据丢失，但是这个概率较小。</p>
+</blockquote>
+<h4 id="消费端丢数据"><a href="#消费端丢数据" class="headerlink" title="消费端丢数据"></a>消费端丢数据</h4><blockquote>
+<p>RabbitMQ 如果丢失了数据，主要是因为你消费的时候，刚消费到，还没处理，结果进程挂了，比如重启了，那么就尴尬了，RabbitMQ 认为你都消费了，这数据就丢了。</p>
+<p>这个时候得用 RabbitMQ 提供的 ack 机制，简单来说，就是你必须关闭 RabbitMQ 的自动 ack，可以通过一个 api 来调用就行，然后每次你自己代码里确保处理完的时候，再在程序里 ack 一把。这样的话，如果你还没处理完，不就没有 ack 了？那 RabbitMQ 就认为你还没处理完，这个时候 RabbitMQ 会把这个消费分配给别的 consumer 去处理，消息是不会丢的。</p>
+</blockquote>
+<p><img src="https://pics3.baidu.com/feed/e1fe9925bc315c60668cdd22d3e7a31b48547744.jpeg?token=9ca5384b80f2f3bc315a49b06168b6d9" alt="img"></p>
+</blockquote>
+<h3 id="8-消息重复消费怎么办"><a href="#8-消息重复消费怎么办" class="headerlink" title="8.消息重复消费怎么办?"></a>8.消息重复消费怎么办?</h3><blockquote>
+<h4 id="重复消费出现场景（消费完后没有返回状态然后重启重新消费）"><a href="#重复消费出现场景（消费完后没有返回状态然后重启重新消费）" class="headerlink" title="重复消费出现场景（消费完后没有返回状态然后重启重新消费）:"></a>重复消费出现场景（消费完后没有返回状态然后重启重新消费）:</h4><blockquote>
+<p>Kafka 实际上有个 offset 的概念，就是每个消息写进去，都有一个 offset，代表消息的序号，然后consumer 消费了数据之后，每隔一段时间（定时定期），会把自己消费过的消息的 offset 提交一下，表示“我已经消费过了，下次我要是重启啥的，你就让我继续从上次消费到的 offset 来继续消费吧”。</p>
+<p>但是凡事总有意外，比如我们之前生产经常遇到的，就是你有时候重启系统，看你怎么重启了，如果碰到点着急的，直接 kill 进程了，再重启。这会导致 consumer 有些消息处理了，但是没来得及提交 offset，尴尬了。重启之后，少数消息会再次消费一次。</p>
+<p>如果消费者干的事儿是拿一条数据就往数据库里写一条，会导致说，你可能就把数据 1/2 在数据库里插入了 2 次，那么数据就错啦。</p>
+<p>其实重复消费不可怕，可怕的是你没考虑到重复消费之后，怎么保证幂等性。</p>
+<p>举个例子吧。假设你有个系统，消费一条消息就往数据库里插入一条数据，要是你一个消息重复两次，你不就插入了两条，这数据不就错了？但是你要是消费到第二次的时候，自己判断一下是否已经消费过了，若是就直接扔了，这样不就保留了一条数据，从而保证了数据的正确性。</p>
+<p>一条数据重复出现两次，数据库里就只有一条数据，这就保证了系统的幂等性。</p>
+<p><strong>幂等性，通俗点说，就一个数据，或者一个请求，给你重复来多次，你得确保对应的数据是不会改变的，不能出错。</strong></p>
+</blockquote>
+<h4 id="如何保证幂等性"><a href="#如何保证幂等性" class="headerlink" title="如何保证幂等性"></a>如何保证幂等性</h4><blockquote>
+<ul>
+<li>数据库实现主键唯一</li>
+<li>redis天然幂等性</li>
+<li>唯一键和redis结合</li>
+</ul>
+</blockquote>
 </blockquote>
 
         </div>
