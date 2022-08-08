@@ -17,7 +17,7 @@
 
 
 
-<title>Tag: 面试 | 滚~韬的博客</title>
+<title>自动拆箱和装箱原理 | 滚~韬的博客</title>
 
 
 
@@ -361,78 +361,195 @@
     }
 </script>
             <div class="main">
-                
-
+                <div class="container">
     
-<div class="container">
-    <div class="post-wrap tags">
-        <h2 class="post-title">-&nbsp;标签&nbsp;·&nbsp;面试-</h2>
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
     </div>
-    <div class="post-wrap archive">
-    
-    
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95(1)/">MySQL面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/">Jvm面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95/">计算机网络面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95(1)/">Springboot面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Juc%E9%9D%A2%E8%AF%95(1)/">Juc面试(1)</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80(1)/">Java面试基础（1）</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-    
-    <nav class="pagination">
-        <a class="page-number" href="/tags/%E9%9D%A2%E8%AF%95/">1</a><span class="page-number current">2</span>
-    </nav>
-
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">自动拆箱和装箱原理</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">八月 8&nbsp;&nbsp;19:22</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/java%E7%9F%A5%E8%AF%86/">java知识</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">905</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">3min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>自动装箱和自动拆箱是两个相反的过程，自动装箱即将基本数据类型转换为对应的封装类，自动拆箱即将封装类转换为对应的基本数据类型。此外，<strong>装箱的过程会增加内存的消耗，影响性能，因为这个过程会创建对应的对象。</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/20210112100512319.png?x-oss-process=image#pic_center/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MTQyNzEyOQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Integer</span> <span class="variable">integerNum</span> <span class="operator">=</span> <span class="number">100</span>; <span class="comment">// 进行自动装箱，得到的是封装类</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">intNum</span> <span class="operator">=</span> integerNum; <span class="comment">// 进行自动拆箱，得到基本数据类型</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>javap -c Main.class</code> 查看生成的字节码文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Compiled from <span class="string">&quot;Main.java&quot;</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">club</span>.wadreamer.test.Main &#123;</span><br><span class="line">  <span class="keyword">public</span> club.wadreamer.test.Main();</span><br><span class="line">    Code:</span><br><span class="line">       <span class="number">0</span>: aload_0</span><br><span class="line">       <span class="number">1</span>: invokespecial #<span class="number">1</span>                  <span class="comment">// Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span></span><br><span class="line">       <span class="number">4</span>: <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(java.lang.String[])</span>;</span><br><span class="line">    Code:</span><br><span class="line">       <span class="number">0</span>: bipush        <span class="number">100</span></span><br><span class="line">       <span class="number">2</span>: invokestatic  #<span class="number">2</span>                  <span class="comment">// Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;</span></span><br><span class="line">       <span class="number">5</span>: astore_1</span><br><span class="line">       <span class="number">6</span>: aload_1</span><br><span class="line">       <span class="number">7</span>: invokevirtual #<span class="number">3</span>                  <span class="comment">// Method java/lang/Integer.intValue:()I</span></span><br><span class="line">      <span class="number">10</span>: istore_2</span><br><span class="line">      <span class="number">11</span>: <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>Integer#valueOf()</code> 和 <code>Integer#intValue()</code> 的源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 自动装箱</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title function_">valueOf</span><span class="params">(<span class="type">int</span> i)</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</span><br><span class="line">		<span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Integer</span>(i);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自动拆箱</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">intValue</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>从上述字节码可以得出如下结论：</p>
+<ul>
+<li>在进行自动装箱时，Java 虚拟机会自动调用 Integer#valueOf()。</li>
+<li>在进行自动拆箱时，Java 虚拟机会自动调用 Integer#intValue()。</li>
+<li>其他数据类型的自动装箱和自动拆箱的过程和 Integer 类似，都是调用类似 xxxValue()、valueOf() 等方法。</li>
+</ul>
+<h4 id="其他案例分析"><a href="#其他案例分析" class="headerlink" title="其他案例分析"></a>其他案例分析</h4><h5 id="1-空指针异常"><a href="#1-空指针异常" class="headerlink" title="1.空指针异常"></a>1.空指针异常</h5><blockquote>
+<p>包装类为空，拆箱时异常</p>
+</blockquote>
+<h5 id="2-equals和-问题"><a href="#2-equals和-问题" class="headerlink" title="2.equals和==问题"></a>2.equals和==问题</h5><blockquote>
+<p>两个包装类用==，比较的是地址</p>
+<p>两个包装类用equals，比较的是值</p>
+<p>一个包装类和一个基本数据类型用equals，比较的是值</p>
+<p>一个包装类和一个基本数据类型用==，比较的是值（会自动拆包）</p>
+<p>两个基本数据类型用==比较的是值</p>
+</blockquote>
+<h5 id="3-拆箱的缓存机制"><a href="#3-拆箱的缓存机制" class="headerlink" title="3.拆箱的缓存机制"></a>3.拆箱的缓存机制</h5><blockquote>
+<p><strong>对于 Integer</strong>，在 [-128, 127] 之间只有固定的 256 个值，所以为了避免多次创建对象，事先创建好一个大小为 256 的 Integer 数组 cache，所以如果值在这个范围内，就可以直接返回我们事先创建好的对象即可。</p>
+<p><strong>对于 Double 类型来说</strong>，我们就不能这样做，因为它在这个范围内个数是无限的。 总结一句就是：在某个范围内的整型数值的个数是有限的，而浮点数却不是。所以在 Double 里面的做法很直接，就是直接创建一个对象，所以每次创建的对象都不一样。</p>
+<p>对于 Boolean 类型来说，在内部已经提前创建好两个对象，因为它只有两种情况，这样也是为了避免重复创建太多的对象。因此，每次执行 Boolean#valueOf() 返回的都是相同的对象。</p>
+</blockquote>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结:"></a>总结:</h4><ul>
+<li>存在拆箱操作时一定要特别注意封装类对象是否为 null。</li>
+<li>包装类和基本数据类型在进行== 运算和算数运算时，会进行自动拆箱。</li>
+<li>equals() 会进行<strong>自动装箱操作</strong>，且需要先判断封装类的类型是否相同，再进一步判断内容是否相同。（==是优先比较基本数据类型，是<strong>拆箱操作</strong>）</li>
+<li>Integer、Short、Byte、Character、Long 这几个类的 valueOf() 的实现是类似的，均在存在 [-128, 127] 的缓存。</li>
+<li>Double、Float 的 valueOf() 的实现是类似的，每次都返回不同的对象。</li>
+<li>Boolean 预先创建了两个对象，Boolean#valueOf() 每次返回的都是相同的对象。</li>
+</ul>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/08/08/HashMap%E4%B8%BA%E4%BB%80%E4%B9%88%E7%BA%BF%E7%A8%8B%E4%B8%8D%E5%AE%89%E5%85%A8/">HashMap为什么线程不安全</a>
+            
+            
+            <a class="next" rel="next" href="/2022/07/10/%E5%85%AB%E9%94%81%E9%97%AE%E9%A2%98/">八锁问题</a>
+            
+        </section>
+
+
+    </article>
 </div>
 
             </div>

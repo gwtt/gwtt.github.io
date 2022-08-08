@@ -17,7 +17,7 @@
 
 
 
-<title>Tag: 面试 | 滚~韬的博客</title>
+<title>HashMap为什么线程不安全 | 滚~韬的博客</title>
 
 
 
@@ -361,78 +361,232 @@
     }
 </script>
             <div class="main">
-                
-
+                <div class="container">
     
-<div class="container">
-    <div class="post-wrap tags">
-        <h2 class="post-title">-&nbsp;标签&nbsp;·&nbsp;面试-</h2>
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
     </div>
-    <div class="post-wrap archive">
-    
-    
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95(1)/">MySQL面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/">Jvm面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95/">计算机网络面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95(1)/">Springboot面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Juc%E9%9D%A2%E8%AF%95(1)/">Juc面试(1)</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80(1)/">Java面试基础（1）</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-    
-    <nav class="pagination">
-        <a class="page-number" href="/tags/%E9%9D%A2%E8%AF%95/">1</a><span class="page-number current">2</span>
-    </nav>
-
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">HashMap为什么线程不安全</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">八月 8&nbsp;&nbsp;19:50</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/java%E7%9F%A5%E8%AF%86/">java知识</a>
+                            
+                        </span>
+                    
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">999</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">4min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h4 id="HashMap原理"><a href="#HashMap原理" class="headerlink" title="HashMap原理"></a>HashMap原理</h4><p>数据结构上：数组+(链表和红黑树)</p>
+<h4 id="HashMap线程不安全问题"><a href="#HashMap线程不安全问题" class="headerlink" title="HashMap线程不安全问题"></a>HashMap线程不安全问题</h4><blockquote>
+<p>HashMap 是线程不安全的，原因就在于 HashMap 的 <strong>rehash</strong>。<strong>rehash</strong> 是 HashMap 扩容过程种的一个步骤。 HashMap 的容量是有限的。当经过多次元素插入，使得 HashMap 达到一定饱和度时，Key 映射位置发生冲突的几率会逐渐提高。 这时候，HashMap 需要扩展它的长度，也就是进行 Resize。 影响发生 Resize 的因素有两个：</p>
+<p>1.<strong>Capacity</strong></p>
+<p>HashMap 的当前长度。上一期曾经说过，HashMap 的长度是 2 的幂。</p>
+<p>2.<strong>LoadFactor</strong></p>
+<p>HashMap 负载因子，默认值为 0.75f。</p>
+<p>衡量 HashMap 是否进行 Resize 的 条件如下：</p>
+<p>HashMap.Size  &gt;= Capacity * LoadFactor</p>
+<p>HashMap 的扩容主要分为两步：</p>
+<ol>
+<li><p>扩容</p>
+<p>创建一个新的 Entry 空数组，长度是原数组的 2 倍</p>
+</li>
+<li><p>ReHash</p>
+<p>遍历原 Entry 数组，把所有的 Entry 重新 Hash 到新数组。为什么要重新 Hash 呢？因为长度扩大以后，Hash 的规则也随之改变。</p>
+<p>让我们回顾一下 Hash 公式：</p>
+<p>index = HashCode（Key） &amp; （Length - 1）**(计算哈希索引)**</p>
+<p>当原数组长度为 8 时，Hash 运算是和 111B 做与运算；新数组长度为 16，Hash 运算是和 1111B 做与运算。Hash 结果显然不同。</p>
+<p>ReHash 的 Java 代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Transfers all entries from current table to newTable.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Entry[] newTable, <span class="type">boolean</span> rehash)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">newCapacity</span> <span class="operator">=</span> newTable.length;</span><br><span class="line">    <span class="keyword">for</span> (Entry&lt;K,V&gt; e : table) &#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">null</span> != e) &#123;</span><br><span class="line">            Entry&lt;K,V&gt; next = e.next;</span><br><span class="line">            <span class="keyword">if</span> (rehash) &#123;</span><br><span class="line">                e.hash = <span class="literal">null</span> == e.key ? <span class="number">0</span> : hash(e.key);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> indexFor(e.hash, newCapacity);</span><br><span class="line">            e.next = newTable[i];</span><br><span class="line">            newTable[i] = e;</span><br><span class="line">            e = next;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上过程单线程下不会出现问题，但是当两个线程同时触发resize的时候就有可能出现问题</p>
+<p>假设一个HashMap已经到了Resize的临界点。此时有两个线程A和B，在同一时刻对HashMap进行Put操作：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTcxNzA1XzhLSGpfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p>此时达到Resize条件，两个线程各自进行Rezie的第一步，也就是扩容：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTcxNzMwX25LSmVfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p>这时候，两个线程都走到了ReHash的步骤。让我们回顾一下ReHash的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Entry&lt;K,V&gt; next = e.next;</span><br></pre></td></tr></table></figure>
+
+<p>假如此时线程B遍历到Entry3对象，刚执行完红框里的这行代码，线程就被挂起。对于线程B来说：</p>
+<p>e = Entry3</p>
+<p>next = Entry2</p>
+<p>这时候线程A畅通无阻地进行着Rehash，当ReHash完成后，结果如下（图中的e和next，代表线程B的两个引用）：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NTM5X25WSmpfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p>直到这一步，看起来没什么毛病。接下来线程B恢复，继续执行属于它自己的ReHash。线程B刚才的状态是：</p>
+<p>e = Entry3</p>
+<p>next = Entry2</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> indexFor(e.hash, newCapacity);</span><br></pre></td></tr></table></figure>
+
+<p>当执行到上面这一行时，显然 i = 3，因为刚才线程A对于Entry3的hash结果也是3。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">newTable[i] = e;</span><br><span class="line">e = next;</span><br></pre></td></tr></table></figure>
+
+<p>我们继续执行到这两行，Entry3放入了线程B的数组下标为3的位置，并且e指向了Entry2。此时e和next的指向如下：</p>
+<p>e = Entry2</p>
+<p>next = Entry2</p>
+<p>整体情况如图所示：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NjM3X2pNSUxfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p>接着是新一轮循环，又执行到红框内的代码行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Entry&lt;K,V&gt; next = e.next;</span><br></pre></td></tr></table></figure>
+
+<p>e = Entry2</p>
+<p>next = Entry3</p>
+<p>整体情况如图所示：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NzA3XzRmSjhfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p>接下来执行下面的三行，用头插法把Entry2插入到了线程B的数组的头结点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">e.next = newTable[i];</span><br><span class="line">newTable[i] = e;</span><br><span class="line">e = next;</span><br></pre></td></tr></table></figure>
+
+<p>整体情况如图所示：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NzMyX1pERVpfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p>第三次循环开始，又执行到红框的代码：</p>
+<p>e = Entry3</p>
+<p>next = Entry3.next = null</p>
+<p>最后一步，当我们执行下面这一行的时候，见证奇迹的时刻来临了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">e.next = newTable[i];</span><br></pre></td></tr></table></figure>
+
+<p>newTable[i] = Entry2</p>
+<p>e = Entry3</p>
+<p>Entry2.next = Entry3</p>
+<p>Entry3.next = Entry2</p>
+<p>链表出现了环形！</p>
+<p>整体情况如图所示：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0ODE4X2thcDZfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p>此时，问题还没有直接产生。当调用Get查找一个不存在的Key，而这个Key的Hash结果恰好等于3的时候，由于位置3带有环形链表，所以程序将会进入死循环！</p>
+</li>
+</ol>
+</blockquote>
+<p>[ ]转载:<a target="_blank" rel="noopener" href="https://my.oschina.net/muziH/blog/1596801">HashMap原理及线程不安全详解 - 木子H的个人空间 - OSCHINA - 中文开源技术交流社区</a></p>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2022/08/08/%E8%87%AA%E5%8A%A8%E6%8B%86%E7%AE%B1%E5%92%8C%E8%A3%85%E7%AE%B1%E5%8E%9F%E7%90%86/">自动拆箱和装箱原理</a>
+            
+        </section>
+
+
+    </article>
 </div>
 
             </div>
