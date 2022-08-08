@@ -501,9 +501,9 @@
 
 <p>以上过程单线程下不会出现问题，但是当两个线程同时触发resize的时候就有可能出现问题</p>
 <p>假设一个HashMap已经到了Resize的临界点。此时有两个线程A和B，在同一时刻对HashMap进行Put操作：</p>
-<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTcxNzA1XzhLSGpfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p><img src="https://static.oschina.net/uploads/space/2017/1229/171705_8KHj_1860759.png" alt="img"></p>
 <p>此时达到Resize条件，两个线程各自进行Rezie的第一步，也就是扩容：</p>
-<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTcxNzMwX25LSmVfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p><img src="https://static.oschina.net/uploads/space/2017/1229/171730_nKJe_1860759.png" alt="img"></p>
 <p>这时候，两个线程都走到了ReHash的步骤。让我们回顾一下ReHash的代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Entry&lt;K,V&gt; next = e.next;</span><br></pre></td></tr></table></figure>
 
@@ -511,7 +511,7 @@
 <p>e = Entry3</p>
 <p>next = Entry2</p>
 <p>这时候线程A畅通无阻地进行着Rehash，当ReHash完成后，结果如下（图中的e和next，代表线程B的两个引用）：</p>
-<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NTM5X25WSmpfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p><img src="https://static.oschina.net/uploads/space/2017/1229/174539_nVJj_1860759.png" alt="img"></p>
 <p>直到这一步，看起来没什么毛病。接下来线程B恢复，继续执行属于它自己的ReHash。线程B刚才的状态是：</p>
 <p>e = Entry3</p>
 <p>next = Entry2</p>
@@ -524,19 +524,19 @@
 <p>e = Entry2</p>
 <p>next = Entry2</p>
 <p>整体情况如图所示：</p>
-<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NjM3X2pNSUxfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p><img src="https://static.oschina.net/uploads/space/2017/1229/174637_jMIL_1860759.png" alt="img"></p>
 <p>接着是新一轮循环，又执行到红框内的代码行：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Entry&lt;K,V&gt; next = e.next;</span><br></pre></td></tr></table></figure>
 
 <p>e = Entry2</p>
 <p>next = Entry3</p>
 <p>整体情况如图所示：</p>
-<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NzA3XzRmSjhfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p><img src="https://static.oschina.net/uploads/space/2017/1229/174707_4fJ8_1860759.png" alt="img"></p>
 <p>接下来执行下面的三行，用头插法把Entry2插入到了线程B的数组的头结点：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">e.next = newTable[i];</span><br><span class="line">newTable[i] = e;</span><br><span class="line">e = next;</span><br></pre></td></tr></table></figure>
 
 <p>整体情况如图所示：</p>
-<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0NzMyX1pERVpfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p><img src="https://static.oschina.net/uploads/space/2017/1229/174732_ZDEZ_1860759.png" alt="img"></p>
 <p>第三次循环开始，又执行到红框的代码：</p>
 <p>e = Entry3</p>
 <p>next = Entry3.next = null</p>
@@ -549,7 +549,7 @@
 <p>Entry3.next = Entry2</p>
 <p>链表出现了环形！</p>
 <p>整体情况如图所示：</p>
-<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9zdGF0aWMub3NjaGluYS5uZXQvdXBsb2Fkcy9zcGFjZS8yMDE3LzEyMjkvMTc0ODE4X2thcDZfMTg2MDc1OS5wbmc?x-oss-process=image/format,png" alt="img"></p>
+<p><img src="https://static.oschina.net/uploads/space/2017/1229/174818_kap6_1860759.png" alt="img"></p>
 <p>此时，问题还没有直接产生。当调用Get查找一个不存在的Key，而这个Key的Hash结果恰好等于3的时候，由于位置3带有环形链表，所以程序将会进入死循环！</p>
 </li>
 </ol>
@@ -565,9 +565,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
-                    
                         <a href="/tags/Java/"># Java</a>
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
                     
                         
                 </span>
