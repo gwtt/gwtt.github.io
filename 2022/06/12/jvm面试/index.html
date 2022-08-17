@@ -454,7 +454,7 @@
 
 字数:
 
-<a href="">4.9k</a> 
+<a href="">5.5k</a> 
 
 </span>
 
@@ -468,7 +468,7 @@
 
 时间:
 
-<a href="">17min</a> 
+<a href="">19min</a> 
 
 </span>
 
@@ -600,6 +600,16 @@
 <p>main 的下一条指令是根据方法返回值给变量 d 赋值，返回值从专门的返回值存储器中获得。<br><img src="https://img-blog.csdnimg.cn/img_convert/1f0d23ad1a920bd0cf2889940087e568.png" alt="在Sum.sum内部，准备返回之前的栈示意图"></p>
 <h3 id="程序执行的基本原理"><a href="#程序执行的基本原理" class="headerlink" title="程序执行的基本原理"></a>程序执行的基本原理</h3><p>CPU有一个指令指示器，指向下一条要执行的指令，要么顺序执行，要么进行跳转（条件跳转或无条件跳转）。</p>
 <p>具体到Java程序来说就是，程序从 main 方法开始顺序执行，方法调用可以看作一个无条件跳转，跳转到对应方法的指令处开始执行，<br>碰到 return 语句或者方法结尾的时候，再执行一次无条件跳转， 跳转回调用方，执行调用方法后的下一条指令。</p>
+</blockquote>
+<h3 id="6-如果一个程序频繁触发Full-GC，原因可能是什么？"><a href="#6-如果一个程序频繁触发Full-GC，原因可能是什么？" class="headerlink" title="6.如果一个程序频繁触发Full GC，原因可能是什么？"></a>6.如果一个程序频繁触发Full GC，原因可能是什么？</h3><blockquote>
+<p>（1）System.gc()方法的调用。此方法的调用是建议JVM进行Full GC,虽然只是建议而非一定，但很多情况下它会触发 Full GC,从而增加Full GC的频率，也即增加了间歇性停顿的次数。强烈建议能不使用此方法就别使用，让虚拟机自己去管理它的内存，可通过通过-XX:+ DisableExplicitGC来禁止RMI（Java远程方法调用）调用System.gc。</p>
+<p>（2）旧生代空间不足。旧生代空间只有在新生代对象转入及创建为大对象、大数组时才会出现不足的现象，当执行Full GC后空间仍然不足，则抛出错误：java.lang.OutOfMemoryError: Java heap space 。为避免以上两种状况引起的FullGC，调优时应尽量做到让对象在Minor GC阶段被回收、让对象在新生代多存活一段时间及不要创建过大的对象及数组。</p>
+<p>（3）Permanet Generation空间满了。Permanet Generation中存放的为一些class的信息等，当系统中要加载的类、反射的类和调用的方法较多时，Permanet Generation可能会被占满，在未配置为采用CMS GC的情况下会执行Full GC。如果经过Full GC仍然回收不了，那么JVM会抛出错误信息：java.lang.OutOfMemoryError: PermGen space 。为避免Perm Gen占满造成Full GC现象，可采用的方法为增大Perm Gen空间或转为使用CMS GC。</p>
+<p>（4）通过Minor GC后进入老年代的平均大小大于老年代的可用内存。如果发现统计数据说之前Minor GC的平均晋升大小比目前old gen剩余的空间大，则不会触发Minor GC而是转为触发full GC。</p>
+<p>（5）由Eden区、From Space区向To Space区复制时，对象大小大于To Space可用内存，则把该对象转存到老年代，且老年代的可用内存小于该对象大小</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.java远程调用System.gc()方法</span><br><span class="line">2.老年代空间不足</span><br><span class="line">3.永久代空间满了（java8被元空间替代，使用本地内存，所以这个现在不太可能发生）</span><br><span class="line">4.假如young gc后，进入老年代的平均大小大于老年代可用内存会触发full gc</span><br><span class="line">5.由Eden区，from区向to区复制时（或者颠倒顺序），对象大于to区内存，则移动到老年代，但是老年代内存小于该对象大小</span><br></pre></td></tr></table></figure>
+
+
 </blockquote>
 
         </div>

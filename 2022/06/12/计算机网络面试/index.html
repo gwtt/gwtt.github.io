@@ -454,7 +454,7 @@
 
 字数:
 
-<a href="">4.1k</a> 
+<a href="">4.5k</a> 
 
 </span>
 
@@ -468,7 +468,7 @@
 
 时间:
 
-<a href="">14min</a> 
+<a href="">15min</a> 
 
 </span>
 
@@ -671,6 +671,20 @@
 <p><strong>浏览器端自行处理</strong></p>
 <p>上传过程中将文件在服务器写为临时文件，等全部写完了（文件上传完），将此临时文件重命名为正式文件即可</p>
 <p>如果中途上传中断过，下次上传的时候根据当前临时文件大小，作为在客户端读取文件的偏移量，从此位置继续读取文件数据块，上传到服务器从此偏移量继续写入文件即可<br><img src="https://img-blog.csdnimg.cn/img_convert/2fca1391b4a9ae80c164ab5d88492c86.png" alt="img"></p>
+</blockquote>
+<h3 id="10-为什么Https用两种加密算法？"><a href="#10-为什么Https用两种加密算法？" class="headerlink" title="10.为什么Https用两种加密算法？"></a>10.为什么Https用两种加密算法？</h3><blockquote>
+<p>HTTPS 在内容传输的加密上使用的是对称加密，非对称加密只作用在证书验证阶段。</p>
+<p>HTTPS的整体过程分为证书验证和数据传输阶段，具体的交互过程如下： </p>
+<p>① 证书验证阶段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1）浏览器发起 HTTPS 请求；</span><br><span class="line"></span><br><span class="line">2）服务端返回 HTTPS 证书；</span><br><span class="line"></span><br><span class="line">3）客户端验证证书是否合法，如果不合法则提示告警。	</span><br></pre></td></tr></table></figure>
+
+<p>② 数据传输阶段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）当证书验证合法后，在本地生成随机数；</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>）通过公钥加密随机数，并把加密后的随机数传输到服务端；</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>）服务端通过私钥对随机数进行解密；</span><br><span class="line"></span><br><span class="line"><span class="number">4</span>）服务端通过客户端传入的随机数构造对称加密算法，对返回结果内容进行加密后传输。</span><br><span class="line">    </span><br><span class="line"><span class="number">5</span>) 客户端再用生成的随机值对返回内容进行对应的对称解密，获取内容</span><br></pre></td></tr></table></figure>
+
+<h4 id="为什么数据传输是用对称加密？"><a href="#为什么数据传输是用对称加密？" class="headerlink" title="为什么数据传输是用对称加密？"></a>为什么数据传输是用对称加密？</h4><p>首先：非对称加密的加解密效率是非常低的，而 http 的应用场景中通常端与端之间存在大量的交互，非对称加密的效率是无法接受的。</p>
+<p>另外：在 HTTPS 的场景中只有服务端保存了私钥，一对公私钥只能实现单向的加解密，所以 HTTPS 中内容传输加密采取的是对称加密，而不是非对称加密</p>
+<p><strong>内容使用对称加密是为了传输效率</strong></p>
+<p><strong>非对称加密是为了验证证书合法性</strong></p>
 </blockquote>
 
         </div>
