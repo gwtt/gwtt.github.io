@@ -17,7 +17,7 @@
 
 
 
-<title>归档: 2022/6 | 滚~韬的博客</title>
+<title>限流算法 | 滚~韬的博客</title>
 
 
 
@@ -361,103 +361,178 @@
     }
 </script>
             <div class="main">
-                <div class="post-wrap archive">
+                <div class="container">
     
     
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%9D%A2%E8%AF%95/">消息队列面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E5%88%86%E5%B8%83%E5%BC%8F%E9%9D%A2%E8%AF%95/">分布式面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Mybatis%E9%9D%A2%E8%AF%95(1)/">Mybatis面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Redis%E9%9D%A2%E8%AF%95/">Redis面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Mysql%E9%9D%A2%E8%AF%95(1)/">MySQL面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/">Jvm面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95(1)/">计算机网络面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95(1)/">Springboot面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Juc%E9%9D%A2%E8%AF%95(1)/">Juc面试(1)</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80(1)/">Java面试基础（1）</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">限流算法</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">八月 18&nbsp;&nbsp;21:46</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">1.7k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">5min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="限流"><a href="#限流" class="headerlink" title="限流"></a>限流</h1><p>限流顾名思义就是限制流量，在软件系统中就是限制流量进入软件系统。</p>
+<h1 id="为什么要限流？"><a href="#为什么要限流？" class="headerlink" title="为什么要限流？"></a>为什么要限流？</h1><p>在实际的生活场景中，当一个 web 服务部署到生产环境，也就是我们所说的公网。这个时候就会受到互联网上所有人的访问请求，比如像百度。每天都会有很多人访问 <code>www.baidu.com</code> ，如果有些人不怀好意的拼命的访问这个网站，那么整个系统就会因为这个人的恶作剧，从而浪费了很多不必要的带宽和系统资源。</p>
+<h1 id="限流实现"><a href="#限流实现" class="headerlink" title="限流实现"></a>限流实现</h1><p>因为我们现在的软件系统都是微服务形式的，一个 HTTP 请求可能要经过后端十几个软件服务，最后才能得到结果返回给用户。如果我们对一些请求进行限制，比如只允许某一个 IP 在 10 秒钟内访问 20 次，如果超出了这 20 次，直接最前端就返回 429 状态码。这样就保护了后端十几个服务，避免为这些恶意请求消耗系统资源。</p>
+<h2 id="常见的几种限流算法。"><a href="#常见的几种限流算法。" class="headerlink" title="常见的几种限流算法。"></a>常见的几种限流算法。</h2><p>有想法就会有实现，当前最常见的几种限流算法有<br><strong>固定窗口计数器算法</strong> 、<strong>滑动窗口计数器算法</strong>、<strong>漏桶算法</strong>、令牌桶算法。<br>其中固定窗口计数器算法和滑动窗口计数器算法比较相似，漏桶算法和令牌桶算法比较类似。<br>以下我们用只允许一个 ip 在 10 秒钟内只能访问 20 次这个限流需求来解释这些限流算法</p>
+<h2 id="固定窗口算法"><a href="#固定窗口算法" class="headerlink" title="固定窗口算法"></a>固定窗口算法</h2><p>固定窗口算法就是设置一个固定的时间期限，当第一条请求到来的时候就开始计时同时计数，当接下来的 10 秒中内每来一条请求计数器就＋1。当计数器值到 20 后，接下来的所有请求都拒绝。十秒钟过后重置计数器。<br>但是此算法存在一个缺陷：<br>假设以下一种场景，攻击者在知道限流窗口是 10s 的情况下，先发送一条消息，让限流算法开启计数，此时计数器为 1，然后等到第 9.5 秒的时候持续发送请求攻击，这样 9.5-10 这个时间窗口里面会被允许经过 19 条消息，过了 10 秒后计数器归零，又马上接收了 20 条请求，这样，在 9.5-10.5 这个时间窗口总共接收了 39 条消息，限流值直接放大了一倍(原本是希望最大一秒钟只有 10 条的并发量)<br><a target="_blank" rel="noopener" href="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318110617103-964302552.png"><img src="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318110617103-964302552.png" alt="img"></a></p>
+<h2 id="滑动窗口算法"><a href="#滑动窗口算法" class="headerlink" title="滑动窗口算法"></a>滑动窗口算法</h2><p>滑动窗口算法就解决了上面固定窗口算法的缺陷。所谓的滑动窗口就是在原有的固定窗口上新增了一个和固定窗口大小一样的窗口，此窗口可以滑动如下图。<br><a target="_blank" rel="noopener" href="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318111108896-294281716.png"><img src="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318111108896-294281716.png" alt="img"></a></p>
+<p>当第1条消息来到的时候，10秒的窗口期就生成，此时滑动窗口和第1个窗口重叠。接下来在第9.5秒的时候开始发动请求攻击，在第10秒的那一刻，滑动窗口。所含钙的窗口里面的计数器的值已经达到20，接下来我们假设又过了0.5秒，此时滑动窗口来到10.5秒。这时候滑动窗口涵盖了两个窗口。此时如何计算滑动窗口中计数器的值呢？我们可以假设前面的窗口所过来的流量是按照时间均匀分布的（虽然实际上并不是）。那么这个时候我们就可以计算出一个权重。就是滑动窗口涵盖第1个窗口时间的百分比：9.5/10=0.95。那么我们就假设当前这个窗口中所占有的数据为20*0.95=19。因此接下来我们只能允许通过一条数据。同时我们也可以计算出，10-10.5秒这个区间内算出来的值肯定小于1，因此这个区间内过来的请求全部会拒绝。</p>
+<h2 id="漏桶算法"><a href="#漏桶算法" class="headerlink" title="漏桶算法"></a>漏桶算法</h2><p>漏桶算法的思想类似于小时候的那道数学题，一个水缸一个水龙头放水，一个出水口出水，进水口就是攻击者的请求，放水口就是限流算法允许通过的请求的速率，当水缸满出来了，则将请求拒绝，水缸里的水就是攻击者的请求被缓存起来。<br><a target="_blank" rel="noopener" href="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318111636851-1034925225.png"><img src="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318111636851-1034925225.png" alt="img"></a></p>
+<p>接下来还是拿上面的例子：假设水缸容量是20，放水速率是每秒2个，当攻击者突然一秒钟打过来30个请求，如果是窗口计数器算法(不管是固定还是滑动窗口)会直接一下子允许20个请求通过剩下10个拒绝，但是接下来剩余窗口时间内不允许有新的请求进来。而漏桶算法则是会缓存这20个请求剩下10个拒绝，然后以每秒2个请求的速率往下游传递。此算法不允许突发流量，永远保证下游的速率一致。</p>
+<h2 id="令牌桶算法"><a href="#令牌桶算法" class="headerlink" title="令牌桶算法"></a>令牌桶算法</h2><p>令牌桶算法则是在漏桶算法上进行了修改。它的思想是假设桶内有很多令牌，同时以固定速率生成令牌放到桶内，如果桶内令牌满则丢弃。当请求过来的时候只要能拿到令牌就能通行。<br>以上面例子为例：桶内存在20个令牌，当同时以每秒2个的速度生成令牌。当一次来30条请求，则由于桶内存在20个令牌，因此前20个请求都会被放行，剩下的10个请求都会被拒绝，接下来如果继续有请求过来的话，就会以每秒2个请求的速率放行，当一段时间没有请求后，桶内令牌又会存满。<br><a target="_blank" rel="noopener" href="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318111459982-1036389654.png"><img src="https://img2022.cnblogs.com/blog/2754881/202203/2754881-20220318111459982-1036389654.png" alt="img"></a></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>总共介绍了四种常见的算到，</p>
+<ul>
+<li>固定窗口算法实现简单，但是有缺点就是会超出限流阈值两倍的请求</li>
+<li>滑动窗口可以解决固定窗口超出限流阈值的问题，到时他的计算权重并不是准确的，而是按照时间线将请求平均在时间线上</li>
+<li>漏桶算法不允许一定的突发流量，这有时候可能在特定场景造成请求超时。</li>
+<li>令牌桶允许突发流量</li>
+</ul>
+<p>代码演示实现可以查看:<a target="_blank" rel="noopener" href="https://blog.csdn.net/yangbindxj/article/details/124396314">(39条消息) 5种限流算法，7种限流方式，挡住突发流量_文晓武的博客-CSDN博客_限流算法</a></p>
+<p>转自:<a target="_blank" rel="noopener" href="https://www.cnblogs.com/geeko/p/16020359.html">几种常见的限流算法 - zhqqqy - 博客园 (cnblogs.com)</a></p>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"># 计算机网络</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/08/18/Linux%E9%9D%A2%E8%AF%95(1)/">Linux面试(1)</a>
+            
+            
+            <a class="next" rel="next" href="/2022/08/16/gitlab%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2/">gitlab自动部署</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
             </div>
             <footer id="footer" class="footer">
     <div class="copyright">
