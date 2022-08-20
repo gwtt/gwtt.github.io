@@ -364,6 +364,65 @@
                 <div class="container">
     
     
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
 
     
     <article class="post-wrap">
@@ -381,10 +440,37 @@
                         </span>
                     
                     
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
 
 			 
 
+<span class="post-count">
+
+字数:
+
+<a href="">98</a> 
+
+</span>
+
+
+
  
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">1min</a> 
+
+</span>
 
 
                 </div>
@@ -392,7 +478,12 @@
         </header>
 
         <div class="post-content">
-            
+            <h3 id="1-在Linux系统中如何统计某个字符串出现的次数"><a href="#1-在Linux系统中如何统计某个字符串出现的次数" class="headerlink" title="1.在Linux系统中如何统计某个字符串出现的次数"></a>1.在Linux系统中如何统计某个字符串出现的次数</h3><blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">grep -o targetStr filename | wc -l（单个字符串）</span><br><span class="line">&quot;targetStr&quot;可以不加引号</span><br><span class="line">grep -o targetStr_1\|targetStr_2\|targetStr_3…… filename | wc -l</span><br><span class="line">&quot;targetStr_1&quot;这些必须加引号</span><br><span class="line">但是上面的方法是不准确的，因为wc -l只是显示行数，如果一行字符串多次出现，那么结果不准确</span><br></pre></td></tr></table></figure>
+
+
+</blockquote>
+
         </div>
 
         
@@ -401,6 +492,12 @@
                 <span>标签:</span>
                 <span class="tag">
                     
+                    
+                        <a href="/tags/Linux/"># Linux</a>
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95%EF%BC%8C-%E6%8C%87%E4%BB%A4/"># 面试， 指令</a>
+                    
+                        
                 </span>
             </div>
             <div>
@@ -410,6 +507,8 @@
             </div>
         </section>
         <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/08/20/%E5%8D%81%E5%A4%A7%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/">十大排序算法</a>
             
             
             <a class="next" rel="next" href="/2022/08/18/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/">限流算法</a>
