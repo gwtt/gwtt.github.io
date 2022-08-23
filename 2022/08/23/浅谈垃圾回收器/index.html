@@ -479,7 +479,7 @@
 
         <div class="post-content">
             <h1 id="CMS垃圾回收器"><a href="#CMS垃圾回收器" class="headerlink" title="CMS垃圾回收器"></a>CMS垃圾回收器</h1><p>如果用Seria和Parallel系列的垃圾收集器：在垃圾回收的时，用户线程都会完全停止，直至垃圾回收结束！</p>
-<p><a target="_blank" rel="noopener" href="https://test1.jsdelivr.net/gh/Faetbwac/img/202207251706505.jpeg"><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207251706505.jpeg" alt="img"></a></p>
+<p><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207251706505-16612506422341.jpeg" alt="img"></p>
 <p>CMS的全称：Concurrent Mark Sweep，翻译过来是<strong>并发标记清除</strong></p>
 <p>用CMS对比上面的垃圾收集器(Seria和Parallel和parNew)：它最大的不同点就是<strong>并发</strong>：在GC线程工作的时候，用户线程<strong>不会完全停止</strong>，用户线程在<strong>部分场景下</strong>与GC线程一起并发执行。</p>
 <p>但是，要理解的是，无论是什么垃圾收集器，Stop The World是一定无法避免的！</p>
