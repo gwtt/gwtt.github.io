@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>浅谈垃圾回收器 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<!-- 搜索的部分 -->
+
+
+
+    <script>
+    // function searchToggle() {
+    //     const width = $(document.body).width()
+    //     if(width > 479) {
+    //         return;
+    //     }
+    //     const search = $('.search');
+    //     const searchForm = $('.form-search')
+
+    //     if(!search.hasClass("mobile-search")) {
+    //         search.addClass("mobile-search");
+    //     } else {
+    //         search.removeClass("mobile-search");
+    //     } 
+    // }
+
+    function searchToggle() {
+        const width = $(document.body).width()
+        if(width > 479) {
+            return;
+        }
+        const search = $('.search');
+        const searchForm = $('.form-search');
+        const menuToggle = $('.menu-toggle');
+        const title = $('.navbar-header-title ');
+
+        if(!search.hasClass("mobile-search")) {
+            search.addClass("mobile-search");
+            menuToggle.addClass("open-search")
+            title.addClass("mobile-title-hidden")
+        } else {
+            search.removeClass("mobile-search");
+            menuToggle.removeClass("open-search")
+            // title.css({visibility: 'visible'})
+            title.removeClass("mobile-title-hidden")
+        } 
+    }
+
+
+
+    function search(searchInputEl, formEl, flag) {
+        const path = "/" + "search.json"; // 可以在public 下查看这个search.json
+        $(formEl).submit(function(e){
+            e.preventDefault();
+            let target = null
+            if(searchInputEl == null) {
+                const screenWidth = $(document.body).width();
+                target = screenWidth > 479 ? $('#pc-search-input') : $('#mobile-search-input');
+                console.log(target);
+            } else {
+                target = $(searchInputEl)
+            }
+
+            if(!flag && target.val() === '') {
+                return ;
+            }
+
+            $("#u-search").fadeIn(500, function() {
+                $("body > .wrapper").addClass("modal-active");
+
+                $.ajax({
+                    url: path,
+                    dataType: "json",
+                    beforeSend: function (xhr) {
+                        $input = target.val();
+                        $(".form-input").val($input);
+                        const loadingBar = $('.search-loading-bar') 
+                        loadingBar.css({
+                            width:'100%',
+                            display: 'block'
+                        });
+                    },
+                    success: function( datas ) {
+                        console.log(datas);
+                        const $resultPanel = $(".modal-body")[0];
+                        let str = `<ul class="modal-results">`;
+                        var keywords = $(".form-input").val().trim().toLowerCase().split(/[\s\-]+/);
+                        $resultPanel.innerHTML = "";
+                        let hasResult = false
+                        let text = `<div class="no-result">找不到与关键词相关的内容....</div>`;
+
+                        if ($(".form-input").val().trim().length <= 0) {
+                            // 没有结果
+                            $resultPanel.innerHTML = text;
+                            return;
+                        }
+                        datas.forEach(function (data, index) {
+                            var isMatch = true;
+                            if (!data.title || data.title.trim() === '') {
+                                data.title = "Untitled";
+                            }
+                            var data_title = data.title.trim().toLowerCase();
+                            var data_content = data.content && data.content.trim().replace(/<[^>]+>/g, "").toLowerCase() || '';
+                            var data_url = data.url;
+                            var index_title = -1;
+                            var index_content = -1;
+                            var first_occur = -1;
+                            // only match artiles with not empty contents
+                            if (data_content !== '') {
+                                keywords.forEach(function (keyword, i) {
+                                    index_title = data_title.indexOf(keyword);
+                                    index_content = data_content.indexOf(keyword);
+
+                                    if (index_title < 0 && index_content < 0) {
+                                        isMatch = false;
+                                    } else {
+                                        hasResult = true
+                                        if (index_content < 0) {
+                                            index_content = 0;
+                                        }
+                                        if (i == 0) {
+                                            first_occur = index_content;
+                                        }
+                                    }
+                                });
+                            } else {
+                                isMatch = false;
+                            }
+                            // show search results
+                            if (isMatch) {
+                                str += `<li class='result-item'><a href='${data_url}' class='result-item-detail'> <span class="title">${data_title}</span>`;
+                                var content = data.content.trim().replace(/<[^>]+>/g, "");
+                                if (first_occur >= 0) {
+                                    // cut out 200 characters
+                                    var start = first_occur - 40;
+                                    var end = first_occur + 160;
+
+                                    if (start < 0) {
+                                        start = 0;
+                                    }
+
+                                    if (start == 0) {
+                                        end = 200;
+                                    }
+
+                                    if (end > content.length) {
+                                        end = content.length;
+                                    }
+
+                                    var match_content = content.substring(start, end);
+
+                                    // highlight all keywords
+                                    keywords.forEach(function (keyword) {
+                                        var regS = new RegExp(keyword, "gi");
+                                        match_content = match_content.replace(regS, `<em class="search-keyword">${keyword}</em>`);
+                                    });
+
+                                    str += `<span class="content"> ${match_content} ...</span></a>`;
+                                }
+                                str += "</li>";
+                            }
+                        });
+                        str += "</ul>";
+                        if(hasResult) {
+                            $resultPanel.innerHTML = str;
+                        } else {
+                            $resultPanel.innerHTML = text;
+                        }
+
+                    },
+                    complete: function() {
+                        setTimeout(() => {
+                                const loadingBar = $('.search-loading-bar') 
+                                loadingBar.css({
+                                    width:'0%',
+                                    display: 'none'
+                                });
+                        }, 300)
+                    }
+                });
+            })
+
+        });
+    }
+
+    $(document).ready(function() {
+        $('.modal-close').click(function () { 
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+
+        $('.modal-overlay').click(function() {
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+        search(null, ".form-search", false)
+        search("#u-search-modal-form .form-input", ".u-search-modal-form", true)
+    })
+</script>
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+
+    </script>
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+   <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+   <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+    <div class="container">
+        <!-- <div class="navbar-header header-logo"><a href="/">滚~韬</a></div> -->
+        <div class="navbar-header header-logo"><a href="/"><i class="iconfont icon-zhuye" style="font-size: 1em;"></i>滚~韬</a></div>
+        <div class="menu navbar-right">
+            <!-- 这里表示的是pc端搜索框 -->
+            
+            
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="pc-search-input"/>
+        </form>
+    </div>
+
+
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+            <input id="switch_default" type="checkbox" class="switch_default">
+            <label for="switch_default" class="toggleBtn"></label>
+        </div>
+    </div>
+</nav>
+
+
+<nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+        <div class="navbar-header">
+            <div>
+                <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+            </div>
+            <div class="navbar-mobile-right">
+                
+                
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="mobile-search-input"/>
+        </form>
+    </div>
+
+
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; 目录</div>
+            </div>
+
+        </div>
+        <div class="menu" id="mobile-menu">
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+        </div>
+    </div>
+</nav>
+
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">浅谈垃圾回收器</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">八月 23&nbsp;&nbsp;10:57</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">2k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">6min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="CMS垃圾回收器"><a href="#CMS垃圾回收器" class="headerlink" title="CMS垃圾回收器"></a>CMS垃圾回收器</h1><p>如果用Seria和Parallel系列的垃圾收集器：在垃圾回收的时，用户线程都会完全停止，直至垃圾回收结束！</p>
+<p><a target="_blank" rel="noopener" href="https://test1.jsdelivr.net/gh/Faetbwac/img/202207251706505.jpeg"><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207251706505.jpeg" alt="img"></a></p>
+<p>CMS的全称：Concurrent Mark Sweep，翻译过来是<strong>并发标记清除</strong></p>
+<p>用CMS对比上面的垃圾收集器(Seria和Parallel和parNew)：它最大的不同点就是<strong>并发</strong>：在GC线程工作的时候，用户线程<strong>不会完全停止</strong>，用户线程在<strong>部分场景下</strong>与GC线程一起并发执行。</p>
+<p>但是，要理解的是，无论是什么垃圾收集器，Stop The World是一定无法避免的！</p>
+<p>CMS只是在<strong>部分</strong>的GC场景下可以让GC线程与用户线程并发执行</p>
+<p>CMS的设计目标是为了避免<strong>老年代 GC</strong>出现<strong>长时间</strong>的卡顿（Stop The World）</p>
+<h2 id="CMS的工作流程"><a href="#CMS的工作流程" class="headerlink" title="CMS的工作流程"></a>CMS的工作流程</h2><p>CMS可以简单分为5个步骤：初始标记、并发标记、（并发预清理）、重新标记以及并发清除</p>
+<p>从步骤就不难看出，CMS主要是实现了<strong>标记清除</strong>垃圾回收算法</p>
+<h2 id="初始标记的过程"><a href="#初始标记的过程" class="headerlink" title="初始标记的过程"></a>初始标记的过程</h2><p><strong>初始标记</strong>会标记GCRoots<strong>直接关联</strong>的对象以及<strong>年轻代</strong>指向<strong>老年代</strong>的对象</p>
+<p><strong>初始标记</strong>这个过程是会发生Stop The World的。但这个阶段的速度算是很快的，因为没有<strong>向下追溯</strong>（只标记一层）</p>
+<p><a target="_blank" rel="noopener" href="https://test1.jsdelivr.net/gh/Faetbwac/img/202207251706562.jpeg"><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207251706562.jpeg" alt="img"></a></p>
+<h2 id="并发标记的过程"><a href="#并发标记的过程" class="headerlink" title="并发标记的过程"></a>并发标记的过程</h2><p>在<strong>初始标记</strong>完了之后，就进入了<strong>并发标记</strong>阶段啦</p>
+<p><strong>并发标记</strong>这个过程是不会停止用户线程的（不会发生 Stop The World）。这一阶段主要是从GC Roots向下<strong>追溯</strong>，标记所有可达的对象。</p>
+<p><strong>并发标记</strong>在GC的角度而言，是比较耗费时间的（需要追溯）</p>
+<p><a target="_blank" rel="noopener" href="https://test1.jsdelivr.net/gh/Faetbwac/img/202207251707207.jpeg"><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207251707207.jpeg" alt="img"></a></p>
+<p><strong>并发标记</strong>这个阶段完成之后，就到了<strong>并发预处理</strong>阶段啦</p>
+<p><strong>并发预处理</strong>这个阶段主要想干的事情：希望能减少下一个阶段<strong>重新标记</strong>所消耗的时间</p>
+<p>因为下一个阶段<strong>重新标记</strong>是需要Stop The World的</p>
+<p><strong>并发标记</strong>这个阶段由于用户线程是没有被挂起的，所以对象是有可能发生变化的</p>
+<p>可能有些对象，从新生代晋升到了老年代。可能有些对象，直接分配到了老年代（大对象）。可能老年代或者新生代的对象引用发生了变化…</p>
+<h2 id="跨代引用的问题"><a href="#跨代引用的问题" class="headerlink" title="跨代引用的问题"></a>跨代引用的问题</h2><p>针对老年代的对象，其实还是可以借助类card table的存储（将老年代对象发生变化所对应的卡页标记为dirty）</p>
+<p>所以<strong>并发预处理</strong>这个阶段会扫描可能由于<strong>并发标记</strong>时导致老年代发生变化的对象，会再扫描一遍标记为dirty的卡页</p>
+<p>对于新生代的对象，我们还是得遍历新生代来看看在<strong>并发标记</strong>过程中有没有对象引用了老年代..</p>
+<p>不过JVM里给我们提供了很多<strong>参数</strong>，有可能在这个过程中会触发一次 minor GC（触发了minor GC 是意味着就可以更少地遍历新生代的对象）</p>
+<p><a target="_blank" rel="noopener" href="https://test1.jsdelivr.net/gh/Faetbwac/img/202207251707070.jpeg"><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207251707070.jpeg" alt="img"></a></p>
+<h2 id="重新标记的过程"><a href="#重新标记的过程" class="headerlink" title="重新标记的过程"></a>重新标记的过程</h2><p><strong>并发预处理</strong>这个阶段阶段结束后，就到了<strong>重新标记</strong>阶段</p>
+<p><strong>重新标记</strong>阶段会Stop The World，这个过程的停顿时间其实很大程度上取决于上面<strong>并发预处理</strong>阶段（可以发现，这是一个追赶的过程：一边在标记存活对象，一边用户线程在执行产生垃圾）</p>
+<p><a target="_blank" rel="noopener" href="https://test1.jsdelivr.net/gh/Faetbwac/img/202207251707172.jpeg"><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207251707172.jpeg" alt="img"></a></p>
+<h2 id="并发清除的过程"><a href="#并发清除的过程" class="headerlink" title="并发清除的过程"></a>并发清除的过程</h2><p>最后就是<strong>并发清除</strong>阶段，不会Stop The World</p>
+<p>一边用户线程在执行，一边GC线程在回收不可达的对象</p>
+<p>这个过程，还是有可能用户线程在不断产生垃圾，但只能留到下一次GC 进行处理了，产生的这些垃圾被叫做“浮动垃圾”</p>
+<p>完了以后会重置 CMS 算法相关的内部数据，为下一次 GC 循环做准备</p>
+<p><a target="_blank" rel="noopener" href="https://test1.jsdelivr.net/gh/Faetbwac/img/202207252308270.jpeg"><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/202207252308270.jpeg" alt="img"></a></p>
+<h2 id="CMS的缺点"><a href="#CMS的缺点" class="headerlink" title="CMS的缺点"></a>CMS的缺点</h2><ol>
+<li>空间需要预留：CMS垃圾收集器可以一边回收垃圾，一边处理用户线程，那需要在这个过程中保证有充足的内存空间供用户使用。如果CMS运行过程中预留的空间不够用了，会报错（Concurrent Mode Failure），这时会启动 Serial Old垃圾收集器进行老年代的垃圾回收，会导致停顿的时间很长。显然啦，空间预留多少，肯定是有参数配置的。</li>
+<li><strong>浮动垃圾</strong>：由于垃圾回收和用户线程是同时进行的，在进行标记或者清除的同时，用户的线程还会去改变对象的引用，使得原来某些对象不是垃圾，但是当 CMS 进行清理的时候变成了垃圾，CMS 收集器无法收集，只能等到下一次 GC。CMS 收集器无法处理<strong>浮动垃圾</strong>（Floating Garbage），可能出现 “Concurrent Mode Failure” 失败而导致另一次 Full GC 的产生。如果在应用中老年代增长不是太快，可以适当调高参数 - XX:CMSInitiatingOccupancyFraction 的值来提高触发百分比，以便降低内存回收次数从而获取更好的性能。</li>
+<li>内存碎片问题：CMS本质上是实现了<strong>标记清除算法</strong>的收集器（从过程就可以看得出），这会意味着会产生内存碎片。由于碎片太多，又可能会导致内存空间不足所触发full GC，CMS一般会在触发full GC这个过程对碎片进行整理。整理涉及到<strong>移动</strong>/<strong>标记</strong>，那这个过程肯定会Stop The World的，如果内存足够大（意味着可能装载的对象足够多），那这个过程卡顿也是需要一定的时间的。</li>
+</ol>
+<h2 id="补充面试题"><a href="#补充面试题" class="headerlink" title="补充面试题:"></a>补充面试题:</h2><h3 id="1-CMS的过程？"><a href="#1-CMS的过程？" class="headerlink" title="1.CMS的过程？"></a>1.CMS的过程？</h3><blockquote>
+<p>初始标记、并发标记、（并发预清理）、重新标记以及并发清除</p>
+</blockquote>
+<h3 id="2-怎么标记垃圾的？"><a href="#2-怎么标记垃圾的？" class="headerlink" title="2,怎么标记垃圾的？"></a>2,怎么标记垃圾的？</h3><blockquote>
+<p>使用三色标记法</p>
+</blockquote>
+<h3 id="3-什么是三色标记法"><a href="#3-什么是三色标记法" class="headerlink" title="3.什么是三色标记法"></a>3.什么是三色标记法</h3><blockquote>
+<p><img src="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQ1Nzk4NTU2,size_16,color_FFFFFF,t_70.png" alt="在这里插入图片描述"></p>
+<p>　三色标记法，是把内存中的对象，标记为3种颜色，分布是：黑、灰、白。(<strong>上文图中的红色仅供参考</strong>)</p>
+<ul>
+<li><p>黑：表示该对象已经扫描到，并且它可触达的对象也已经扫描到；</p>
+</li>
+<li><p>灰：表示该对象已经扫描到，但是它能触发的对象至少还有一个没有扫描到；</p>
+</li>
+<li><p>白：表示该节点没有被扫描到；</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="4-CMS和G1的区别"><a href="#4-CMS和G1的区别" class="headerlink" title="4.CMS和G1的区别"></a>4.CMS和G1的区别</h3><blockquote>
+<ul>
+<li>G1和CMS都分为4个阶段,前三个阶段基本相同都为初始标记,并发标记,再次标记,区别在于最后清除阶段CMS是并发的,G1不是并发的,因此CMS最终会产生浮动垃圾,只能等待下次gc才能清除</li>
+<li>G1可以管理整个堆,而CMS只能作用于老年代,并且CMS在老年代使用的是标记清除算法,会产生内存碎片,而G1使用标记整理算法,不会产生内存碎片</li>
+<li>G1相比于CMS最大的区别是G1将内存划分为大小相等的Region,可以选择垃圾对象多的Region而不是整个堆从而减少STW,同时使用Region可以更精确控制收集,我们可以手动明确一个垃圾回收的最大时间</li>
+</ul>
+</blockquote>
+<h3 id="5-CMS什么时候会STW？为什么要STW（咋瓦鲁多）"><a href="#5-CMS什么时候会STW？为什么要STW（咋瓦鲁多）" class="headerlink" title="5.CMS什么时候会STW？为什么要STW（咋瓦鲁多）?"></a>5.CMS什么时候会STW？为什么要STW（咋瓦鲁多）?</h3><blockquote>
+<p><strong>初始标记和重新标记的时候</strong></p>
+<p>因为初始标记标记的是GC Root，而GC Root容易变动，比如栈帧中的本地变量表。所以需要STW。</p>
+<p>因为在重新标记之前是并发标记，在并发标记的期间会出现漏标和多标的对象，所以为了修正这部分对象，需要在重新标记期间STW。</p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Jvm/"># Jvm</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/08/23/%E6%B5%85%E8%B0%88%E8%82%A1%E7%A5%A8dp%E9%97%AE%E9%A2%98/">浅谈股票dp问题</a>
+            
+            
+            <a class="next" rel="next" href="/2022/08/20/%E5%8D%81%E5%A4%A7%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/">十大排序算法</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+<!-- 搜索功能 -->
+<!-- Chic/layout.ejs -->
+<div id="u-search">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="container">
+                <form id="u-search-modal-form" class="u-search-modal-form">
+                    <button type="submit" class="form-submit-btn">
+                        <img src="/image/2.png" class="search-btn-img" />
+                    </button>
+                    <input placeholder="搜索内容..." class="form-input" id="modal-form-input">
+                </form>
+                <a class="modal-close">x</a>
+            </div>
+            <div class="search-loading">
+                <div class="search-loading-bar"></div>
+            </div>
+        </div>
+        <div class="modal-body">
+        </div>
+    </div>
+    <div class="modal-overlay"></div>
+</div>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":true}});</script></body>
+
+
+</html>
