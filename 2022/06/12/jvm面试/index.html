@@ -454,7 +454,7 @@
 
 字数:
 
-<a href="">5.5k</a> 
+<a href="">6.2k</a> 
 
 </span>
 
@@ -468,7 +468,7 @@
 
 时间:
 
-<a href="">19min</a> 
+<a href="">21min</a> 
 
 </span>
 
@@ -609,7 +609,24 @@
 <p>（5）由Eden区、From Space区向To Space区复制时，对象大小大于To Space可用内存，则把该对象转存到老年代，且老年代的可用内存小于该对象大小</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.java远程调用System.gc()方法</span><br><span class="line">2.老年代空间不足</span><br><span class="line">3.永久代空间满了（java8被元空间替代，使用本地内存，所以这个现在不太可能发生）</span><br><span class="line">4.假如young gc后，进入老年代的平均大小大于老年代可用内存会触发full gc</span><br><span class="line">5.由Eden区，from区向to区复制时（或者颠倒顺序），对象大于to区内存，则移动到老年代，但是老年代内存小于该对象大小</span><br></pre></td></tr></table></figure>
 
+</blockquote>
+<h3 id="7-jvm如何知道new了一个对象要多大内存"><a href="#7-jvm如何知道new了一个对象要多大内存" class="headerlink" title="7.jvm如何知道new了一个对象要多大内存"></a>7.jvm如何知道new了一个对象要多大内存</h3><blockquote>
+<p>对象在堆内存中的存储布局可以划分为三个部分： <code>对象头</code>,<code>实例数据</code>,<code>对齐填充</code></p>
+<h3 id="对象头"><a href="#对象头" class="headerlink" title="对象头"></a>对象头</h3><p>对象的对象头包括两类信息。第一类是存储对象自身的运行时数据，第二类是类型指针</p>
+<h5 id="Mark-World"><a href="#Mark-World" class="headerlink" title="Mark World"></a>Mark World</h5><p>存储对象自身的运行时数据，如哈希码，GC分代年龄、锁状态标志、线程持有的锁等等。这部分的数据长度在32位虚拟机中为<strong>4个字节</strong>，在64位虚拟机中是<strong>8个字节</strong>，官方称之为 <code>Mark Word</code></p>
+<h5 id="类型指针"><a href="#类型指针" class="headerlink" title="类型指针"></a>类型指针</h5><p>指向它的类型元数据的指针（指向它的Class对象的指针），大小是4个字节。Java虚拟机通过这个指针来确定该对象是哪个类的实例</p>
+<h3 id="实例数据"><a href="#实例数据" class="headerlink" title="实例数据"></a>实例数据</h3><p>实例数据部分是对象真正存储的有效信息，即我们在程序代码里面所定义的各种类型的字段内容。计算方式是累加，如下对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">O</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> o1;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> o2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>实例数据部分长度就是 int(4字节)+long(8字节)=12字节</p>
+<h3 id="对齐填充"><a href="#对齐填充" class="headerlink" title="对齐填充"></a>对齐填充</h3><p>第三部分就是对齐填充。HotSpot虚拟机的自动内存管理要求对象起始地址必须是8字节的整数倍，换句话说就是任何对象的大小都必须是8字节的整数倍。<strong>如果对象大小没到8字节的整数倍，那就需要通过对齐填充来补全。</strong></p>
+<p>实战<br>已经知道了对象的内存布局，我们就可以来尝试计算一个类对象占用的内存：<br>我们就来计算 String类的内存：<br>我们先来查看String类里面的实例数据有哪些;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Stable</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">byte</span>[] value;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">byte</span> coder;</span><br><span class="line"><span class="keyword">private</span> <span class="type">int</span> hash; <span class="comment">// Default to 0</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> hashIsZero; <span class="comment">// Default to false;</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> -<span class="number">6849794470754667710L</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">boolean</span> COMPACT_STRINGS;</span><br><span class="line">可以得到实例数据部分的字节是 数组对象 + <span class="type">byte</span>（<span class="number">1</span>字节）+ <span class="type">int</span>（<span class="number">4</span>字节）+ <span class="type">boolean</span>(<span class="number">1</span>字节) + <span class="type">long</span>（<span class="number">8</span>字节） + Boolean（<span class="number">1</span>字节）</span><br></pre></td></tr></table></figure>
+
+<p>那么数组对象也是一个对象，它的占用内存是 对象头（8字节）+ 引用（4字节）+ 记录长度的int（4字节）=16字节。</p>
+<p>所以空的String对象占用内存是 8+16+1+4+1+8+1+ 1字节（字节填充）=40字节</p>
+<p>非空的String对象</p>
+<p>非空的string对象比空的string对象只有在数组对象里的 实例数据部分变化了，其他都没变，<br>所以非空的String对象占用内存是 8+16+1+4+1+8+1+ 1字节（字节填充）=40+ n字节（n是byte数组的长度）</p>
 </blockquote>
 
         </div>
