@@ -6,7 +6,7 @@
   <link href="https://gwtt.github.io/atom.xml" rel="self"/>
   
   <link href="https://gwtt.github.io/"/>
-  <updated>2022-08-28T11:54:16.423Z</updated>
+  <updated>2022-08-30T09:32:54.245Z</updated>
   <id>https://gwtt.github.io/</id>
   
   <author>
@@ -15,6 +15,63 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Mysql的MVCC</title>
+    <link href="https://gwtt.github.io/2022/08/30/Mysql%E7%9A%84MVCC/"/>
+    <id>https://gwtt.github.io/2022/08/30/Mysql%E7%9A%84MVCC/</id>
+    <published>2022-08-30T07:06:22.000Z</published>
+    <updated>2022-08-30T09:32:54.245Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="什么是MVCC"><a href="#什么是MVCC" class="headerlink" title="什么是MVCC"></a>什么是MVCC</h3><blockquote><p><strong><code>MVCC</code><strong>，全称 <code>Multi-Version Concurrency Control</code> ，即多版本并发控制。</strong>mvcc</strong>，它是一种并发控制方法，一般在数据库管理系统中，实现数据库的并发访问，在编程语言中实现事务内存。</p><p><strong>总结：</strong>主要为了提升并发性能</p></blockquote><h3 id="为什么需要MVCC"><a href="#为什么需要MVCC" class="headerlink" title="为什么需要MVCC"></a>为什么需要MVCC</h3><blockquote><p><strong>数据库原生的锁</strong><br>        最原生的锁，锁住一个资源后会禁止其他任何线程访问同一个资源。但是很多应用的一个特点都是读多写少的场景，很多数据的读取次数远大于修改的次数，而读取数据间互相排斥显得不是很必要。</p><p><strong>读写锁的出现</strong><br>        读锁和读锁之间不互斥，而写锁和写锁、读锁都互斥。这样就很大提升了系统的并发能力。之后人们发现并发读还是不够</p><p><strong>mvcc概念出现</strong><br>        能不能让读写之间也不冲突的方法，就是读取数据时通过一种类似快照的方式将数据保存下来，这样读锁就和写锁不冲突了，不同的事务session会看到自己特定版本的数据。当然快照是一种概念模型，不同的数据库可能用不同的方式来实现这种功能</p></blockquote><h3 id="MVCC适用于的事务隔离级别"><a href="#MVCC适用于的事务隔离级别" class="headerlink" title="MVCC适用于的事务隔离级别"></a>MVCC适用于的事务隔离级别</h3><blockquote><p>MVCC只在 READ COMMITTED (读取已提交) 和 REPEATABLE READ (可重复读) 两个隔离级别下工作。其他两个隔离级别够和MVCC不兼容, 因为 READ UNCOMMITTED (读取未提交) 总是读取最新的数据行, 而不是符合当前事务版本的数据行。而 SERIALIZABLE (可串行化) 则会对所有读取的行都加锁。</p></blockquote><h3 id="MVCC实现原理✔"><a href="#MVCC实现原理✔" class="headerlink" title="MVCC实现原理✔"></a>MVCC实现原理✔</h3><blockquote><p><strong>MVCC</strong>的目的就是多版本并发控制，在数据库中的实现，就是为了解决<code>读写冲突</code>，它的实现原理主要是依赖记录中的 <strong><code>3个隐式字段</code><strong>，</strong><code>undo日志</code></strong> ，**<code>Read View</code>** 来实现的。</p><h3 id="3个隐式字段"><a href="#3个隐式字段" class="headerlink" title="3个隐式字段"></a>3个隐式字段</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`DB_TRX_ID`, `DB_ROLL_PTR`, `DB_ROW_ID</span><br></pre></td></tr></table></figure><table><thead><tr><th>列名</th><th>长度（字节）</th><th>作用</th></tr></thead><tbody><tr><td>DB_TRX_ID</td><td>6</td><td>插入或更新行的最后一个事务的事务标识符。（删除视为更新，将其标记为已删除）</td></tr><tr><td>DB_ROLL_PTR</td><td>7</td><td>写入回滚段的撤销日志记录（若行已更新，则撤销日志记录包含在更新之前重建行内容所需的信息）</td></tr><tr><td>DB_ROW_ID</td><td>6</td><td>行标识（隐藏单调自增id）</td></tr></tbody></table><p>比如:</p><table><thead><tr><th>id</th><th>name</th><th>age</th><th>DB_ROW_ID</th><th>DB_TRX_ID</th><th>DB_ROLL_PTR</th></tr></thead><tbody><tr><td>1</td><td>张三</td><td>18</td><td>1</td><td>空</td><td>空</td></tr></tbody></table><p> <code>DB_ROW_ID</code> 是数据库默认为该行记录生成的唯一隐式主键，<code>DB_TRX_ID</code> 是当前操作该记录的事务 ID ,而 <code>DB_ROLL_PTR</code> 是一个回滚指针，用于配合 undo日志，指向上一个旧版本</p><p> <strong>事务A：</strong>对数据进行了修改（将name中的张三改为李四）</p><ul><li>第一步：用<strong>排他锁</strong>锁定这一条记录</li></ul><table><thead><tr><th>id</th><th>name</th><th>age</th><th>DB_ROW_ID</th><th>DB_TRX_ID</th><th>DB_ROLL_PTR</th></tr></thead><tbody><tr><td>1</td><td>张三</td><td>18</td><td>1</td><td>空</td><td>空</td></tr></tbody></table><ul><li> 第二步：UNDOLOG会记录日志，作为旧记录，既在 <code>undo log</code> 中有当前行的拷贝副本</li></ul><table><thead><tr><th>UNDO_LOG</th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>id</td><td>name</td><td>age</td><td>DB_ROW_ID</td><td>DB_TRX_ID</td><td>DB_ROLL_PTR</td></tr><tr><td>1</td><td>张三</td><td>18</td><td>1</td><td>空</td><td>空</td></tr></tbody></table><ul><li> 第三步：将回滚指针的值copy到UNDOLOG中</li></ul><table><thead><tr><th>UNDO_LOG</th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>id</td><td>name</td><td>age</td><td>DB_ROW_ID</td><td>DB_TRX_ID</td><td>DB_ROLL_PTR(这就是存储回滚指针的值)</td></tr><tr><td>1</td><td>张三</td><td>18</td><td>1</td><td>空</td><td>ox29349384</td></tr></tbody></table><ul><li>第四步：修改当前的name值并且修改隐藏字段的事务 ID 为当前<code>事务 1</code>的 ID, 我们默认从 <code>1</code> 开始，之后递增，回滚指针指向拷贝到 <code>undo log</code> 的副本记录，既表示我的上一个版本就是它</li></ul><table><thead><tr><th>id</th><th>name</th><th>age</th><th>DB_ROW_ID</th><th>DB_TRX_ID</th><th>DB_ROLL_PTR(这就是存储回滚指针的值)</th></tr></thead><tbody><tr><td>1</td><td>李四</td><td>18</td><td>1</td><td>1</td><td>ox29349384</td></tr></tbody></table><p><strong>事务B：</strong>事务A修改但未提交，同时对事务B也对该行数据做了修改</p><p>下表就是事务B做出的改变（改变的是年龄）</p><table><thead><tr><th>id</th><th>name</th><th>age</th><th>DB_ROW_ID</th><th>DB_TRX_ID</th><th>DB_ROLL_PTR</th></tr></thead><tbody><tr><td>1</td><td>张三</td><td><strong>30</strong></td><td>1</td><td>2</td><td>ox23874982</td></tr></tbody></table><p>  上表的ox23874982指的地址是下表的地址</p><table><thead><tr><th>UNDO_LOG</th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>id</td><td>name</td><td>age</td><td>DB_ROW_ID</td><td>DB_TRX_ID</td><td>DB_ROLL_PTR</td></tr><tr><td>1</td><td>张三</td><td>18</td><td>1</td><td>1</td><td>ox29349384</td></tr></tbody></table><p>上表的ox29349384指的地址是下表的地址</p><table><thead><tr><th>id</th><th>name</th><th>age</th><th>DB_ROW_ID</th><th>DB_TRX_ID</th><th>DB_ROLL_PTR</th></tr></thead><tbody><tr><td>1</td><td>张三</td><td>18</td><td>1</td><td>空</td><td>空</td></tr></tbody></table><p>所以总结:</p><p>如果有当前事务，最早事务，最晚事务</p><p>最早事务ID&lt;当前事务ID&lt;最晚事务ID</p><ul><li>事务的排他锁形式修改数据</li><li>修改之前先把数据放到undolog，通过回滚指针关联</li><li>失败了从undolog回滚</li></ul></blockquote><h3 id="undo日志"><a href="#undo日志" class="headerlink" title="undo日志"></a>undo日志</h3><blockquote><p>insert undo log<br>代表事务在 insert 新记录时产生的 undo log, 只在事务回滚时需要，并且在事务提交后可以被立即丢弃</p><p>update undo log<br>事务在进行 update 或 delete 时产生的 undo log ; 不仅在事务回滚时需要，在快照读时也需要；所以不能随便删除，只有在快速读或事务回滚不涉及该日志时，对应的日志才会被 purge 线程统一清除<br>在不考虑redo log 的情况下利用undo log工作的简化过程为：</p><table><thead><tr><th>序号</th><th>动作</th></tr></thead><tbody><tr><td>1</td><td>开始事务</td></tr><tr><td>2</td><td>记录数据行数据快照到undolog</td></tr><tr><td>3</td><td>更新数据</td></tr><tr><td>4</td><td>将undolog写到磁盘</td></tr><tr><td>5</td><td>将数据写到磁盘</td></tr><tr><td>6</td><td>提交事务</td></tr></tbody></table><p> 1）为了保证数据的持久性数据要在事务提交之前持久化</p><p> 2）undo log的持久化必须在在数据持久化之前，这样才能保证系统崩溃时，可以用undo log来回滚事务</p></blockquote><h3 id="执行流程如下："><a href="#执行流程如下：" class="headerlink" title="执行流程如下："></a><strong>执行流程如下：</strong></h3><blockquote><p>*<em>一、比如一个有个事务插入 persion 表插入了一条新记录，记录如下，<code>name</code> 为 小明 , <code>age</code> 为 10 岁，*</em><code>隐式主键</code>*<em>是 1，*</em><code>事务 ID</code>*<em>和*</em><code>回滚指针</code>*<em>，我们假设为 NULL</em>*</p><p><img src="/2022/08/30/Mysql%E7%9A%84MVCC/image-20220830171156856.png" alt="image-20220830171156856"></p><p><strong>二、 现在来了一个事务 1对该记录的 name 做出了修改，改为 小红</strong></p><ul><li>在<code>事务 1</code>修改该行(记录)数据时，数据库会先对该行加<code>排他锁</code></li></ul><p><img src="/2022/08/30/Mysql%E7%9A%84MVCC/image-20220830171325637.png" alt="image-20220830171325637"></p><ul><li>然后把该行数据拷贝到 <code>undo log</code> 中，作为旧记录，既在 <code>undo log</code> 中有当前行的拷贝副本</li></ul><p>Undo日志</p><p><img src="/2022/08/30/Mysql%E7%9A%84MVCC/image-20220830172747995.png" alt="image-20220830172747995"></p><ul><li><p>拷贝完毕后，修改该行<code>name</code>为小红，并且修改隐藏字段的事务 ID 为当前<code>事务 1</code>的 ID, 我们默认从 <code>1</code> 开始，之后递增，回滚指针指向拷贝到 <code>undo log</code> 的副本记录，既表示我的上一个版本就是它</p><p><img src="/2022/08/30/Mysql%E7%9A%84MVCC/image-20220830172826227.png" alt="image-20220830172826227"></p><p>上个表的回滚指针地址指的是下个表</p><p><img src="/2022/08/30/Mysql%E7%9A%84MVCC/image-20220830172852127.png" alt="image-20220830172852127"></p></li><li><p>事务提交后，释放锁</p></li></ul></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;什么是MVCC&quot;&gt;&lt;a href=&quot;#什么是MVCC&quot; class=&quot;headerlink&quot; title=&quot;什么是MVCC&quot;&gt;&lt;/a&gt;什么是MVCC&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;MVCC&lt;/code&gt;&lt;strong&gt;，全称 </summary>
+      
+    
+    
+    
+    <category term="面试" scheme="https://gwtt.github.io/categories/%E9%9D%A2%E8%AF%95/"/>
+    
+    
+    <category term="面试" scheme="https://gwtt.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
+    
+    <category term="Java" scheme="https://gwtt.github.io/tags/Java/"/>
+    
+    <category term="Mysql" scheme="https://gwtt.github.io/tags/Mysql/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>聚集索引和非聚集索引</title>
+    <link href="https://gwtt.github.io/2022/08/29/%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E5%92%8C%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95/"/>
+    <id>https://gwtt.github.io/2022/08/29/%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E5%92%8C%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95/</id>
+    <published>2022-08-29T08:51:49.429Z</published>
+    <updated>2022-08-29T09:10:55.643Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="聚集索引和非聚集索引"><a href="#聚集索引和非聚集索引" class="headerlink" title="聚集索引和非聚集索引"></a>聚集索引和非聚集索引</h2><h3 id="什么是聚集索引"><a href="#什么是聚集索引" class="headerlink" title="什么是聚集索引"></a>什么是聚集索引</h3><blockquote><p>聚集索引是将<strong>索引列字段</strong>和<strong>行记录数据</strong>维护在了一起,它的叶子节点存储的是 <strong>索引列字段 + 完整的行记录数据</strong>,通过聚集索引能直接获取到整行数据</p><p>Innodb 的主键索引就是基于聚集索引实现的</p><p>通俗点讲:利用聚集索引可以<strong>直接</strong>获取对应的元素数据</p><p><img src="https://img2022.cnblogs.com/blog/1636535/202204/1636535-20220427020132699-1363305095.png" alt="img"></p></blockquote><h3 id="什么是非聚集索引"><a href="#什么是非聚集索引" class="headerlink" title="什么是非聚集索引"></a>什么是非聚集索引</h3><blockquote><p>非聚集索引是相比较于聚集索引来说,它是把<strong>索引和行数据分开维护</strong>,叶子节点并没有包含完整的数据记录(叶子节点的数据区存储的是聚集索引的 id 或 数据的磁盘地址)Mysql 非聚集索引底层的数据结构也是 b+ 树,例如 Myisam 的索引、Innodb 的辅助索引</p><p><img src="https://img2022.cnblogs.com/blog/1636535/202204/1636535-20220428224329312-1207567303.png" alt="img"></p><p>比如在搜索年龄为41的数据时，会找到13，然后再去找利用聚集索引找主键为13的数据</p></blockquote><h3 id="回表（尽量去减少回表的产生）"><a href="#回表（尽量去减少回表的产生）" class="headerlink" title="回表（尽量去减少回表的产生）"></a>回表（尽量去减少回表的产生）</h3><blockquote><p>当通过非聚集索引来查询数据时,存储引擎会根据索引字段定位到最底层的叶子节点,并通过叶子节点获得指向主键索引的主键 id,然后通过主键 id 去主键索引(聚集索引)上找到一个完整的行记录.这个过程被称为 <strong>回表</strong></p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;聚集索引和非聚集索引&quot;&gt;&lt;a href=&quot;#聚集索引和非聚集索引&quot; class=&quot;headerlink&quot; title=&quot;聚集索引和非聚集索引&quot;&gt;&lt;/a&gt;聚集索引和非聚集索引&lt;/h2&gt;&lt;h3 id=&quot;什么是聚集索引&quot;&gt;&lt;a href=&quot;#什么是聚集索引&quot; class</summary>
+      
+    
+    
+    
+    <category term="数据库" scheme="https://gwtt.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    
+    <category term="面试" scheme="https://gwtt.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
+    
+    <category term="Mysql" scheme="https://gwtt.github.io/tags/Mysql/"/>
+    
+    <category term="索引" scheme="https://gwtt.github.io/tags/%E7%B4%A2%E5%BC%95/"/>
+    
+  </entry>
   
   <entry>
     <title>jdk动态代理和cglib动态代理</title>
@@ -155,7 +212,7 @@
     <link href="https://gwtt.github.io/2022/08/18/Linux%E9%9D%A2%E8%AF%95(1)/"/>
     <id>https://gwtt.github.io/2022/08/18/Linux%E9%9D%A2%E8%AF%95(1)/</id>
     <published>2022-08-18T14:23:13.000Z</published>
-    <updated>2022-08-19T10:15:34.218Z</updated>
+    <updated>2022-08-30T07:35:06.737Z</updated>
     
     <content type="html"><![CDATA[<h3 id="1-在Linux系统中如何统计某个字符串出现的次数"><a href="#1-在Linux系统中如何统计某个字符串出现的次数" class="headerlink" title="1.在Linux系统中如何统计某个字符串出现的次数"></a>1.在Linux系统中如何统计某个字符串出现的次数</h3><blockquote><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">grep -o targetStr filename | wc -l（单个字符串）</span><br><span class="line">&quot;targetStr&quot;可以不加引号</span><br><span class="line">grep -o targetStr_1\|targetStr_2\|targetStr_3…… filename | wc -l</span><br><span class="line">&quot;targetStr_1&quot;这些必须加引号</span><br><span class="line">但是上面的方法是不准确的，因为wc -l只是显示行数，如果一行字符串多次出现，那么结果不准确</span><br></pre></td></tr></table></figure></blockquote>]]></content>
     
@@ -170,9 +227,11 @@
     <category term="面试" scheme="https://gwtt.github.io/categories/%E9%9D%A2%E8%AF%95/"/>
     
     
+    <category term="面试" scheme="https://gwtt.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
+    
     <category term="Linux" scheme="https://gwtt.github.io/tags/Linux/"/>
     
-    <category term="面试， 指令" scheme="https://gwtt.github.io/tags/%E9%9D%A2%E8%AF%95%EF%BC%8C-%E6%8C%87%E4%BB%A4/"/>
+    <category term="指令" scheme="https://gwtt.github.io/tags/%E6%8C%87%E4%BB%A4/"/>
     
   </entry>
   
@@ -492,58 +551,6 @@
     <category term="面试" scheme="https://gwtt.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
     
     <category term="java基础" scheme="https://gwtt.github.io/tags/java%E5%9F%BA%E7%A1%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>消息队列面试</title>
-    <link href="https://gwtt.github.io/2022/06/12/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%9D%A2%E8%AF%95/"/>
-    <id>https://gwtt.github.io/2022/06/12/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%9D%A2%E8%AF%95/</id>
-    <published>2022-06-12T15:15:44.249Z</published>
-    <updated>2022-08-02T14:57:20.569Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><h3 id="1-消息队列有哪些作用"><a href="#1-消息队列有哪些作用" class="headerlink" title="1.消息队列有哪些作用"></a>1.消息队列有哪些作用</h3><blockquote><p>1．解耦:使用消息队列来作为两个系统直接的通讯方式，两个系统不需要相互依赖了</p><p>2．异步:系统A给消费队列发送完消息之后，就可以继续做其他事情了</p><p>3．流量削峰:如果使用消息队列的方式来调用某个系统，那么消息将在队列中排队，有消费者自己控制消费速度</p></blockquote><h3 id="2-死信队列和延迟队列是什么"><a href="#2-死信队列和延迟队列是什么" class="headerlink" title="2.死信队列和延迟队列是什么"></a>2.死信队列和延迟队列是什么</h3><blockquote><p>1．死信队列也是一个消息队列，它是用来存放那些没有成功消费的消息的，通常可以用来作为消息重试<br>2．延时队列就是用来存放需要在指定时间被处理的元素的队列，通常可以用来处理一些具有过期性操作的业务，比如十分钟内未支付则取消订单</p></blockquote><h4 id="3-Kafka的Pull和Push分别有什么优缺点"><a href="#3-Kafka的Pull和Push分别有什么优缺点" class="headerlink" title="3.Kafka的Pull和Push分别有什么优缺点"></a>3.Kafka的Pull和Push分别有什么优缺点</h4><blockquote><ol><li>pull表示消费者主动拉取，可以批量拉取，也可以单条拉取，所以pull可以由消费者自己控制，根据自己的消息处理能力来进行控制，但是消费者不能及时知道是否有消息，可能会拉到的消息为空</li><li>push表示Broker主动给消费者推送消息，所以肯定是有消息时才会推送，但是消费者不能按自己的能力来消费消息，推过来多少消息，消费者就得消费多少消息，所以可能会造成网络堵塞，消费者压力大等问题</li></ol></blockquote><h3 id="4-Kafka为什么比RocketMQ的吞吐量要高"><a href="#4-Kafka为什么比RocketMQ的吞吐量要高" class="headerlink" title="4.Kafka为什么比RocketMQ的吞吐量要高"></a>4.Kafka为什么比RocketMQ的吞吐量要高</h3><blockquote><p>Kafka的生产者采用的是异步发送消息机制，当发送一条消息时，消息并没有发送到Broker而是缓存起来，然后直接向业务返回成功，当缓存的消息达到一定数量时再批量发送给Broker。这种做法减少了网络io，从而提高了消息发送的吞吐量，但是如果消息生产者宕机，会导致消息丢失，业务出错，所以理论上kafka利用此机制提高了性能却降低了可靠性。</p></blockquote><h3 id="5-RocketMQ的底层实现原理"><a href="#5-RocketMQ的底层实现原理" class="headerlink" title="5.RocketMQ的底层实现原理"></a>5.RocketMQ的底层实现原理</h3><blockquote><p>RocketMQ由NameServer集群、Producer集群、Consumer集群、Broker集群组成，消息生产和消费的大致原理如下:</p><ul><li>Broker在启动的时候向所有的NameServer注册，并保持长连接，每30s发送一次心跳</li><li>Producer在发送消息的时候从NameServer获取Broker服务器地址，根据负载均衡算法选择一台服务器来发送消息</li><li>Conusmer消费消息的时候同样从NameServer获取Broker地址，然后主动拉取消息来消费</li></ul></blockquote><h3 id="6-消息队列如何保证消息可靠传输"><a href="#6-消息队列如何保证消息可靠传输" class="headerlink" title="6.消息队列如何保证消息可靠传输"></a>6.消息队列如何保证消息可靠传输</h3><blockquote><ol><li>为了保证消息不多，也就是消息不能重复，也就是生产者不能重复生产消息，或者消费者不能重复消费消息</li><li>首先要确保消息不多发，这个不常出现，也比较难控制，因为如果出现了多发，很大的原因是生产者自己的原因，如果要避免出现问题，就需要在消费端做控制</li><li>要避免不重复消费，最保险的机制就是消费者实现幂等性，保证就算重复消费，也不会有问题，通过幂等性，也能解决生产者重复发送消息的问题</li><li>消息不能少，意思就是消息不能丢失，生产者发送的消息，消费者一定要能消费到，对于这个问题，就要考虑两个方面</li><li>生产者发送消息时，要确认broker确实收到并持久化了这条消息，比如RabbitMQ的confirm机制，Kafka的ack机制都可以保证生产者能正确的将消息发送给broker</li><li>broker要等待消费者真正确认消费到了消息时才删除掉消息，这里通常就 是消费端ack机制，消费者接收到一条消息后，如果确认没问题了，就可以给broker发送一个ack，broker接收到ack后才会删除消息</li></ol></blockquote><h3 id="7-消息丢失怎么办"><a href="#7-消息丢失怎么办" class="headerlink" title="7.消息丢失怎么办"></a>7.消息丢失怎么办</h3><blockquote><p>丢失我们从三个角度出发(以下是RabbitMQ案例 )</p><h4 id="消费者丢数据"><a href="#消费者丢数据" class="headerlink" title="消费者丢数据"></a>消费者丢数据</h4><blockquote><p>此时可以选择用 RabbitMQ 提供的事务功能，就是生产者发送数据之前开启 RabbitMQ <strong>事务channel.txSelect</strong>，然后发送消息，如果消息没有成功被 RabbitMQ 接收到，那么生产者会收到异常报错，此时就可以回滚事务 channel.txRollback，然后重试发送消息；如果收到了消息，那么可以提交事务channel.txCommit。</p><p><strong>缺点:吞吐量减少</strong></p><p>所以一般来说，如果你要确保说写 RabbitMQ 的消息别丢，可以开启 <strong>confirm</strong> 模式，在生产者那里设置开启 confirm 模式之后，你每次写的消息都会分配一个唯一的 id，然后如果写入了 RabbitMQ 中，RabbitMQ会给你回传一个 ack 消息，告诉你说这个消息 ok 了。如果 RabbitMQ 没能处理这个消息，会回调你的一个 nack 接口，告诉你这个消息接收失败，你可以重试。而且你可以结合这个机制自己在内存里维护每个消息 id 的状态，如果超过一定时间还没接收到这个消息的回调，那么你可以重发。</p><p>事务机制和 confirm 机制最大的不同在于，事务机制是同步的，你提交一个事务之后会阻塞在那儿，但是confirm 机制是异步的，你发送个消息之后就可以发送下一个消息，然后那个消息 RabbitMQ 接收了之后会异步回调你的一个接口通知你这个消息接收到了。</p><p><strong>所以一般在生产者这块避免数据丢失，都是用 confirm 机制的。</strong></p></blockquote><h4 id="消息队列丢数据"><a href="#消息队列丢数据" class="headerlink" title="消息队列丢数据"></a>消息队列丢数据</h4><blockquote><p>就是 RabbitMQ 自己弄丢了数据，这个你必须开启 RabbitMQ 的持久化，就是消息写入之后会持久化到磁盘，哪怕是 RabbitMQ 自己挂了，恢复之后会自动读取之前存储的数据，一般数据不会丢。除非极其罕见的是，RabbitMQ 还没持久化，自己就挂了，可能导致少量数据丢失，但是这个概率较小。</p></blockquote><h4 id="消费端丢数据"><a href="#消费端丢数据" class="headerlink" title="消费端丢数据"></a>消费端丢数据</h4><blockquote><p>RabbitMQ 如果丢失了数据，主要是因为你消费的时候，刚消费到，还没处理，结果进程挂了，比如重启了，那么就尴尬了，RabbitMQ 认为你都消费了，这数据就丢了。</p><p>这个时候得用 RabbitMQ 提供的 ack 机制，简单来说，就是你必须关闭 RabbitMQ 的自动 ack，可以通过一个 api 来调用就行，然后每次你自己代码里确保处理完的时候，再在程序里 ack 一把。这样的话，如果你还没处理完，不就没有 ack 了？那 RabbitMQ 就认为你还没处理完，这个时候 RabbitMQ 会把这个消费分配给别的 consumer 去处理，消息是不会丢的。</p></blockquote><p><img src="https://pics3.baidu.com/feed/e1fe9925bc315c60668cdd22d3e7a31b48547744.jpeg?token=9ca5384b80f2f3bc315a49b06168b6d9" alt="img"></p></blockquote><h3 id="8-消息重复消费怎么办"><a href="#8-消息重复消费怎么办" class="headerlink" title="8.消息重复消费怎么办?"></a>8.消息重复消费怎么办?</h3><blockquote><h4 id="重复消费出现场景（消费完后没有返回状态然后重启重新消费）"><a href="#重复消费出现场景（消费完后没有返回状态然后重启重新消费）" class="headerlink" title="重复消费出现场景（消费完后没有返回状态然后重启重新消费）:"></a>重复消费出现场景（消费完后没有返回状态然后重启重新消费）:</h4><blockquote><p>Kafka 实际上有个 offset 的概念，就是每个消息写进去，都有一个 offset，代表消息的序号，然后consumer 消费了数据之后，每隔一段时间（定时定期），会把自己消费过的消息的 offset 提交一下，表示“我已经消费过了，下次我要是重启啥的，你就让我继续从上次消费到的 offset 来继续消费吧”。</p><p>但是凡事总有意外，比如我们之前生产经常遇到的，就是你有时候重启系统，看你怎么重启了，如果碰到点着急的，直接 kill 进程了，再重启。这会导致 consumer 有些消息处理了，但是没来得及提交 offset，尴尬了。重启之后，少数消息会再次消费一次。</p><p>如果消费者干的事儿是拿一条数据就往数据库里写一条，会导致说，你可能就把数据 1/2 在数据库里插入了 2 次，那么数据就错啦。</p><p>其实重复消费不可怕，可怕的是你没考虑到重复消费之后，怎么保证幂等性。</p><p>举个例子吧。假设你有个系统，消费一条消息就往数据库里插入一条数据，要是你一个消息重复两次，你不就插入了两条，这数据不就错了？但是你要是消费到第二次的时候，自己判断一下是否已经消费过了，若是就直接扔了，这样不就保留了一条数据，从而保证了数据的正确性。</p><p>一条数据重复出现两次，数据库里就只有一条数据，这就保证了系统的幂等性。</p><p><strong>幂等性，通俗点说，就一个数据，或者一个请求，给你重复来多次，你得确保对应的数据是不会改变的，不能出错。</strong></p></blockquote><h4 id="如何保证幂等性"><a href="#如何保证幂等性" class="headerlink" title="如何保证幂等性"></a>如何保证幂等性</h4><blockquote><ul><li>数据库实现主键唯一</li><li>redis天然幂等性</li><li>唯一键和redis结合</li></ul></blockquote></blockquote>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;消息队列&quot;&gt;&lt;a href=&quot;#消息队列&quot; class=&quot;headerlink&quot; title=&quot;消息队列&quot;&gt;&lt;/a&gt;消息队列&lt;/h2&gt;&lt;h3 id=&quot;1-消息队列有哪些作用&quot;&gt;&lt;a href=&quot;#1-消息队列有哪些作用&quot; class=&quot;headerlink&quot; ti</summary>
-      
-    
-    
-    
-    <category term="面试" scheme="https://gwtt.github.io/categories/%E9%9D%A2%E8%AF%95/"/>
-    
-    
-    <category term="面试" scheme="https://gwtt.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
-    
-    <category term="消息队列" scheme="https://gwtt.github.io/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式面试</title>
-    <link href="https://gwtt.github.io/2022/06/12/%E5%88%86%E5%B8%83%E5%BC%8F%E9%9D%A2%E8%AF%95/"/>
-    <id>https://gwtt.github.io/2022/06/12/%E5%88%86%E5%B8%83%E5%BC%8F%E9%9D%A2%E8%AF%95/</id>
-    <published>2022-06-12T15:14:14.872Z</published>
-    <updated>2022-07-04T11:47:11.923Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="分布式"><a href="#分布式" class="headerlink" title="分布式"></a>分布式</h2><h3 id="1-什么是CAP理论"><a href="#1-什么是CAP理论" class="headerlink" title="1.什么是CAP理论"></a>1.什么是CAP理论</h3><blockquote><p>CAP理论是分布式领域中非常重要的一个指导理论，C(Consistency)表示强一致性，A(Availability)表示可用性，P(Partition Tolerance)表示<br>分区容错性，CAP理论指出在目前的硬件条件下，一个分布式系统是必须要保证分区容错性的，而在这个前提下，分布式系统要么保证C，要么保证AP，无法同时保证CAP。</p><p><strong>分区容错性</strong>表示，一个系统虽然是分布式的，但是对外看上去应该是一个整体，不能由于分布式系统内部的某个结点挂点，或网络出现了故障，而导致系统对外出现异常。所以，对于分布式系统而言是一定要保证分区容错性的。</p><p><strong>强一致性</strong>表示，一个分布式系统中各个结点之间能及时的同步数据，在数据同步过程中，是不能对外提供服务的，不然就会造成数据不一致，所以强一致性和可用性是不能同时满足的。</p><p><strong>可用性</strong>表示，一个分布式系统对外要保证可用。</p></blockquote><h3 id="2-什么是BASE理论"><a href="#2-什么是BASE理论" class="headerlink" title="2.什么是BASE理论"></a>2.什么是BASE理论</h3><blockquote><p>由于不能同时满足CAP，所以出现了BASE理论:<br>1.BA: Basically Available，表示基本可用，表示可以允许一定程度的不可用，比如由于系统故障，请求时间变长，或者由于系统故障导致部分<br>非核心功能不可用，都是允许的</p><p>2.S: Soft state:表示分布式系统可以处于一种中间状态，比如数据正在同步</p><p>3.E:Eventually consistent，表示最终一致性，不要求分布式系统数据实时达到一致，允许在经过一段时间后再达到一致，在达到一致过程中<br>系统也是可用的</p></blockquote><h3 id="3-什么是RPC"><a href="#3-什么是RPC" class="headerlink" title="3.什么是RPC"></a>3.什么是RPC</h3><blockquote><h2 id="什么是-RPC-？"><a href="#什么是-RPC-？" class="headerlink" title="什么是 RPC ？"></a>什么是 RPC ？</h2><ul><li>RPC (Remote Procedure Call)即<strong>远程过程调用</strong>，是分布式系统常见的一种通信方法。它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。</li><li>除 RPC 之外，常见的多系统数据交互方案还有分布式消息队列、HTTP 请求调用、数据库和分布式缓存等。</li><li>其中 RPC 和 HTTP 调用是没有经过中间件的，它们是端到端系统的直接数据交互。</li></ul><p><strong>简单的说</strong></p><ul><li>RPC就是从一台机器（客户端）上通过参数传递的方式调用另一台机器（服务器）上的一个函数或方法（可以统称为服务）并得到返回的结果。</li><li>RPC会隐藏底层的通讯细节（不需要直接处理Socket通讯或Http通讯）。</li><li>客户端发起请求，服务器返回响应（类似于Http的工作方式）RPC在使用形式上像调用本地函数（或方法）一样去调用远程的函数（或方法）。</li></ul></blockquote><h3 id="4-什么是分布式ID"><a href="#4-什么是分布式ID" class="headerlink" title="4.什么是分布式ID"></a>4.什么是分布式ID</h3><blockquote><p>在分布式系统中，经常需要一些全局唯一的ID对数据、消息、http请求等进行唯一标识。那么这个全局唯一ID就叫分布式ID</p></blockquote><h3 id="5-为什么需要分布式ID"><a href="#5-为什么需要分布式ID" class="headerlink" title="5.为什么需要分布式ID"></a>5.为什么需要分布式ID</h3><blockquote><p>1.如果id我们使用的是数据库的自增长类型，在分布式系统中需要分库和分表时，会有两个相同的表，有可能产生主键冲突。</p><p>2.电商订单号，采用自增方式，是最简单的生成规则。但是！这种与流水号相同的订单号很容易就被竞争对手看出你公司真实的运营信息。</p></blockquote><h3 id="6-分布式ID解决方案"><a href="#6-分布式ID解决方案" class="headerlink" title="6.分布式ID解决方案"></a>6.分布式ID解决方案</h3><blockquote><p>1.uuid，这种方案复杂度最低，但是会影响存储空间和性能</p><p>⒉利用单机数据库的自增主键，作为分布式ID的生成器，复杂度适中，ID长度较之uuid更短，但是受到单机数据库性能的限制，并发量大的时候此方案也不是最优方案</p><p>3.利用redis、zookeeper的特性来生成id，比如redis的自增命令、zookeeper的顺序节点，这种方案和单机数据库(mysql)相比，性能有所提高,可以适当选用</p><p>4.雪花算法，一切问题如果能直接用算法解决，那就是最合适的，利用雪花算法也可以生成分布式ID，底层原理就是通过某台机器在某一毫秒内对某一个数字自增，这种方案也能保证分布式架构中的系统id唯一，但是只能保证趋势递增。业界存在tinyid、 leaf等开源中间件实现了雪花算法</p></blockquote><h3 id="7-分布式锁的使用场景和实现方案"><a href="#7-分布式锁的使用场景和实现方案" class="headerlink" title="7.分布式锁的使用场景和实现方案"></a>7.分布式锁的使用场景和实现方案</h3><blockquote><p>在单体架构中，多个线程都是属于同一个进程的，所以在线程并发执行时，遇到资源竞争时，可以利用ReentrantLock、synchronized等技术来作为锁，来控制共享资源的使用。</p><p>而在分布式架构中，多个线程是可能处于不同进程中的，而这些线程并发执行遇到资源竞争时，利用ReentrantLock、synchronized等技术是没办法来控制多个进程中的线程的，所以需要分布式锁，意思就是，需要一个分布式锁生成器，分布式系统中的应用程序都可以来使用这个生成器所提供的锁，从而达到多个进程中的线程使用同一把锁。</p><p>目前主流的分布式锁的实现方案有两种:</p><p>1.zookeeper:利用的是zookeeper的临时节点、顺序节点、watch机制来实现的，zookeeper分布式锁的特点是高一致性，因为zookeeper保证的是CP，所以由它实现的分布式锁更可靠，不会出现混乱</p><p>2.redis:利用redis的setnw、lua脚本、消费订阅等机制来实现的，redis分布式锁的特点是高可用，因为redis保证的是AP，所以由它实现的分布式锁可能不可靠，不稳定(一旦redis中的数据出现了不一致)，可能会出现多个客户端同时加到锁的情况</p></blockquote><h3 id="8-分布式事务和实现实现方案"><a href="#8-分布式事务和实现实现方案" class="headerlink" title="8.分布式事务和实现实现方案"></a>8.分布式事务和实现实现方案</h3><blockquote><p>在分布式系统中，一次业务处理可能需要多个应用来实现，比如用户发送一次下单请求，就涉及到订单系统创建订单、库存系统减库存，而对于一次下单，订单创建与减库存应该是要同时成功或同时失败的，但在分布式系统中，如果不做处理，就很有可能出现订单创建成功，但是减库存失败，那么解决这类问题，就需要用到分布式事务。常用解决方案有:</p><p>1.本地消息表:创建订单时，将减库存消息加入在本地事务中，一起提交到数据库存入本地消息表，然后调用库存系统，如果调用成功则修改本地消息状态为成功，如果调用库存系统失败，则由后台定时任务从本地消息表中取出未成功的消息，重试调用库存系统</p><p>2.消息队列:目前RocketMQ中支持事务消息，它的工作原理是:</p><p>a.生产者订单系统先发送一条half消息到Broker，half消息对消费者而言是不可见的</p><p>b.再创建订单，根据创建订单成功与否，向Broker发送commit或rollback</p><p>c.并且生产者订单系统还可以提供Broker回调接口，当Broker发现一段时间half消息没有收到任何操作命令，则会主动调此接口来查询订单是否创建成功</p><p>d.一旦half消息commit了，消费者库存系统就会来消费，如果消费成功，则消息销毁，分布式事务成功结束</p><p>e.如果消费失败，则根据重试策略进行重试，最后还失败则进入死信队列，等待进一步处理</p><p>3.Seata:阿里开源的分布式事务框架，支持AT、TCC等多种模式，底层都是基于两阶段提交理论来实现的</p></blockquote><h3 id="9-简述zab协议"><a href="#9-简述zab协议" class="headerlink" title="9.简述zab协议"></a>9.简述zab协议</h3><blockquote><p>ZAB协议（Zookeeper Atomic Broadcast原子广播）是Zookeeper用来实现一致性的原子广播协议，该协议描述了Zookeeper是如何实现一致性的，分为三个阶段:</p><p>1.领导者选举阶段:从Zookeeper集群中选出一个节点作为Leader，所有的写请求都会由Leader节点来处理</p><p>⒉数据同步阶段:集群中所有节点中的数据要和Leader节点保持一致，如果不一致则要进行同步</p><p>3.请求广播阶段:当Leader节点接收到写请求时，会利用两阶段提交来广播该写请求，使得写请求像事务一样在其他节点上执行，达到节点上的数据实时一致</p><p>但值得注意的是，Zookeeper只是尽量的在达到强一致性，实际上仍然只是最终一致性的。</p></blockquote><h3 id="10-Spring-Cloud和Dubbo有哪些区别"><a href="#10-Spring-Cloud和Dubbo有哪些区别" class="headerlink" title="10.Spring Cloud和Dubbo有哪些区别?"></a>10.Spring Cloud和Dubbo有哪些区别?</h3><blockquote><p>Spring Cloud是一个微服务框架，提供了微服务领域中的很多功能组件，Dubbo一开始是一个RPC调用框架，核心是解决服务调用间的问题，Spring Cloud是一个大而全的框架，Dubbo则更侧重于服务调用，所以Dubbo所提供的功能没有SpringCloud全面，但是Dubbo的服务调用性能比Spring Cloud高，不过Spring Cloud和Dubbo并不是对立的，是可以结合起来一起使用的。</p></blockquote><h3 id="11-什么是服务雪崩-什么是服务限流"><a href="#11-什么是服务雪崩-什么是服务限流" class="headerlink" title="11.什么是服务雪崩?什么是服务限流?"></a>11.什么是服务雪崩?什么是服务限流?</h3><blockquote><p>1.当服务A调用服务B，服务B调用C，此时大量请求突然请求服务A，假如服务A本身能抗住这些请求，但是如果服务C抗<br>不住，导致服务C请求堆积，从而服务B请求堆积，从而服务A不可用，这就是服务雪崩，解决方式就是服务降级和服务熔断。<br>2．服务限流是指在高并发请求下，为了保护系统，可以对访问服务的请求进行数量上的限制，从而防止系统不被大量请求<br>压垮，在秒杀中，限流是非常重要的。</p></blockquote><h3 id="12-什么是服务熔断-什么是服务降级-区别是什么"><a href="#12-什么是服务熔断-什么是服务降级-区别是什么" class="headerlink" title="12.什么是服务熔断?什么是服务降级?区别是什么?"></a>12.什么是服务熔断?什么是服务降级?区别是什么?</h3><blockquote><p>1.服务熔断是指，当服务A调用的某个服务B不可用时，上游服务A为了保证自己不受影响，从而不再调用服务B，直接返回一个结果，减轻服务A和服务B的压力，直到服务B恢复。</p><p>2.服务降级是指，当发现系统压力过载时，可以通过关闭某个服务，或限流某个服务来减轻系统压力，这就是服务降级。</p><p>相同点:</p><p>1．都是为了防止系统崩溃</p><p>2．都让用户体验到某些功能暂时不可用</p><p>不同点:熔断是下游服务故障触发的，降级是为了降低系统负载</p></blockquote>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;分布式&quot;&gt;&lt;a href=&quot;#分布式&quot; class=&quot;headerlink&quot; title=&quot;分布式&quot;&gt;&lt;/a&gt;分布式&lt;/h2&gt;&lt;h3 id=&quot;1-什么是CAP理论&quot;&gt;&lt;a href=&quot;#1-什么是CAP理论&quot; class=&quot;headerlink&quot; title=&quot;1</summary>
-      
-    
-    
-    
-    <category term="面试" scheme="https://gwtt.github.io/categories/%E9%9D%A2%E8%AF%95/"/>
-    
-    
-    <category term="面试" scheme="https://gwtt.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
-    
-    <category term="分布式" scheme="https://gwtt.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   

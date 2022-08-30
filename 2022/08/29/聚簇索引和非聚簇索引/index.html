@@ -17,7 +17,7 @@
 
 
 
-<title>归档: 2022/8 | 滚~韬的博客</title>
+<title>聚集索引和非聚集索引 | 滚~韬的博客</title>
 
 
 
@@ -361,44 +361,175 @@
     }
 </script>
             <div class="main">
-                <div class="post-wrap archive">
+                <div class="container">
     
     
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/10/%E6%B3%B0%E6%8B%89%E7%91%9E%E4%BA%9A%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">泰拉瑞亚服务器搭建</a>
-            <span class="archive-item-date">八月 10</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/08/HashMap%E4%B8%BA%E4%BB%80%E4%B9%88%E7%BA%BF%E7%A8%8B%E4%B8%8D%E5%AE%89%E5%85%A8/">HashMap为什么线程不安全</a>
-            <span class="archive-item-date">八月 8</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/08/%E8%87%AA%E5%8A%A8%E6%8B%86%E7%AE%B1%E5%92%8C%E8%A3%85%E7%AE%B1%E5%8E%9F%E7%90%86/">自动拆箱和装箱原理</a>
-            <span class="archive-item-date">八月 8</span>
-        </article>
-    
-    
-    <nav class="pagination">
-        <a class="page-number" href="/archives/2022/08/">1</a><span class="page-number current">2</span>
-    </nav>
-
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">聚集索引和非聚集索引</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">八月 29&nbsp;&nbsp;16:51</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">366</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">1min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="聚集索引和非聚集索引"><a href="#聚集索引和非聚集索引" class="headerlink" title="聚集索引和非聚集索引"></a>聚集索引和非聚集索引</h2><h3 id="什么是聚集索引"><a href="#什么是聚集索引" class="headerlink" title="什么是聚集索引"></a>什么是聚集索引</h3><blockquote>
+<p>聚集索引是将<strong>索引列字段</strong>和<strong>行记录数据</strong>维护在了一起,它的叶子节点存储的是 <strong>索引列字段 + 完整的行记录数据</strong>,通过聚集索引能直接获取到整行数据</p>
+<p>Innodb 的主键索引就是基于聚集索引实现的</p>
+<p>通俗点讲:利用聚集索引可以<strong>直接</strong>获取对应的元素数据</p>
+<p><img src="https://img2022.cnblogs.com/blog/1636535/202204/1636535-20220427020132699-1363305095.png" alt="img"></p>
+</blockquote>
+<h3 id="什么是非聚集索引"><a href="#什么是非聚集索引" class="headerlink" title="什么是非聚集索引"></a>什么是非聚集索引</h3><blockquote>
+<p>非聚集索引是相比较于聚集索引来说,它是把<strong>索引和行数据分开维护</strong>,叶子节点并没有包含完整的数据记录(叶子节点的数据区存储的是聚集索引的 id 或 数据的磁盘地址)Mysql 非聚集索引底层的数据结构也是 b+ 树,例如 Myisam 的索引、Innodb 的辅助索引</p>
+<p><img src="https://img2022.cnblogs.com/blog/1636535/202204/1636535-20220428224329312-1207567303.png" alt="img"></p>
+<p>比如在搜索年龄为41的数据时，会找到13，然后再去找利用聚集索引找主键为13的数据</p>
+</blockquote>
+<h3 id="回表（尽量去减少回表的产生）"><a href="#回表（尽量去减少回表的产生）" class="headerlink" title="回表（尽量去减少回表的产生）"></a>回表（尽量去减少回表的产生）</h3><blockquote>
+<p>当通过非聚集索引来查询数据时,存储引擎会根据索引字段定位到最底层的叶子节点,并通过叶子节点获得指向主键索引的主键 id,然后通过主键 id 去主键索引(聚集索引)上找到一个完整的行记录.这个过程被称为 <strong>回表</strong></p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Mysql/"># Mysql</a>
+                    
+                        <a href="/tags/%E7%B4%A2%E5%BC%95/"># 索引</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/08/30/Mysql%E7%9A%84MVCC/">Mysql的MVCC</a>
+            
+            
+            <a class="next" rel="next" href="/2022/08/28/jdk%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%92%8Ccgib%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">jdk动态代理和cglib动态代理</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
             </div>
             <footer id="footer" class="footer">
     <div class="copyright">
