@@ -454,7 +454,7 @@
 
 字数:
 
-<a href="">98</a> 
+<a href="">649</a> 
 
 </span>
 
@@ -468,7 +468,7 @@
 
 时间:
 
-<a href="">1min</a> 
+<a href="">2min</a> 
 
 </span>
 
@@ -482,6 +482,97 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">grep -o targetStr filename | wc -l（单个字符串）</span><br><span class="line">&quot;targetStr&quot;可以不加引号</span><br><span class="line">grep -o targetStr_1\|targetStr_2\|targetStr_3…… filename | wc -l</span><br><span class="line">&quot;targetStr_1&quot;这些必须加引号</span><br><span class="line">但是上面的方法是不准确的，因为wc -l只是显示行数，如果一行字符串多次出现，那么结果不准确</span><br></pre></td></tr></table></figure>
 
 
+</blockquote>
+<h3 id="2-Linux查看日志的几种命令"><a href="#2-Linux查看日志的几种命令" class="headerlink" title="2.Linux查看日志的几种命令"></a>2.Linux查看日志的几种命令</h3><blockquote>
+<h3 id="1-tail-查看实时变化的日志-比较吃内存"><a href="#1-tail-查看实时变化的日志-比较吃内存" class="headerlink" title="1. tail 查看实时变化的日志(比较吃内存)"></a>1. tail 查看实时变化的日志(<strong>比较吃内存</strong>)</h3><p>退出tail命令：Ctrl+c</p>
+<table>
+<thead>
+<tr>
+<th>-f</th>
+<th>循坏读取</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-q</td>
+<td>不显示处理信息</td>
+</tr>
+<tr>
+<td>-v</td>
+<td>显示详细的处理信息</td>
+</tr>
+<tr>
+<td>-c</td>
+<td>&lt;数目&gt; 显示的字节数</td>
+</tr>
+<tr>
+<td>-n</td>
+<td>显示行数 （相当于nl命令）</td>
+</tr>
+<tr>
+<td>-pid=PID</td>
+<td>与-f合用,表示在进程ID,PID死掉之后结束.</td>
+</tr>
+<tr>
+<td>-q,-quiet,-slient</td>
+<td>从不输出给出文件名的首部</td>
+</tr>
+<tr>
+<td>-s, –sleep-interval=S</td>
+<td>与-f合用,表示在每次反复的间隔休眠S秒</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>用法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. tail -f filename</td>
+<td>默认最后10行,相当于增加参数 -n 10</td>
+</tr>
+<tr>
+<td>2. tail -n 20 filename</td>
+<td>显示filename最后20行</td>
+</tr>
+<tr>
+<td>3. tail -n +5 filename</td>
+<td>从第5行开始显示文件</td>
+</tr>
+</tbody></table>
+<h3 id="2-cat命令"><a href="#2-cat命令" class="headerlink" title="2. cat命令"></a>2. cat命令</h3><p>cat命令搜索关键字附近的日志</p>
+<p>常用用法：</p>
+<p>查看log.log前200行</p>
+<p><code>cat  log.log | head -n 200</code></p>
+<p>查看test.log倒数200行</p>
+<p><code>cat  test.log | tail -n 200</code></p>
+<p>查看test.log中包含http的所有行</p>
+<p><code>cat  test.log | grep &quot;http&quot;</code></p>
+<p>查看test.log中包含http的所有行，并显示前后行</p>
+<p><code>cat -n test.log | grep -C 5 “http”         (匹配字串那行以及前后5行)</code></p>
+<p><code>cat -n test.log | grep -B 5 “http”         (匹配字串那行以及前5行)</code></p>
+<p><code>cat -n test.log | grep -A 5 “http”         (匹配字串那行以及后5行)</code></p>
+<h3 id="3-grep命令"><a href="#3-grep命令" class="headerlink" title="3. grep命令"></a>3. grep命令</h3><p>grep命令，文本搜索命令，可以使用正则表达式搜索文本<br>用法示例：</p>
+<p>查看test.log中包含http的所有行(-i忽略大小写）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -i <span class="string">&quot;http&quot;</span> ./test.log</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-sed命令"><a href="#4-sed命令" class="headerlink" title="4. sed命令"></a>4. sed命令</h3><p>SED 查看某时间段日志</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;/2022-06-02 13:10:30/,/2022-06-02 13:10:40/p&#x27;</span> test.log</span><br></pre></td></tr></table></figure>
+
+<p>某时间端日志输出到指定文件中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;/2022-06-02 13:10:30/,/2022-06-02 13:10:40/p&#x27;</span> test.log &gt; test20220602.log</span><br></pre></td></tr></table></figure>
+
+<p>当然还可以使用vi文本编辑命令，less或者more命令进行查看</p>
+<p>正向查找：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/关键字 按n键把光标移动到下一个符合条件的地方</span><br></pre></td></tr></table></figure>
+
+<p>反向查找：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?关键字  按shift+n 键,把光标移动到下一个符合条件的</span><br></pre></td></tr></table></figure>
+
+
+
+<p>日志文件本身还是一个文件，检索命令，编辑命令，查找命令都是可以进行操作的。</p>
 </blockquote>
 
         </div>
