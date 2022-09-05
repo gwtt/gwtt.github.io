@@ -17,7 +17,7 @@
 
 
 
-<title>标签 | 滚~韬的博客</title>
+<title>SQL面试 | 滚~韬的博客</title>
 
 
 
@@ -361,70 +361,201 @@
     }
 </script>
             <div class="main">
-                
-
-    <div class="container">
-        <div class="post-wrap tags">
-            <h2 class="post-title">-&nbsp;标签&nbsp;-</h2>
-
-            <div class="tag-cloud-tags">
-                
-                    <a href="/tags/Git/">Git<small>(1)</small></a>
-                
-                    <a href="/tags/%E9%9D%A2%E8%AF%95/">面试<small>(30)</small></a>
-                
-                    <a href="/tags/Java/">Java<small>(7)</small></a>
-                
-                    <a href="/tags/java%E5%9F%BA%E7%A1%80/">java基础<small>(6)</small></a>
-                
-                    <a href="/tags/juc/">juc<small>(2)</small></a>
-                
-                    <a href="/tags/%E8%BF%90%E7%BB%B4/">运维<small>(2)</small></a>
-                
-                    <a href="/tags/Linux/">Linux<small>(3)</small></a>
-                
-                    <a href="/tags/%E6%8C%87%E4%BB%A4/">指令<small>(1)</small></a>
-                
-                    <a href="/tags/Mybatis/">Mybatis<small>(1)</small></a>
-                
-                    <a href="/tags/SQL/">SQL<small>(2)</small></a>
-                
-                    <a href="/tags/Mysql/">Mysql<small>(2)</small></a>
-                
-                    <a href="/tags/Redis/">Redis<small>(1)</small></a>
-                
-                    <a href="/tags/MySQL/">MySQL<small>(1)</small></a>
-                
-                    <a href="/tags/Springboot/">Springboot<small>(2)</small></a>
-                
-                    <a href="/tags/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">动态代理<small>(1)</small></a>
-                
-                    <a href="/tags/Jvm/">Jvm<small>(2)</small></a>
-                
-                    <a href="/tags/%E6%96%B9%E6%B3%95%E5%8F%A5%E6%9F%84%EF%BC%8C-JVM/">方法句柄， JVM<small>(2)</small></a>
-                
-                    <a href="/tags/IO/">IO<small>(1)</small></a>
-                
-                    <a href="/tags/Juc/">Juc<small>(2)</small></a>
-                
-                    <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式<small>(1)</small></a>
-                
-                    <a href="/tags/%E9%9D%A2%E8%AF%95%EF%BC%8C-%E6%8E%92%E5%BA%8F/">面试， 排序<small>(1)</small></a>
-                
-                    <a href="/tags/%E6%B8%B8%E6%88%8F/">游戏<small>(1)</small></a>
-                
-                    <a href="/tags/%E9%9D%A2%E8%AF%95%EF%BC%8C-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">面试， 动态规划<small>(1)</small></a>
-                
-                    <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">消息队列<small>(1)</small></a>
-                
-                    <a href="/tags/%E7%B4%A2%E5%BC%95/">索引<small>(1)</small></a>
-                
-                    <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络<small>(2)</small></a>
-                
-            </div>
-        </div>
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
     </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
 
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">SQL面试</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">九月 5&nbsp;&nbsp;18:43</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">717</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">2min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="1-SQL的执行顺序"><a href="#1-SQL的执行顺序" class="headerlink" title="1.SQL的执行顺序"></a>1.SQL的执行顺序</h2><blockquote>
+<p> from&gt;join&gt;where&gt;group by&gt;聚合函数&gt;having&gt;select&gt;order by&gt;limit </p>
+<h3 id="1、最先执行from-table；"><a href="#1、最先执行from-table；" class="headerlink" title="1、最先执行from table；"></a>1、最先执行from table；</h3><p> 需要先确定从哪个表中取<a href>数据</a>，所以最先执行from table。 </p>
+<h3 id="2、join连接"><a href="#2、join连接" class="headerlink" title="2、join连接"></a>2、join连接</h3><p> 用于把来自两个或多个表的行结合起来，简单补充一下连接的类型 </p>
+<ul>
+<li> 自然连接（natural join） </li>
+<li> 内连接（inner join）：内连接查询能将左表和右表中能关联起来的<a href>数据</a>连接后返回，返回的结果就是两个表中所有相匹配的<a href>数据</a>。 </li>
+<li> 外连接（outer join）：外连接分为左外连接（LEFT JOIN：即使右表中没有匹配，也从左表返回所有的行）、右外连接（RIGHT JOIN：即使左表中没有匹配，也从右表返回所有的行）、还有一个FULL JOIN(全连接)，不过MYSQL不支持全连接 </li>
+<li> 交叉连接（cross join）即笛卡尔连接 </li>
+</ul>
+<h3 id="3、where语句；"><a href="#3、where语句；" class="headerlink" title="3、where语句；"></a>3、where语句；</h3><p> where语句是对条件加以限定 </p>
+<h3 id="4、分组语句【group-by……-having】；"><a href="#4、分组语句【group-by……-having】；" class="headerlink" title="4、分组语句【group by…… having】；"></a>4、分组语句【group by…… having】；</h3><p> group by是分组语句 </p>
+<p> having是和group by配合使用的，用来作条件限定 </p>
+<h3 id="5、聚合函数；"><a href="#5、聚合函数；" class="headerlink" title="5、聚合函数；"></a>5、聚合函数；</h3><p> 常用的聚合函数有max，min， count，sum，聚合函数的执行在group by之后，having之前 </p>
+<p> 举例：count函数查询分组后，每一组分别有多少条<a href>数据</a> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select <span class="title function_">count</span><span class="params">(*)</span> from user group by gender</span><br></pre></td></tr></table></figure>
+
+<p> 值得注意的是：<strong>聚合函数的执行在group by之后，having之前</strong> </p>
+<h3 id="6、select语句；"><a href="#6、select语句；" class="headerlink" title="6、select语句；"></a>6、select语句；</h3><p> 对分组聚合完的表挑选出需要查询的<a href>数据</a> </p>
+<h3 id="7、Distinct"><a href="#7、Distinct" class="headerlink" title="7、Distinct"></a>7、Distinct</h3><p> distinct对<a href>数据</a>进行去重 </p>
+<p> 如果sql语句存在聚合函数，例如count、max等，会<strong>先执行聚合函数再去重</strong> </p>
+<h3 id="8、order-by排序语句。"><a href="#8、order-by排序语句。" class="headerlink" title="8、order by排序语句。"></a>8、order by<a href>排序</a>语句。</h3><p> order by<a href>排序</a>语句 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> id  升序排序</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> id <span class="keyword">desc</span> 降序排序</span><br></pre></td></tr></table></figure>
+
+<h3 id="9、limit"><a href="#9、limit" class="headerlink" title="9、limit"></a>9、limit</h3><p> limit用于指定返回的<a href>数据</a>条数 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> limit <span class="number">2</span></span><br><span class="line">从<span class="keyword">user</span>表中查询前两条数据</span><br><span class="line">该<span class="keyword">sql</span>等同于</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> limit <span class="number">0</span>,<span class="number">2</span></span><br><span class="line">表示从第<span class="number">0</span>条开始取两条数据</span><br></pre></td></tr></table></figure>
+
+<p> limit常配合order by使用 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> id limit <span class="number">3</span></span><br><span class="line">根据id排序，选出id排序前三的数据</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p> <strong>from&gt;join&gt;where&gt;group by&gt;聚合函数&gt;having&gt;select&gt;order by&gt;limit</strong> </p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line"><span class="keyword">distinct</span> user.name </span><br><span class="line"><span class="keyword">from</span> <span class="keyword">user</span> </span><br><span class="line"><span class="keyword">join</span> vip <span class="keyword">on</span> user.id<span class="operator">=</span>vip.id </span><br><span class="line"><span class="keyword">where</span> user.id<span class="operator">&gt;</span><span class="number">10</span> </span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> user.mobile </span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>)<span class="operator">&gt;</span><span class="number">2</span> </span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> user.id</span><br><span class="line">limit <span class="number">3</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="执行顺序"><a href="#执行顺序" class="headerlink" title="执行顺序"></a>执行顺序</h4><ol>
+<li> from user </li>
+<li> join vip on user.id=vip.id ，join是表示要关联的表，on是连接的条件 </li>
+<li> where user.id&gt;10  </li>
+<li> group by user.mobile 根据user.mobile分组 </li>
+<li> 然后先执行count(*)在执行having，查询分组之后数量大于2的分组<a href>数据</a> </li>
+<li> select 对分组聚合完的表挑选出需要查询的<a href>数据</a> </li>
+<li> distinct查询出来的<a href>数据</a>去重 </li>
+<li> order by user.id 对去重后的<a href>数据</a><a href>排序</a> </li>
+<li> limit 3对<a href>排序</a>后的<a href>数据</a>选出前面3条</li>
+</ol>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/SQL/"># SQL</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2022/09/05/Linux%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E5%90%AF/">Linux防火墙</a>
+            
+        </section>
+
+
+    </article>
+</div>
 
             </div>
             <footer id="footer" class="footer">
