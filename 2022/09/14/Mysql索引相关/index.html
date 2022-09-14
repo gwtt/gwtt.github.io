@@ -17,7 +17,7 @@
 
 
 
-<title>归档: 2022 | 滚~韬的博客</title>
+<title>Mysql索引相关 | 滚~韬的博客</title>
 
 
 
@@ -361,107 +361,183 @@
     }
 </script>
             <div class="main">
-                <div class="post-wrap archive">
+                <div class="container">
     
     
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/09/01/%E6%B5%85%E8%B0%88AQS/">浅谈AQS</a>
-            <span class="archive-item-date">九月 1</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/09/01/%E6%89%8B%E5%8A%A8%E5%AE%9E%E7%8E%B0%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/">手动实现栈和队列</a>
-            <span class="archive-item-date">九月 1</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/30/Mysql%E7%9A%84MVCC/">Mysql的MVCC</a>
-            <span class="archive-item-date">八月 30</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/29/%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E5%92%8C%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95/">聚集索引和非聚集索引</a>
-            <span class="archive-item-date">八月 29</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/28/jdk%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%92%8Ccgib%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">jdk动态代理和cglib动态代理</a>
-            <span class="archive-item-date">八月 28</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/27/%E6%89%8B%E5%86%99%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E6%A8%A1%E5%BC%8F/">手写生产者消费者模式</a>
-            <span class="archive-item-date">八月 27</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/23/%E6%B5%85%E8%B0%88%E8%82%A1%E7%A5%A8dp%E9%97%AE%E9%A2%98/">浅谈股票dp问题</a>
-            <span class="archive-item-date">八月 23</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/">浅谈垃圾回收器</a>
-            <span class="archive-item-date">八月 23</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/20/%E5%8D%81%E5%A4%A7%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/">十大排序算法</a>
-            <span class="archive-item-date">八月 20</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/18/Linux%E9%9D%A2%E8%AF%95(1)/">Linux面试(1)</a>
-            <span class="archive-item-date">八月 18</span>
-        </article>
-    
-    
-    <nav class="pagination">
-        <a class="page-number" href="/archives/2022/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2022/page/3/">3</a><a class="page-number" href="/archives/2022/page/4/">4</a><a class="page-number" href="/archives/2022/page/5/">5</a>
-    </nav>
-
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Mysql索引相关</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">九月 14&nbsp;&nbsp;10:32</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">709</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">2min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="为什么用-B-树做索引而不用哈希表做索引"><a href="#为什么用-B-树做索引而不用哈希表做索引" class="headerlink" title="为什么用 B+ 树做索引而不用哈希表做索引?"></a>为什么用 B+ 树做索引而不用哈希表做索引?</h3><blockquote>
+<p>1、哈希表是把索引字段映射成对应的哈希码然后再存放在对应的位置，这样的话，如果我们要进行模糊查找的话，显然哈希表这种结构是不支持的，只能遍历这个表。而B+树则可以通过最左前缀原则快速找到对应的数据。</p>
+<p>2、如果我们要进行范围查找，例如查找ID为100 ~ 400的人，哈希表同样不支持，只能遍历全表。</p>
+<p>3、索引字段通过哈希映射成哈希码，如果很多字段都刚好映射到相同值的哈希码的话，那么形成的索引结构将会是一条很长的<strong>链表</strong>，这样的话，查找的时间就会大大增加。</p>
+</blockquote>
+<h3 id="主键索引和非主键索引有什么区别？"><a href="#主键索引和非主键索引有什么区别？" class="headerlink" title="主键索引和非主键索引有什么区别？"></a>主键索引和非主键索引有什么区别？</h3><blockquote>
+<p>例如对于下面这个表(其实就是上面的表中增加了一个k字段),且ID是主键。</p>
+<p><img src="/2022/09/14/Mysql%E7%B4%A2%E5%BC%95%E7%9B%B8%E5%85%B3/640.png" alt="图片"></p>
+<p>主键索引和非主键索引的示意图如下：</p>
+<p><img src="/2022/09/14/Mysql%E7%B4%A2%E5%BC%95%E7%9B%B8%E5%85%B3/640-16631230630081.png" alt="图片"></p>
+<p>其中R代表一整行的值。</p>
+<p>从图中不难看出，主键索引和非主键索引的区别是：非主键索引的叶子节点存放的是<strong>主键的值</strong>，而主键索引的叶子节点存放的是<strong>整行数据</strong>，其中非主键索引也被称为<strong>二级索引</strong>，而主键索引也被称为<strong>聚簇索引</strong>。</p>
+<p>根据这两种结构我们来进行下查询，看看他们在查询上有什么区别。</p>
+<p>1、如果查询语句是 select * from table where ID = 100,即主键查询的方式，则只需要搜索 ID 这棵 B+树。</p>
+<p>2、如果查询语句是 select * from table where k = 1，即非主键的查询方式，则先搜索k索引树，得到ID=100,再到ID索引树搜索一次，这个过程也被称为回表。</p>
+</blockquote>
+<h3 id="为什么建议使用主键自增的索引？"><a href="#为什么建议使用主键自增的索引？" class="headerlink" title="为什么建议使用主键自增的索引？"></a>为什么建议使用主键自增的索引？</h3><blockquote>
+<p>对于这颗主键索引的树</p>
+<p><img src="/2022/09/14/Mysql%E7%B4%A2%E5%BC%95%E7%9B%B8%E5%85%B3/640-16631245106466.png" alt="图片"></p>
+<p>如果我们插入 ID = 650 的一行数据，那么直接在最右边插入就可以了</p>
+<p><img src="/2022/09/14/Mysql%E7%B4%A2%E5%BC%95%E7%9B%B8%E5%85%B3/640-16631245106467.png" alt="图片"></p>
+<p>但是如果插入的是 ID = 350 的一行数据，由于 B+ 树是有序的，那么需要将下面的叶子节点进行移动，腾出位置来插入 ID = 350 的数据，这样就会比较消耗时间，如果刚好 R4 所在的数据页已经满了，需要进行<strong>页分裂</strong>操作，这样会更加糟糕。</p>
+<p>但是，如果我们的主键是自增的，每次插入的 ID 都会比前面的大，那么我们每次只需要在后面插入就行， 不需要移动位置、分裂等操作，这样可以提高性能。也就是为什么建议使用主键自增的索引。</p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/MySQL/"># MySQL</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/09/14/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8F%E6%8F%92%E5%85%A5/">浅谈数据库大数据量问题</a>
+            
+            
+            <a class="next" rel="next" href="/2022/09/11/%E6%B5%85%E8%B0%88Mysql%E6%85%A2%E6%9F%A5%E8%AF%A2/">浅谈MySQL慢查询</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
             </div>
             <footer id="footer" class="footer">
     <div class="copyright">

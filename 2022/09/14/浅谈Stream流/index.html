@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>浅谈Stream流 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<!-- 搜索的部分 -->
+
+
+
+    <script>
+    // function searchToggle() {
+    //     const width = $(document.body).width()
+    //     if(width > 479) {
+    //         return;
+    //     }
+    //     const search = $('.search');
+    //     const searchForm = $('.form-search')
+
+    //     if(!search.hasClass("mobile-search")) {
+    //         search.addClass("mobile-search");
+    //     } else {
+    //         search.removeClass("mobile-search");
+    //     } 
+    // }
+
+    function searchToggle() {
+        const width = $(document.body).width()
+        if(width > 479) {
+            return;
+        }
+        const search = $('.search');
+        const searchForm = $('.form-search');
+        const menuToggle = $('.menu-toggle');
+        const title = $('.navbar-header-title ');
+
+        if(!search.hasClass("mobile-search")) {
+            search.addClass("mobile-search");
+            menuToggle.addClass("open-search")
+            title.addClass("mobile-title-hidden")
+        } else {
+            search.removeClass("mobile-search");
+            menuToggle.removeClass("open-search")
+            // title.css({visibility: 'visible'})
+            title.removeClass("mobile-title-hidden")
+        } 
+    }
+
+
+
+    function search(searchInputEl, formEl, flag) {
+        const path = "/" + "search.json"; // 可以在public 下查看这个search.json
+        $(formEl).submit(function(e){
+            e.preventDefault();
+            let target = null
+            if(searchInputEl == null) {
+                const screenWidth = $(document.body).width();
+                target = screenWidth > 479 ? $('#pc-search-input') : $('#mobile-search-input');
+                console.log(target);
+            } else {
+                target = $(searchInputEl)
+            }
+
+            if(!flag && target.val() === '') {
+                return ;
+            }
+
+            $("#u-search").fadeIn(500, function() {
+                $("body > .wrapper").addClass("modal-active");
+
+                $.ajax({
+                    url: path,
+                    dataType: "json",
+                    beforeSend: function (xhr) {
+                        $input = target.val();
+                        $(".form-input").val($input);
+                        const loadingBar = $('.search-loading-bar') 
+                        loadingBar.css({
+                            width:'100%',
+                            display: 'block'
+                        });
+                    },
+                    success: function( datas ) {
+                        console.log(datas);
+                        const $resultPanel = $(".modal-body")[0];
+                        let str = `<ul class="modal-results">`;
+                        var keywords = $(".form-input").val().trim().toLowerCase().split(/[\s\-]+/);
+                        $resultPanel.innerHTML = "";
+                        let hasResult = false
+                        let text = `<div class="no-result">找不到与关键词相关的内容....</div>`;
+
+                        if ($(".form-input").val().trim().length <= 0) {
+                            // 没有结果
+                            $resultPanel.innerHTML = text;
+                            return;
+                        }
+                        datas.forEach(function (data, index) {
+                            var isMatch = true;
+                            if (!data.title || data.title.trim() === '') {
+                                data.title = "Untitled";
+                            }
+                            var data_title = data.title.trim().toLowerCase();
+                            var data_content = data.content && data.content.trim().replace(/<[^>]+>/g, "").toLowerCase() || '';
+                            var data_url = data.url;
+                            var index_title = -1;
+                            var index_content = -1;
+                            var first_occur = -1;
+                            // only match artiles with not empty contents
+                            if (data_content !== '') {
+                                keywords.forEach(function (keyword, i) {
+                                    index_title = data_title.indexOf(keyword);
+                                    index_content = data_content.indexOf(keyword);
+
+                                    if (index_title < 0 && index_content < 0) {
+                                        isMatch = false;
+                                    } else {
+                                        hasResult = true
+                                        if (index_content < 0) {
+                                            index_content = 0;
+                                        }
+                                        if (i == 0) {
+                                            first_occur = index_content;
+                                        }
+                                    }
+                                });
+                            } else {
+                                isMatch = false;
+                            }
+                            // show search results
+                            if (isMatch) {
+                                str += `<li class='result-item'><a href='${data_url}' class='result-item-detail'> <span class="title">${data_title}</span>`;
+                                var content = data.content.trim().replace(/<[^>]+>/g, "");
+                                if (first_occur >= 0) {
+                                    // cut out 200 characters
+                                    var start = first_occur - 40;
+                                    var end = first_occur + 160;
+
+                                    if (start < 0) {
+                                        start = 0;
+                                    }
+
+                                    if (start == 0) {
+                                        end = 200;
+                                    }
+
+                                    if (end > content.length) {
+                                        end = content.length;
+                                    }
+
+                                    var match_content = content.substring(start, end);
+
+                                    // highlight all keywords
+                                    keywords.forEach(function (keyword) {
+                                        var regS = new RegExp(keyword, "gi");
+                                        match_content = match_content.replace(regS, `<em class="search-keyword">${keyword}</em>`);
+                                    });
+
+                                    str += `<span class="content"> ${match_content} ...</span></a>`;
+                                }
+                                str += "</li>";
+                            }
+                        });
+                        str += "</ul>";
+                        if(hasResult) {
+                            $resultPanel.innerHTML = str;
+                        } else {
+                            $resultPanel.innerHTML = text;
+                        }
+
+                    },
+                    complete: function() {
+                        setTimeout(() => {
+                                const loadingBar = $('.search-loading-bar') 
+                                loadingBar.css({
+                                    width:'0%',
+                                    display: 'none'
+                                });
+                        }, 300)
+                    }
+                });
+            })
+
+        });
+    }
+
+    $(document).ready(function() {
+        $('.modal-close').click(function () { 
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+
+        $('.modal-overlay').click(function() {
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+        search(null, ".form-search", false)
+        search("#u-search-modal-form .form-input", ".u-search-modal-form", true)
+    })
+</script>
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+
+    </script>
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+   <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+   <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+    <div class="container">
+        <!-- <div class="navbar-header header-logo"><a href="/">滚~韬</a></div> -->
+        <div class="navbar-header header-logo"><a href="/"><i class="iconfont icon-zhuye" style="font-size: 1em;"></i>滚~韬</a></div>
+        <div class="menu navbar-right">
+            <!-- 这里表示的是pc端搜索框 -->
+            
+            
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="pc-search-input"/>
+        </form>
+    </div>
+
+
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+            <input id="switch_default" type="checkbox" class="switch_default">
+            <label for="switch_default" class="toggleBtn"></label>
+        </div>
+    </div>
+</nav>
+
+
+<nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+        <div class="navbar-header">
+            <div>
+                <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+            </div>
+            <div class="navbar-mobile-right">
+                
+                
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="mobile-search-input"/>
+        </form>
+    </div>
+
+
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; 目录</div>
+            </div>
+
+        </div>
+        <div class="menu" id="mobile-menu">
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+        </div>
+    </div>
+</nav>
+
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">浅谈Stream流</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">九月 14&nbsp;&nbsp;16:52</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">3.2k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">12min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="什么是Stream流"><a href="#什么是Stream流" class="headerlink" title="什么是Stream流"></a>什么是Stream流</h2><blockquote>
+<p><code>Stream</code>被翻译为流，它的工作过程像将一瓶水导入有很多过滤阀的管道一样，水每经过一个过滤阀，便被操作一次，比如过滤，转换等，最后管道的另外一头有一个容器负责接收剩下的水。</p>
+<p><code>Stream</code>作为Java 8的一大亮点，它专门针对集合的各种操作提供各种非常便利，简单，高效的API,<code>Stream API</code>主要是通过<code>Lambda</code>表达式完成，极大的提高了程序的效率和可读性，同时<code>Stram API</code>中自带的并行流使得并发处理集合的门槛再次降低，使用<code>Stream API</code>编程无需多写一行多线程的大门就可以非常方便的写出高性能的并发程序。使用<code>Stream API</code>能够使你的代码更加优雅。</p>
+<p>流的另一特点是可无限性，使用<code>Stream</code>，你的数据源可以是无限大的。</p>
+</blockquote>
+<h2 id="如何使用流"><a href="#如何使用流" class="headerlink" title="如何使用流"></a>如何使用流</h2><blockquote>
+<ul>
+<li>获取流</li>
+<li>对流操作</li>
+<li>结束对流操作</li>
+</ul>
+</blockquote>
+<h3 id="获取流"><a href="#获取流" class="headerlink" title="-  获取流"></a>-  获取流</h3><blockquote>
+<p>获取流的方式有多种，对于常见的容器(<code>Collection</code>)可以直接<code>.stream()</code>获取 例如：</p>
+<ul>
+<li><code>Collection.stream()</code></li>
+<li><code>Collection.parallelStream()</code></li>
+<li><code>Arrays.stream(T array) or Stream.of()</code></li>
+</ul>
+<p>对于<code>IO</code>，我们也可以通过<code>lines()</code>方法获取流：</p>
+<ul>
+<li><code>java.nio.file.Files.walk()</code></li>
+<li><code>java.io.BufferedReader.lines()</code></li>
+</ul>
+<p>最后，我们还可以从无限大的数据源中产生流：</p>
+<ul>
+<li><code>Random.ints()</code></li>
+</ul>
+<p>值得注意的是，<code>JDK</code>中针对基本数据类型的昂贵的装箱和拆箱操作，提供了基本数据类型的流：</p>
+<ul>
+<li><p><code>IntStream</code></p>
+</li>
+<li><p><code>LongStream</code></p>
+</li>
+<li><p><code>DoubleStream</code></p>
+<p>这三种基本数据类型和普通流差不多，不过他们流里面的数据都是指定的基本数据类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Intstream.of(new int[]&#123;1,2,3&#125;);</span><br><span class="line">Intstream.range(1,3);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这边有个parallelStream和stream的区别</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">因为parallelstream是并行流,所以执行效率比较高</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">并行流并不会按照原本的顺序轨迹执行, 而是 随机执行</span></span><br><span class="line">可以从以下三点入手考虑是否使用parallelstream</span><br><span class="line">是否需要并行？  </span><br><span class="line">任务之间是否是独立的？是否会引起任何竞态条件？  </span><br><span class="line">结果是否取决于任务的调用顺序？</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>获取流的方式有多种，对于常见的容器(<code>Collection</code>)可以直接<code>.stream()</code>获取 例如：</p>
+<ul>
+<li><code>Collection.stream()</code></li>
+<li><code>Collection.parallelStream()</code></li>
+<li><code>Arrays.stream(T array) or Stream.of()</code></li>
+</ul>
+<p>对于<code>IO</code>，我们也可以通过<code>lines()</code>方法获取流：</p>
+<ul>
+<li><code>java.nio.file.Files.walk()</code></li>
+<li><code>java.io.BufferedReader.lines()</code></li>
+</ul>
+<p>最后，我们还可以从无限大的数据源中产生流：</p>
+<ul>
+<li><code>Random.ints()</code></li>
+</ul>
+<p>值得注意的是，<code>JDK</code>中针对基本数据类型的昂贵的装箱和拆箱操作，提供了基本数据类型的流：</p>
+<ul>
+<li><p><code>IntStream</code></p>
+</li>
+<li><p><code>LongStream</code></p>
+</li>
+<li><p><code>DoubleStream</code></p>
+<p>这三种基本数据类型和普通流差不多，不过他们流里面的数据都是指定的基本数据类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Intstream.of(new int[]&#123;1,2,3&#125;);</span><br><span class="line">Intstream.rang(1,3);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这边有个parallelStream和stream的区别</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">因为parallelstream是并行流,所以执行效率比较高</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">并行流并不会按照原本的顺序轨迹执行, 而是 随机执行</span></span><br><span class="line">可以从以下三点入手考虑是否使用parallelstream</span><br><span class="line">是否需要并行？  </span><br><span class="line">任务之间是否是独立的？是否会引起任何竞态条件？  </span><br><span class="line">结果是否取决于任务的调用顺序？</span><br></pre></td></tr></table></figure>
+
+<h3 id="对流操作"><a href="#对流操作" class="headerlink" title="- 对流操作"></a>- 对流操作</h3><blockquote>
+<p>对于中间操作，所有的<code>API</code>的返回值基本都是<code>Stream&lt;T&gt;</code>,因此以后看见一个陌生的<code>API</code>也能通过返回值判断它的所属类型。</p>
+<h6 id="map-flatMap"><a href="#map-flatMap" class="headerlink" title="map/flatMap"></a><strong>map/flatMap</strong></h6><p><code>map</code>顾名思义，就是映射，<code>map</code>操作能够将流中的每一个元素映射为另外的元素。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;R&gt; Stream&lt;R&gt; <span class="title function_">map</span><span class="params">(Function&lt;? <span class="built_in">super</span> T, ? extends R&gt; mapper)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>map</code>接受的是一个<code>Function</code>,也就是接收参数，并返回一个值。</p>
+<p>比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//提取 List&lt;Student&gt;  所有student 的名字 </span></span><br><span class="line">List&lt;String&gt; studentNames = students.stream().map(Student::getName)</span><br><span class="line">                                             .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码等同于以前的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; studentNames=<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"><span class="keyword">for</span>(Student student:students)&#123;</span><br><span class="line">    studentNames.add(student.getName());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>再比如：将List中所有字母转换为大写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; words=Arrays.asList(<span class="string">&quot;a&quot;</span>,<span class="string">&quot;b&quot;</span>,<span class="string">&quot;c&quot;</span>);</span><br><span class="line">List&lt;String&gt; upperWords=words.stream().map(String::toUpperCase)</span><br><span class="line">                                      .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><code>flatMap</code>顾名思义就是扁平化映射，它具体的操作是将多个<code>stream</code>连接成一个<code>stream</code>，这个操作是针对类似多维数组的，比如容器里面包含容器等。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;List&lt;Integer&gt;&gt; ints=<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(Arrays.asList(Arrays.asList(<span class="number">1</span>,<span class="number">2</span>),</span><br><span class="line">                                          Arrays.asList(<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>)));</span><br><span class="line">List&lt;Integer&gt; flatInts=ints.stream().flatMap(Collection::stream).</span><br><span class="line">                                       collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，相当于降维。</p>
+<hr>
+<h6 id="filter"><a href="#filter" class="headerlink" title="filter"></a><strong>filter</strong></h6><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">filter`顾名思义，就是过滤，通过测试的元素会被留下来并生成一个新的`Stream</span><br><span class="line">Stream&lt;T&gt; <span class="title function_">filter</span><span class="params">(Predicate&lt;? <span class="built_in">super</span> T&gt; predicate)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>同理，我们可以<code>filter</code>接收的参数是<code>Predicate</code>，也就是推断型函数式接口，接收参数，并返回<code>boolean</code>值。</p>
+<p>比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取所有大于18岁的学生</span></span><br><span class="line">List&lt;Student&gt; studentNames = students.stream().filter(s-&gt;s.getAge()&gt;<span class="number">18</span>)</span><br><span class="line">                                              .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="distinct"><a href="#distinct" class="headerlink" title="distinct"></a><strong>distinct</strong></h6><p><code>distinct</code>是去重操作,它没有参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Stream&lt;T&gt; <span class="title function_">distinct</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="sorted"><a href="#sorted" class="headerlink" title="sorted"></a><strong>sorted</strong></h6><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sorted`排序操作，默认是从小到大排列，sorted方法包含一个重载，使用sorted方法，如果没有传递参数，那么流中的元素就需要实现Comparable&lt;T&gt;方法，也可以在使sorted方法的时候传入一个`Comparator&lt;T&gt;</span><br><span class="line">Stream&lt;T&gt; <span class="title function_">sorted</span><span class="params">(Comparator&lt;? <span class="built_in">super</span> T&gt; comparator)</span>;</span><br><span class="line"></span><br><span class="line">Stream&lt;T&gt; <span class="title function_">sorted</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>值得一说的是这个<code>Comparator</code>在<code>Java 8</code>之后被打上了<code>@FunctionalInterface</code>,其他方法都提供了<code>default</code>实现，因此我们可以在<code>sort</code>中使用<code>Lambda</code>表达式</p>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以年龄排序</span></span><br><span class="line">students.stream().sorted((s,o)-&gt;Integer.compare(s.getAge(),o.getAge()))</span><br><span class="line">                                  .forEach(System.out::println);;</span><br></pre></td></tr></table></figure>
+
+<p>然而还有更方便的，<code>Comparator</code>默认也提供了实现好的方法引用，使得我们更加方便的使用：</p>
+<p>例如上面的代码可以改成如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以年龄排序 </span></span><br><span class="line">students.stream().sorted(Comparator.comparingInt(Student::getAge))</span><br><span class="line">                            .forEach(System.out::println);;</span><br></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以姓名排序</span></span><br><span class="line">students.stream().sorted(Comparator.comparing(Student::getName)).</span><br><span class="line">                          forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p>是不是更加简洁。</p>
+<hr>
+<h6 id="peek"><a href="#peek" class="headerlink" title="peek"></a><strong>peek</strong></h6><p><code>peek</code>有遍历的意思，和<code>forEach</code>一样，但是它是一个中间操作。</p>
+<p><code>peek</code>接受一个消费型的函数式接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Stream&lt;T&gt; <span class="title function_">peek</span><span class="params">(Consumer&lt;? <span class="built_in">super</span> T&gt; action)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//去重以后打印出来，然后再归并为List</span></span><br><span class="line">List&lt;Student&gt; sortedStudents= students.stream().distinct().peek(System.out::println).</span><br><span class="line">                                                collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="limit"><a href="#limit" class="headerlink" title="limit"></a><strong>limit</strong></h6><p><code>limit</code>裁剪操作，和<code>String::subString(0,x)</code>有点先沟通，<code>limit</code>接受一个<code>long</code>类型参数，通过<code>limit</code>之后的元素只会剩下<code>min(n,size)</code>个元素，<code>n</code>表示参数，<code>size</code>表示流中元素个数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Stream&lt;T&gt; <span class="title function_">limit</span><span class="params">(<span class="type">long</span> maxSize)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//只留下前6个元素并打印</span></span><br><span class="line">students.stream().limit(<span class="number">6</span>).forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="skip"><a href="#skip" class="headerlink" title="skip"></a><strong>skip</strong></h6><p><code>skip</code>表示跳过多少个元素，和<code>limit</code>比较像，不过<code>limit</code>是保留前面的元素，<code>skip</code>是保留后面的元素</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Stream&lt;T&gt; skip(long n);</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//跳过前3个元素并打印 </span></span><br><span class="line">students.stream().skip(<span class="number">3</span>).forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="终结操作"><a href="#终结操作" class="headerlink" title="- 终结操作"></a>- 终结操作</h3><blockquote>
+<p>一个流处理中，有且只能有一个终结操作，通过终结操作之后，流才真正被处理，终结操作一般都返回其他的类型而不再是一个流,一般来说，终结操作都是将其转换为一个容器。</p>
+<h6 id="forEach"><a href="#forEach" class="headerlink" title="forEach"></a><strong>forEach</strong></h6><p><code>forEach</code>是终结操作的遍历，操作和<code>peek</code>一样，但是<code>forEach</code>之后就不会再返回流</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">forEach</span><span class="params">(Consumer&lt;? <span class="built_in">super</span> T&gt; action)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//遍历打印</span></span><br><span class="line">students.stream().forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码和一下代码效果相同：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(Student student:students)&#123;</span><br><span class="line">    System.out.println(sudents);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="toArray"><a href="#toArray" class="headerlink" title="toArray"></a><strong>toArray</strong></h6><p><code>toArray</code>和<code>List##toArray()</code>用法差不多，包含一个重载。</p>
+<p>默认的<code>toArray()</code>返回一个<code>Object[]</code>，</p>
+<p>也可以传入一个<code>IntFunction&lt;A[]&gt; generator</code>指定数据类型</p>
+<p>一般建议第二种方式。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Object[] toArray();</span><br><span class="line"></span><br><span class="line">&lt;A&gt; A[] toArray(IntFunction&lt;A[]&gt; generator);</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Student[] studentArray = students.stream().skip(<span class="number">3</span>).toArray(Student[]::<span class="keyword">new</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="max-min"><a href="#max-min" class="headerlink" title="max/min"></a><strong>max/min</strong></h6><p><code>max/min</code>即使找出最大或者最小的元素。<code>max/min</code>必须传入一个<code>Comparator</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Optional&lt;T&gt; <span class="title function_">min</span><span class="params">(Comparator&lt;? <span class="built_in">super</span> T&gt; comparator)</span>;</span><br><span class="line"></span><br><span class="line">Optional&lt;T&gt; <span class="title function_">max</span><span class="params">(Comparator&lt;? <span class="built_in">super</span> T&gt; comparator)</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="count"><a href="#count" class="headerlink" title="count"></a><strong>count</strong></h6><p><code>count</code>返回流中的元素数量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="title function_">count</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span>  <span class="variable">count</span> <span class="operator">=</span> students.stream().skip(<span class="number">3</span>).count();</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="reduce"><a href="#reduce" class="headerlink" title="reduce"></a><strong>reduce</strong></h6><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reduce为归纳操作，主要是将流中各个元素结合起来，它需要提供一个起始值，然后按一定规则进行运算，比如相加等，它接收一个二元操作 <span class="code">`BinaryOperator`</span>函数式接口。从某种意义上来说，<span class="code">`sum,min,max,average`</span>都是特殊的reduce</span><br></pre></td></tr></table></figure>
+
+<p><code>reduce</code>包含三个重载：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">T <span class="title function_">reduce</span><span class="params">(T identity, BinaryOperator&lt;T&gt; accumulator)</span>;</span><br><span class="line"></span><br><span class="line">Optional&lt;T&gt; <span class="title function_">reduce</span><span class="params">(BinaryOperator&lt;T&gt; accumulator)</span>;</span><br><span class="line"></span><br><span class="line"> &lt;U&gt; U <span class="title function_">reduce</span><span class="params">(U identity,</span></span><br><span class="line"><span class="params">                 BiFunction&lt;U, ? <span class="built_in">super</span> T, U&gt; accumulator,</span></span><br><span class="line"><span class="params">                 BinaryOperator&lt;U&gt; combiner)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; integers = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>));</span><br><span class="line">        </span><br><span class="line"><span class="type">long</span> <span class="variable">count</span> <span class="operator">=</span> integers.stream().reduce(<span class="number">0</span>,(x,y)-&gt;x+y);</span><br></pre></td></tr></table></figure>
+
+<p>以上代码等同于：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="variable">count</span> <span class="operator">=</span> integers.stream().reduce(Integer::sum).get();</span><br></pre></td></tr></table></figure>
+
+<p><code>reduce</code>两个参数和一个参数的区别在于有没有提供一个起始值，</p>
+<p>如果提供了起始值，则可以返回一个确定的值，如果没有提供起始值，则返回<code>Opeational</code>防止流中没有足够的元素。</p>
+<hr>
+<h6 id="anyMatch-allMatch-noneMatch"><a href="#anyMatch-allMatch-noneMatch" class="headerlink" title="anyMatch\ allMatch\ noneMatch"></a><strong>anyMatch\ allMatch\ noneMatch</strong></h6><p>测试是否有任意元素\所有元素\没有元素匹配表达式</p>
+<p>他们都接收一个推断类型的函数式接口：<code>Predicate</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="title function_">anyMatch</span><span class="params">(Predicate&lt;? <span class="built_in">super</span> T&gt; predicate)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">allMatch</span><span class="params">(Predicate&lt;? <span class="built_in">super</span> T&gt; predicate)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">noneMatch</span><span class="params">(Predicate&lt;? <span class="built_in">super</span> T&gt; predicate)</span></span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="variable">test</span> <span class="operator">=</span> integers.stream().anyMatch(x-&gt;x&gt;<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="findFirst、-findAny"><a href="#findFirst、-findAny" class="headerlink" title="findFirst、 findAny"></a><strong>findFirst、 findAny</strong></h6><p>获取元素，这两个<code>API</code>都不接受任何参数，<code>findFirt</code>返回流中第一个元素，<code>findAny</code>返回流中任意一个元素。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Optional&lt;T&gt; <span class="title function_">findFirst</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">Optional&lt;T&gt; <span class="title function_">findAny</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>也有有人会问<code>findAny()</code>这么奇怪的操作谁会用？这个<code>API</code>主要是为了在并行条件下想要获取任意元素，以最大性能获取任意元素</p>
+</blockquote>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">foo</span> <span class="operator">=</span> integers.stream().findAny().get();</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h6 id="collect"><a href="#collect" class="headerlink" title="collect"></a><strong>collect</strong></h6><p><code>collect</code>收集操作，这个<code>API</code>放在后面将是因为它太重要了，基本上所有的流操作最后都会使用它。</p>
+<p>我们先看<code>collect</code>的定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> &lt;R&gt; R <span class="title function_">collect</span><span class="params">(Supplier&lt;R&gt; supplier,</span></span><br><span class="line"><span class="params">                  BiConsumer&lt;R, ? <span class="built_in">super</span> T&gt; accumulator,</span></span><br><span class="line"><span class="params">                  BiConsumer&lt;R, R&gt; combiner)</span>;</span><br><span class="line">&lt;R, A&gt; R <span class="title function_">collect</span><span class="params">(Collector&lt;? <span class="built_in">super</span> T, A, R&gt; collector)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，<code>collect</code>包含两个重载：</p>
+<p>一个参数和三个参数，</p>
+<p>三个参数我们很少使用，因为<code>JDK</code>提供了足够我们使用的<code>Collector</code>供我们直接使用,我们可以简单了解下这三个参数什么意思：</p>
+<ul>
+<li><code>Supplier</code>:用于产生最后存放元素的容器的生产者</li>
+<li><code>accumulator</code>:将元素添加到容器中的方法</li>
+<li><code>combiner</code>：将分段元素全部添加到容器中的方法</li>
+</ul>
+<p>前两个元素我们都很好理解，第三个元素是干嘛的呢？因为流提供了并行操作，因此有可能一个流被多个线程分别添加，然后再将各个子列表依次添加到最终的容器中。</p>
+<p>↓ - - - - - - - - -</p>
+<p>↓ — — —</p>
+<p>↓ ———</p>
+<p>如上图，分而治之。</p>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; result = stream.collect(ArrayList::<span class="keyword">new</span>, List::add, List::addAll);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>接下来看只有一个参数的<code>collect</code></p>
+<p>一般来说，只有一个参数的<code>collect</code>，我们都直接传入<code>Collectors</code>中的方法引用即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; = integers.stream().collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<p><code>Collectors</code>中包含很多常用的转换器。<code>toList()</code>,<code>toSet()</code>等。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Collectors`中还包括一个`groupBy()`，他和`Sql`中的`groupBy`一样都是分组，返回一个`Map</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//按学生年龄分组</span></span><br><span class="line">Map&lt;Integer,List&lt;Student&gt;&gt; map= students.stream().</span><br><span class="line">                                collect(Collectors.groupingBy(Student::getAge));</span><br></pre></td></tr></table></figure>
+
+<p><code>groupingBy</code>可以接受3个参数，分别是</p>
+<ol>
+<li>第一个参数：分组按照什么分类</li>
+<li>第二个参数：分组最后用什么容器保存返回（当只有两个参数是，此参数默认为<code>HashMap</code>）</li>
+<li>第三个参数：按照第一个参数分类后，对应的分类的结果如何收集</li>
+</ol>
+<p>有时候单参数的<code>groupingBy</code>不满足我们需求的时候，我们可以使用多个参数的<code>groupingBy</code></p>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//将学生以年龄分组，每组中只存学生的名字而不是对象</span></span><br><span class="line">Map&lt;Integer,List&lt;String&gt;&gt; map =  students.stream().</span><br><span class="line">  collect(Collectors.groupingBy(Student::getAge,Collectors.mapping(Student::getName,Collectors.toList())));</span><br></pre></td></tr></table></figure>
+
+<p><code>toList</code>默认生成的是<code>ArrayList</code>,<code>toSet</code>默认生成的是<code>HashSet</code>，如果想要指定其他容器，可以如下操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> students.stream().collect(Collectors.toCollection(TreeSet::<span class="keyword">new</span>));</span><br><span class="line">Collectors`还包含一个`toMap`，利用这个`API`我们可以将`List`转换为`Map</span><br><span class="line">  Map&lt;Integer,Student&gt; map=students.stream().</span><br><span class="line">                           collect(Collectors.toMap(Student::getAge,s-&gt;s));</span><br></pre></td></tr></table></figure>
+
+<p>值得注意的一点是，<code>IntStream</code>，<code>LongStream</code>,<code>DoubleStream</code>是没有<code>collect()</code>方法的，因为对于基本数据类型，要进行装箱，拆箱操作，SDK并没有将它放入流中，对于基本数据类型流，我们只能将其<code>toArray()</code></p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/09/14/%E6%B5%85%E8%B0%88Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/">浅谈Lambda表达式</a>
+            
+            
+            <a class="next" rel="next" href="/2022/09/14/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%87%8F%E6%8F%92%E5%85%A5/">浅谈数据库大数据量问题</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+<!-- 搜索功能 -->
+<!-- Chic/layout.ejs -->
+<div id="u-search">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="container">
+                <form id="u-search-modal-form" class="u-search-modal-form">
+                    <button type="submit" class="form-submit-btn">
+                        <img src="/image/2.png" class="search-btn-img" />
+                    </button>
+                    <input placeholder="搜索内容..." class="form-input" id="modal-form-input">
+                </form>
+                <a class="modal-close">x</a>
+            </div>
+            <div class="search-loading">
+                <div class="search-loading-bar"></div>
+            </div>
+        </div>
+        <div class="modal-body">
+        </div>
+    </div>
+    <div class="modal-overlay"></div>
+</div>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":true}});</script></body>
+
+
+</html>

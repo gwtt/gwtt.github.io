@@ -454,7 +454,7 @@
 
 字数:
 
-<a href="">6.2k</a> 
+<a href="">7.3k</a> 
 
 </span>
 
@@ -468,7 +468,7 @@
 
 时间:
 
-<a href="">21min</a> 
+<a href="">26min</a> 
 
 </span>
 
@@ -627,6 +627,85 @@
 <p>所以空的String对象占用内存是 8+16+1+4+1+8+1+ 1字节（字节填充）=40字节</p>
 <p>非空的String对象</p>
 <p>非空的string对象比空的string对象只有在数组对象里的 实例数据部分变化了，其他都没变，<br>所以非空的String对象占用内存是 8+16+1+4+1+8+1+ 1字节（字节填充）=40+ n字节（n是byte数组的长度）</p>
+</blockquote>
+<h3 id="8-堆，方法区，永久代，元空间-之间的关系"><a href="#8-堆，方法区，永久代，元空间-之间的关系" class="headerlink" title="8.堆，方法区，永久代，元空间 之间的关系"></a>8.堆，方法区，永久代，元空间 之间的关系</h3><blockquote>
+<ol>
+<li><h4 id="方法区和永久代的关系"><a href="#方法区和永久代的关系" class="headerlink" title="方法区和永久代的关系"></a>方法区和永久代的关系</h4><p>方法区是 《Java虚拟机规范 》中的规范，在 HotSpot 虚拟机中，JDK 6.0 及以前由永久代实现，就如同 Java 中的接口和实现一样。</p>
+<p>永久代并不是很好的方法区实现，《Java虚拟机规范》中方法区不需要连续的内存20)并且可以选择固定大小或可扩展，而永久代有 <code>-XX:MaxPermSize</code> 上限，即使不设置也有默认大小，很容易造成内存溢出。</p>
+</li>
+<li><h4 id="堆和方法区的关系"><a href="#堆和方法区的关系" class="headerlink" title="堆和方法区的关系"></a>堆和方法区的关系</h4><p>《Java虚拟机规范》把方法区描述为堆的逻辑部分，但它却有一个名字 Non-Heap 非堆，两者物理上并无联系。</p>
+<p>两者的共同点就是都可以选择固定大小或可扩展。</p>
+</li>
+<li><h4 id="元空间：JDK-8-把永久代迁移到由本地内存实现的元空间当中"><a href="#元空间：JDK-8-把永久代迁移到由本地内存实现的元空间当中" class="headerlink" title="元空间：JDK 8 把永久代迁移到由本地内存实现的元空间当中"></a>元空间：JDK 8 把永久代迁移到由本地内存实现的元空间当中</h4></li>
+<li><h4 id="永久代数据迁移"><a href="#永久代数据迁移" class="headerlink" title="永久代数据迁移"></a>永久代数据迁移</h4><ul>
+<li>1.6 及以前永久代是方法区的实现，其中包括：已加载的类型信息，常量，静态变量，即时编译器编译过后的代码缓存等。</li>
+<li>1.7 将字符串常量池，静态变量移出到堆中。</li>
+<li>1.8 将老年代剩余内容（主要是类型信息）全部移到元空间中。</li>
+</ul>
+</li>
+<li><h4 id="方法区的实现永久代真的永久吗？"><a href="#方法区的实现永久代真的永久吗？" class="headerlink" title="方法区的实现永久代真的永久吗？"></a>方法区的实现永久代真的永久吗？</h4><p>垃圾回收在这个区域出现的比较少，但是并不是没有，主要是常量池的回收和类型的卸载。主要是动态类的生成：CGLib字节码增强，JSP 等。</p>
+</li>
+<li><h4 id="永久代和元空间"><a href="#永久代和元空间" class="headerlink" title="永久代和元空间"></a>永久代和元空间</h4><p>JDK 8 以后，永久代完全退出历史舞台，由元空间替代</p>
+</li>
+<li><h4 id="常量池在-JDK-6-7-8-中存在位置证明"><a href="#常量池在-JDK-6-7-8-中存在位置证明" class="headerlink" title="常量池在 JDK 6,7,8 中存在位置证明"></a>常量池在 JDK 6,7,8 中存在位置证明</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.HashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RuntimeConstantPoolOOM</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        Set&lt;String&gt; set = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;();</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">            <span class="comment">// String.intern();去字符串常量池中查找有没有这个字符串，有的话指向引用，没有将字符串拷贝进字符串常量池当中</span></span><br><span class="line">            set.add(String.valueOf(i++).intern());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="number">12345678910111213</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>JDK 6：<code>-XX:MaxPermSize</code> 限制永久代大小，异常 <code>OOM:PermGen space</code> ，代表永久代空间不足，此时字符串常量池在永久代当中。</li>
+<li>JDK 7及以上：<code>-XX:MaxPermSize</code> 限制永久代大小，循环一直下去，不会爆异常。<code>-Xmx512M</code> 限制最大堆就可以看到 <code>OOM:heap space</code>堆内存不足，代表字符串常量池在堆中。</li>
+</ol>
+<p><img src="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/image-20220914163105961.png" alt="image-20220914163105961"></p>
+<p><strong>指令补充</strong></p>
+<table>
+<thead>
+<tr>
+<th>-Xmssize</th>
+<th>设置初始化堆内存大小，这个值的大小必须是1024的倍数，并且大于1M，可以指定单位k(K),m(M),g(G)。例如 -Xms6m。如果没有设置这个值，那么它的初始化大小就是年轻代和老年代的和。等价于<code>-XX:InitialHeapSize</code>。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-Xmxsize</td>
+<td>设置最大堆内存大小，这个值的大小必须是1024的倍数，并且大于2M，可以指定单位k(K),m(M),g(G)。默认值是根据运行时的系统配置来确定的。一般服务器部署时，把<code>-Xms</code>和<code>-Xmx</code>的值设置成相同的大小。<code>-Xmx</code>选项和<code>-XX:MaxHeapSize</code>相同。</td>
+</tr>
+<tr>
+<td>-Xmnsize</td>
+<td>设置年轻代大小。可以指定单位k(K),m(M),g(G) .例如-Xmn256m。还可以通过其他两个选项来代替这个选项来指定年轻代最小和最大内存：<code>-XX:NewSize</code>指定初始化大小,<code>-XX:MaxNewSize</code>指定最大内存大小</td>
+</tr>
+<tr>
+<td>-XX:NewSize=&lt; n &gt;[g|m|k]</td>
+<td>年轻代的初始值。</td>
+</tr>
+<tr>
+<td>-XX:MaxNewSize=&lt; n &gt;[g|m|k]</td>
+<td>年轻代的最大值。</td>
+</tr>
+<tr>
+<td>-Xsssize</td>
+<td>设置线程栈的大小。可以指定单位k(K),m(M),g(G)。默认值根据内存而定。 这个选项和<code>-XX:ThreadStackSize</code>相同</td>
+</tr>
+<tr>
+<td>-XX:ThreadStackSize=size</td>
+<td>设置线程栈大小。默认值依赖于机器内存。这个选项和<code>-Xss</code>选项的功能相同。</td>
+</tr>
+<tr>
+<td>-XX:MetaspaceSize=size</td>
+<td>设置元数据空间初始大小。</td>
+</tr>
+<tr>
+<td>-XX:MaxMetaspaceSize=size</td>
+<td>设置元数据空间最大值。</td>
+</tr>
+<tr>
+<td>-XX:NewRatio</td>
+<td>设置老生代和新生代大小的比例，比如-XX:NewRatio=2表示1/3的Heap是新生代，2/3的Heap是老生代。</td>
+</tr>
+<tr>
+<td>-XX:SurvivorRatio</td>
+<td>用来设置新生代中Eden和Survivor空间大小的比例，需要注意的是有两个Survivor。比如-XX:SurvivorRatio=8表示Eden区域在新生代的8/10，两个Survivor分别占1/10。</td>
+</tr>
+</tbody></table>
+<p><img src="/2022/06/12/jvm%E9%9D%A2%E8%AF%95/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NTA4ODk5OA==,size_16,color_FFFFFF,t_70.png" alt="在这里插入图片描述"></p>
+</li>
+</ol>
 </blockquote>
 
         </div>
