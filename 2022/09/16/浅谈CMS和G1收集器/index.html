@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>浅谈CMS和G1收集器 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<!-- 搜索的部分 -->
+
+
+
+    <script>
+    // function searchToggle() {
+    //     const width = $(document.body).width()
+    //     if(width > 479) {
+    //         return;
+    //     }
+    //     const search = $('.search');
+    //     const searchForm = $('.form-search')
+
+    //     if(!search.hasClass("mobile-search")) {
+    //         search.addClass("mobile-search");
+    //     } else {
+    //         search.removeClass("mobile-search");
+    //     } 
+    // }
+
+    function searchToggle() {
+        const width = $(document.body).width()
+        if(width > 479) {
+            return;
+        }
+        const search = $('.search');
+        const searchForm = $('.form-search');
+        const menuToggle = $('.menu-toggle');
+        const title = $('.navbar-header-title ');
+
+        if(!search.hasClass("mobile-search")) {
+            search.addClass("mobile-search");
+            menuToggle.addClass("open-search")
+            title.addClass("mobile-title-hidden")
+        } else {
+            search.removeClass("mobile-search");
+            menuToggle.removeClass("open-search")
+            // title.css({visibility: 'visible'})
+            title.removeClass("mobile-title-hidden")
+        } 
+    }
+
+
+
+    function search(searchInputEl, formEl, flag) {
+        const path = "/" + "search.json"; // 可以在public 下查看这个search.json
+        $(formEl).submit(function(e){
+            e.preventDefault();
+            let target = null
+            if(searchInputEl == null) {
+                const screenWidth = $(document.body).width();
+                target = screenWidth > 479 ? $('#pc-search-input') : $('#mobile-search-input');
+                console.log(target);
+            } else {
+                target = $(searchInputEl)
+            }
+
+            if(!flag && target.val() === '') {
+                return ;
+            }
+
+            $("#u-search").fadeIn(500, function() {
+                $("body > .wrapper").addClass("modal-active");
+
+                $.ajax({
+                    url: path,
+                    dataType: "json",
+                    beforeSend: function (xhr) {
+                        $input = target.val();
+                        $(".form-input").val($input);
+                        const loadingBar = $('.search-loading-bar') 
+                        loadingBar.css({
+                            width:'100%',
+                            display: 'block'
+                        });
+                    },
+                    success: function( datas ) {
+                        console.log(datas);
+                        const $resultPanel = $(".modal-body")[0];
+                        let str = `<ul class="modal-results">`;
+                        var keywords = $(".form-input").val().trim().toLowerCase().split(/[\s\-]+/);
+                        $resultPanel.innerHTML = "";
+                        let hasResult = false
+                        let text = `<div class="no-result">找不到与关键词相关的内容....</div>`;
+
+                        if ($(".form-input").val().trim().length <= 0) {
+                            // 没有结果
+                            $resultPanel.innerHTML = text;
+                            return;
+                        }
+                        datas.forEach(function (data, index) {
+                            var isMatch = true;
+                            if (!data.title || data.title.trim() === '') {
+                                data.title = "Untitled";
+                            }
+                            var data_title = data.title.trim().toLowerCase();
+                            var data_content = data.content && data.content.trim().replace(/<[^>]+>/g, "").toLowerCase() || '';
+                            var data_url = data.url;
+                            var index_title = -1;
+                            var index_content = -1;
+                            var first_occur = -1;
+                            // only match artiles with not empty contents
+                            if (data_content !== '') {
+                                keywords.forEach(function (keyword, i) {
+                                    index_title = data_title.indexOf(keyword);
+                                    index_content = data_content.indexOf(keyword);
+
+                                    if (index_title < 0 && index_content < 0) {
+                                        isMatch = false;
+                                    } else {
+                                        hasResult = true
+                                        if (index_content < 0) {
+                                            index_content = 0;
+                                        }
+                                        if (i == 0) {
+                                            first_occur = index_content;
+                                        }
+                                    }
+                                });
+                            } else {
+                                isMatch = false;
+                            }
+                            // show search results
+                            if (isMatch) {
+                                str += `<li class='result-item'><a href='${data_url}' class='result-item-detail'> <span class="title">${data_title}</span>`;
+                                var content = data.content.trim().replace(/<[^>]+>/g, "");
+                                if (first_occur >= 0) {
+                                    // cut out 200 characters
+                                    var start = first_occur - 40;
+                                    var end = first_occur + 160;
+
+                                    if (start < 0) {
+                                        start = 0;
+                                    }
+
+                                    if (start == 0) {
+                                        end = 200;
+                                    }
+
+                                    if (end > content.length) {
+                                        end = content.length;
+                                    }
+
+                                    var match_content = content.substring(start, end);
+
+                                    // highlight all keywords
+                                    keywords.forEach(function (keyword) {
+                                        var regS = new RegExp(keyword, "gi");
+                                        match_content = match_content.replace(regS, `<em class="search-keyword">${keyword}</em>`);
+                                    });
+
+                                    str += `<span class="content"> ${match_content} ...</span></a>`;
+                                }
+                                str += "</li>";
+                            }
+                        });
+                        str += "</ul>";
+                        if(hasResult) {
+                            $resultPanel.innerHTML = str;
+                        } else {
+                            $resultPanel.innerHTML = text;
+                        }
+
+                    },
+                    complete: function() {
+                        setTimeout(() => {
+                                const loadingBar = $('.search-loading-bar') 
+                                loadingBar.css({
+                                    width:'0%',
+                                    display: 'none'
+                                });
+                        }, 300)
+                    }
+                });
+            })
+
+        });
+    }
+
+    $(document).ready(function() {
+        $('.modal-close').click(function () { 
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+
+        $('.modal-overlay').click(function() {
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+        search(null, ".form-search", false)
+        search("#u-search-modal-form .form-input", ".u-search-modal-form", true)
+    })
+</script>
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+
+    </script>
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+   <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+   <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+    <div class="container">
+        <!-- <div class="navbar-header header-logo"><a href="/">滚~韬</a></div> -->
+        <div class="navbar-header header-logo"><a href="/"><i class="iconfont icon-zhuye" style="font-size: 1em;"></i>滚~韬</a></div>
+        <div class="menu navbar-right">
+            <!-- 这里表示的是pc端搜索框 -->
+            
+            
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="pc-search-input"/>
+        </form>
+    </div>
+
+
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+            <input id="switch_default" type="checkbox" class="switch_default">
+            <label for="switch_default" class="toggleBtn"></label>
+        </div>
+    </div>
+</nav>
+
+
+<nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+        <div class="navbar-header">
+            <div>
+                <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+            </div>
+            <div class="navbar-mobile-right">
+                
+                
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="mobile-search-input"/>
+        </form>
+    </div>
+
+
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; 目录</div>
+            </div>
+
+        </div>
+        <div class="menu" id="mobile-menu">
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+        </div>
+    </div>
+</nav>
+
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">浅谈CMS和G1收集器</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">九月 16&nbsp;&nbsp;20:38</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">3.2k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">11min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="CMS收集器"><a href="#CMS收集器" class="headerlink" title="CMS收集器"></a>CMS收集器</h2><h3 id="1-什么是CMS收集器"><a href="#1-什么是CMS收集器" class="headerlink" title="1.什么是CMS收集器"></a>1.什么是CMS收集器</h3><blockquote>
+<p>CMS(Concurrent Mark Sweep)收集器是一种以获取最短回收停顿时间为目标的收集器。目前很大一部分的Java应用集中在互联网网站或者B/S系统的服务端上，这类应用尤其重视服务的响应速度，希望系统停顿时间最短，以给用户带来较好的体验。CMS收集器就非常符合这类应用的需求。</p>
+<p>从名字（包含 “Mark Sweep”）上就可以看出，CMS收集器是基于“标记-清除”算法实现的，它的运作过程相对于前面几种收集器来说更复杂一些，整个过程分为4个步骤,包括:</p>
+<ul>
+<li>初始标记(CMS initial mark)</li>
+<li>并发标记(CMS concurrent mark)</li>
+<li>重新标记(CMS remark)</li>
+<li>并发清除(CMS concurrent sweep)</li>
+</ul>
+<p>其中，初始标记、重新标记这两个步骤需要“Stop the World”。初始标记仅仅只是标记一下GC Roots能直接关联到的对象，速度很快，并发标记阶段就是进行GC Roots Tracing的过程，而重新标记阶段则是为了修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，这个阶段的停顿时间一般会比初始标记阶段稍长一些，但远比并发标记的时间短。</p>
+<p>由于整个过程中耗时最长的并发标记和并发清除过程收集器线程都可以与用户线程一起工作，所以，从总体上来说，CMS收集器的内存回收过程是与用户线程一起并发执行的。</p>
+<p>CMS是一款优秀的收集器，它的主要优点在名字上就已经体现出来了: 并发收集、低停顿，Sum公司文档也会称为Concurrent Low Pause Collector(并发低停顿收集器)</p>
+</blockquote>
+<h3 id="2-优点"><a href="#2-优点" class="headerlink" title="2.优点"></a>2.<strong>优点</strong></h3><blockquote>
+<ul>
+<li>并发收集</li>
+<li>低停顿</li>
+</ul>
+</blockquote>
+<h3 id="3-CMS收集器缺点"><a href="#3-CMS收集器缺点" class="headerlink" title="3.CMS收集器缺点"></a>3.CMS收集器<strong>缺点</strong></h3><blockquote>
+<ul>
+<li>CMS收集器对CPU资源非常敏感。</li>
+</ul>
+<blockquote>
+<p>在并发阶段，它虽然不会导致用户线程停顿，但是会因为占用了一部分线程而导致应用程序变慢，总吞吐量会降低。</p>
+</blockquote>
+<ul>
+<li>CMS收集器无法处理浮动垃圾（Floating Garbage)。</li>
+</ul>
+<blockquote>
+<p>可能出现”Concurrent Mode Failure”失败而导致另一次Full GC的产生。由于CMS并发清理阶段用户线程还在运行者，伴随程序运行自然有不断的垃圾不断的产生，这些垃圾只能留在下一次GC才能清理掉。</p>
+</blockquote>
+<ul>
+<li>CMS收集器是基于标记-清除算法，该算法的缺点都有。</li>
+</ul>
+<blockquote>
+<p>收集结束时会有大量空间碎片。</p>
+<p>标记和清除两个过程的效率都不高。</p>
+</blockquote>
+</blockquote>
+<h2 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h2><h3 id="1-什么是G1收集器"><a href="#1-什么是G1收集器" class="headerlink" title="1.什么是G1收集器"></a>1.什么是G1收集器</h3><blockquote>
+<p>G1(Garbage-First)收集器是当今收集器技术发展的最前沿成果之一，早在JDK1.7刚刚确立项目目标，Sum公司给出的JDK1.7 RoadMap里面，它就被视为JDK1.7中HotSpot虚拟机的一个重要进化特征。从JDK 6u14中开始就有Early Access版本的G1收集器共开发人员实验和试用，由此开始G1收集器的“Experimental”状态持续了数年时间，直至JDK7u4，Sum公司才认为它达到足够成熟的商用程度，移除了“Experimental“的标识。</p>
+<p><strong>G1重新定义了堆空间，打破了原有的分代模型，将堆划分为一个个区域。这么做的目的是在进行收集时不必在全堆范围内进行，这是它最显著的特点。区域划分的好处就是带来了停顿时间可预测的收集模型：用户可以指定收集操作在多长时间内完成。即G1提供了接近实时的收集特性。</strong></p>
+</blockquote>
+<h3 id="2-优点-1"><a href="#2-优点-1" class="headerlink" title="2.优点"></a>2.优点</h3><blockquote>
+<ul>
+<li>并发与并行</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">G1能充分利用多CPU、多核环境下的硬件优势，使用多个CPU来缩短Stop-the-world停顿的时间，部分其他收集器原来需要停顿Java线程执行的GC操作，G1收集器仍然可以通过并发的方式让Java程序继续运行。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>分代收集</li>
+<li>空间整合</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">与CMS的标记-清除算法不同，G1从整体来看是基于标记-整理算法实现的收集器，从局部（两个Region之间）上来看是基于“复制”算法实现的。但无论如何，这两种算法都意味着G1运作期间不会产生内存空间碎片，收集后能提供规整的可用内存。这种特性有利于程序长时间运行，分配大对象时不会因为无法找到连续内存空间而提前触发下一次GC。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可预测的停顿</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这是G1相对于CMS的一个优势，降低停顿时间是G1和CMS共同的关注点。</span><br></pre></td></tr></table></figure>
+
+<p>在G1之前的其他收集器进行收集的范围都是整个新生代或者老年代，而G1不再是这样。在堆的结构设计时，G1打破了以往将收集范围固定在新生代或老年代的模式，G1将堆分成许多相同大小的区域单元，每个单元称为Region。Region是一块地址连续的内存空间，G1模块的组成如下图所示：</p>
+<p><img src="/2022/09/16/%E6%B5%85%E8%B0%88CMS%E5%92%8CG1%E6%94%B6%E9%9B%86%E5%99%A8/16ded186e15f5871tplv-t2oaga2asx-zoom-in-crop-mark4536000.webp" alt="G1堆的Region布局.png"></p>
+<p>G1收集器将整个Java堆划分为多个大小相等的独立区域（Region），虽然还保留有新生代和老年代的概念，但新生代和老年代不再是物理隔离的了，它们都是一部分Region（不需要连续）的集合。Region的大小是一致的，数值是在1M到32M字节之间的一个2的幂值数，JVM会尽量划分2048个左右、同等大小的Region，这一点可以参看如下<a href="https://link.juejin.cn/?target=http://hg.openjdk.java.net/jdk/jdk/file/fa2f93f99dbc/src/hotspot/share/gc/g1/heapRegionBounds.hpp">源码</a>。其实这个数字既可以手动调整，G1也会根据堆大小自动进行调整。</p>
+<p><strong>G1收集器之所以能建立可预测的停顿时间模型，是因为它可以有计划地避免在整个Java堆中进行全区域的垃圾收集</strong>。G1会通过一个合理的计算模型，计算出每个Region的收集成本并量化，这样一来，收集器在给定了“停顿”时间限制的情况下，总是能选择一组恰当的Regions作为收集目标，让其收集开销满足这个限制条件，以此达到实时收集的目的。</p>
+<p>对于打算从CMS或者ParallelOld收集器迁移过来的应用，按照官方的建议，如果发现符合如下特征，可以考虑更换成G1收集器以追求更佳性能：</p>
+<ul>
+<li>实时数据占用了超过半数的堆空间；</li>
+<li>对象分配率或“晋升”的速度变化明显；</li>
+<li>期望消除耗时较长的GC或停顿（超过0.5——1秒）。</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Applications running today with either the CMS or the ParallelOld garbage collector would benefit switching to G1 if the application has one or more of the following traits.</span><br><span class="line"></span><br><span class="line">More than 50% of the Java heap is occupied with live data.</span><br><span class="line">The rate of object allocation rate or promotion varies significantly.</span><br><span class="line">Undesired long garbage collection or compaction pauses (longer than 0.5 to 1 second)</span><br></pre></td></tr></table></figure>
+
+
+</blockquote>
+<h3 id="3-运行过程"><a href="#3-运行过程" class="headerlink" title="3.运行过程"></a>3.运行过程</h3><blockquote>
+<p><strong>G1收集的运作过程大致如下：</strong></p>
+<ul>
+<li><strong>初始标记（Initial Marking）</strong>：仅仅只是标记一下GC Roots能直接关联到的对象，并且修改TAMS（Next Top at Mark Start）的值，让下一阶段用户程序并发运行时，能在正确可用的Region中创建新对象，<strong>这阶段需要<code>停顿线程</code>，但耗时很短</strong>。</li>
+<li><strong>并发标记（Concurrent Marking）</strong>：是从GC Roots开始堆中对象进行可达性分析，找出存活的对象，<strong>这阶段耗时较长</strong>，但可与用户程序并发执行。</li>
+<li><strong>最终标记（Final Marking）</strong>：是为了修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分标记记录，虚拟机将这段时间对象变化记录在线程Remembered Set Logs里面，最终标记阶段需要把Remembered Set Logs的数据合并到Remembered Set中，<strong>这阶段需要<code>停顿线程</code>，但是可并行执行</strong>。</li>
+<li><strong>筛选回收（Live Data Counting and Evacuation）</strong>：首先对各个Region的回收价值和成本进行排序，根据用户所期望的GC停顿时间来制定回收计划。这个阶段也可以做到与用户程序一起并发执行，但是因为只回收一部分Region，时间是用户可控制的，而且停顿用户线程将大幅提高收集效率。</li>
+</ul>
+<p>全局变量和栈中引用的对象是可以列入根集合的，这样在寻找垃圾时，就可以从根集合出发扫描堆空间。在G1中，引入了一种新的能加入根集合的类型，就是<code>记忆集</code>（Remembered Set）。Remembered Sets（也叫RSets）用来跟踪对象引用。G1的很多开源都是源自Remembered Set，例如，它通常约占Heap大小的20%或更高。并且，我们进行对象复制的时候，因为需要扫描和更改Card Table的信息，这个速度影响了复制的速度，进而影响暂停时间。</p>
+<p><img src="/2022/09/16/%E6%B5%85%E8%B0%88CMS%E5%92%8CG1%E6%94%B6%E9%9B%86%E5%99%A8/16ded186e1757662tplv-t2oaga2asx-zoom-in-crop-mark4536000.webp" alt="image.png"></p>
+</blockquote>
+<h2 id="卡表"><a href="#卡表" class="headerlink" title="卡表"></a>卡表</h2><blockquote>
+<h3 id="卡表（Card-Table）"><a href="#卡表（Card-Table）" class="headerlink" title="卡表（Card Table）"></a>卡表（Card Table）</h3><p>有个场景，老年代的对象可能引用新生代的对象，那标记存活对象的时候，需要扫描老年代中的所有对象。因为该对象拥有对新生代对象的引用，那么这个引用也会被称为GC Roots。那不是得又做全堆扫描？成本太高了吧。</p>
+<p>HotSpot给出的解决方案是一项叫做<code>卡表</code>（Card Table）的技术。该技术将整个堆划分为一个个大小为512字节的卡，并且维护一个卡表，用来存储每张卡的一个标识位。这个标识位代表对应的卡是否可能存有指向新生代对象的引用。如果可能存在，那么我们就认为这张卡是脏的。</p>
+<p>在进行Minor GC的时候，我们便可以不用扫描整个老年代，而是在卡表中寻找脏卡，并将脏卡中的对象加入到Minor GC的GC Roots里。当完成所有脏卡的扫描之后，Java虚拟机便会将所有脏卡的标识位清零。</p>
+<p>想要保证每个可能有指向新生代对象引用的卡都被标记为脏卡，那么Java虚拟机需要截获每个引用型实例变量的写操作，并作出对应的写标识位操作。</p>
+<p><strong>卡表能用于减少老年代的全堆空间扫描，这能很大的提升GC效率</strong>。</p>
+</blockquote>
+<h2 id="记忆集"><a href="#记忆集" class="headerlink" title="记忆集"></a>记忆集</h2><blockquote>
+<p>记忆集是一种用于记录从非收集区域指向收集区域的指针集合的数据结构。</p>
+<p>如果我们不考虑效率和成本问题，我们可以用一个数组存储所有有指针指向新生代的老年代对象。但是如果这样的话我们维护成本就很好，打个比方，假如所有的老年代对象都有指针指向了新生代，那么我们需要维护整个老年代大小的记忆集，毫无疑问这种方法是不可取的。因此我们引入了卡表的数据结构</p>
+</blockquote>
+<h2 id="写屏障"><a href="#写屏障" class="headerlink" title="写屏障"></a>写屏障</h2><blockquote>
+<p>我们每次对引用进行改变时，我们在程序中并没有手动去维护卡表的信息，那么卡表信息的维护到底是如何进行的呢，这就依赖于我们的写屏障功能。</p>
+<p>写屏障可以理解为对于我们引用类型字段复制的AOP操作。在赋前的部分的写屏障叫作写前屏障（Pre-Write Barrier），在赋值后的部分的写屏障叫作写后屏障（PostWrite Barrier）。</p>
+</blockquote>
+<h2 id="伪共享问题"><a href="#伪共享问题" class="headerlink" title="伪共享问题"></a>伪共享问题</h2><blockquote>
+<p>由于CPU集成的多级缓存中是以缓存行来读取数据的，通过MESI协议保证多个CPU之间的缓存一致性。<br>伪共享问题是卡表元素更改时处于同一缓存行导致的，诱发的因素是不同卡页内的对象发生了跨代引用，从而使CPU并行执行变为串行执行，降低了并发性能。</p>
+<p>举例： 若a、b位于同一缓存行，当CPU1修改a后，若CPU2想修改b，必须先提交CPU1的缓存，然后CPU2再去主存中读取数据。</p>
+<p>伪共享问题解决方案：JAVA中的解决方案有填充法 和 Contended 注解。</p>
+<p>填充法：就是 扩大对象的大小，这样，就可以一个缓冲行中，<strong>只存在一个对象</strong>！这样，就不会导致结果是串行执行了！(JDK8之前)<br>Contended 注解法：Java1.8 中提供了Contended注解，使用这个注解，VM必须设置 -XX:-RestrictContended。<br>ConcurrentHashMap的内部类CounterCell有用到这个注解</p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/09/17/Java%20%E7%BA%BF%E7%A8%8B%E5%92%8C%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%9C%89%E5%95%A5%E5%8C%BA%E5%88%AB/">Java 线程和操作系统的线程有啥区别</a>
+            
+            
+            <a class="next" rel="next" href="/2022/09/14/%E6%B5%85%E8%B0%88Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/">浅谈Lambda表达式</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+<!-- 搜索功能 -->
+<!-- Chic/layout.ejs -->
+<div id="u-search">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="container">
+                <form id="u-search-modal-form" class="u-search-modal-form">
+                    <button type="submit" class="form-submit-btn">
+                        <img src="/image/2.png" class="search-btn-img" />
+                    </button>
+                    <input placeholder="搜索内容..." class="form-input" id="modal-form-input">
+                </form>
+                <a class="modal-close">x</a>
+            </div>
+            <div class="search-loading">
+                <div class="search-loading-bar"></div>
+            </div>
+        </div>
+        <div class="modal-body">
+        </div>
+    </div>
+    <div class="modal-overlay"></div>
+</div>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":true}});</script></body>
+
+
+</html>
