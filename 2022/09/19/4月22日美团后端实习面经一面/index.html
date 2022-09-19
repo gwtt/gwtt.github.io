@@ -17,7 +17,7 @@
 
 
 
-<title>Category: 面试 | 滚~韬的博客</title>
+<title>4/22美团后端实习面经一面 | 滚~韬的博客</title>
 
 
 
@@ -361,61 +361,200 @@
     }
 </script>
             <div class="main">
-                
-
-
+                <div class="container">
     
-<div class="container">
-    <div class="post-wrap categories">
-        <h2 class="post-title">-&nbsp;分类&nbsp;·&nbsp;面试-</h2>
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
     </div>
-    <div class="post-wrap archive">
-    
-    
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95(1)/">计算机网络面试</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/12/Springboot%E9%9D%A2%E8%AF%95(1)/">Springboot面试(1)</a>
-            <span class="archive-item-date">六月 12</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Juc%E9%9D%A2%E8%AF%95(1)/">Juc面试(1)</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/06/11/Java%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80(1)/">Java面试基础（1）</a>
-            <span class="archive-item-date">六月 11</span>
-        </article>
-    
-    
-    <nav class="pagination">
-        <a class="page-number" href="/categories/%E9%9D%A2%E8%AF%95/">1</a><a class="page-number" href="/categories/%E9%9D%A2%E8%AF%95/page/2/">2</a><a class="page-number" href="/categories/%E9%9D%A2%E8%AF%95/page/3/">3</a><span class="page-number current">4</span>
-    </nav>
-
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">4/22美团后端实习面经一面</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">九月 19&nbsp;&nbsp;23:15</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">392</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">1min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="1-自我介绍"><a href="#1-自我介绍" class="headerlink" title="1.自我介绍"></a>1.自我介绍</h3><blockquote>
+</blockquote>
+<h3 id="2-介绍项目（基本面试官好像都喜欢挖项目）"><a href="#2-介绍项目（基本面试官好像都喜欢挖项目）" class="headerlink" title="2.介绍项目（基本面试官好像都喜欢挖项目）"></a>2.介绍项目（基本面试官好像都喜欢挖项目）</h3><blockquote>
+</blockquote>
+<h3 id="3-项目里提到的Mysql，开始展开提问"><a href="#3-项目里提到的Mysql，开始展开提问" class="headerlink" title="3.项目里提到的Mysql，开始展开提问"></a>3.项目里提到的Mysql，开始展开提问</h3><blockquote>
+</blockquote>
+<h3 id="4-mysql的索引引擎，有什么，之间区别"><a href="#4-mysql的索引引擎，有什么，之间区别" class="headerlink" title="4.mysql的索引引擎，有什么，之间区别"></a>4.mysql的索引引擎，有什么，之间区别</h3><blockquote>
+</blockquote>
+<h3 id="5-InnoDB采用什么结构存储？为什么？"><a href="#5-InnoDB采用什么结构存储？为什么？" class="headerlink" title="5.InnoDB采用什么结构存储？为什么？"></a>5.InnoDB采用什么结构存储？为什么？</h3><blockquote>
+</blockquote>
+<h3 id="6-B-树存储怎么能确定高度？"><a href="#6-B-树存储怎么能确定高度？" class="headerlink" title="6.B+树存储怎么能确定高度？"></a>6.B+树存储怎么能确定高度？</h3><blockquote>
+</blockquote>
+<h3 id="7-最左匹配（给举个例子，说出能否用索引）"><a href="#7-最左匹配（给举个例子，说出能否用索引）" class="headerlink" title="7.最左匹配（给举个例子，说出能否用索引）"></a>7.最左匹配（给举个例子，说出能否用索引）</h3><blockquote>
+</blockquote>
+<h3 id="8-mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）"><a href="#8-mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）" class="headerlink" title="8.mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）"></a>8.mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）</h3><blockquote>
+</blockquote>
+<h3 id="9-redis在应用时怎么保证数据一致性的（问的是项目里用的时候）"><a href="#9-redis在应用时怎么保证数据一致性的（问的是项目里用的时候）" class="headerlink" title="9.redis在应用时怎么保证数据一致性的（问的是项目里用的时候）\"></a>9.redis在应用时怎么保证数据一致性的（问的是项目里用的时候）\</h3><blockquote>
+</blockquote>
+<h3 id="10-有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）"><a href="#10-有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）" class="headerlink" title="10.有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）"></a>10.有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）</h3><blockquote>
+</blockquote>
+<h3 id="11-接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）"><a href="#11-接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）" class="headerlink" title="11.接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）"></a>11.接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）</h3><blockquote>
+</blockquote>
+<h3 id="12-想没想过redis宕机怎么办？"><a href="#12-想没想过redis宕机怎么办？" class="headerlink" title="12.想没想过redis宕机怎么办？"></a>12.想没想过redis宕机怎么办？</h3><blockquote>
+</blockquote>
+<h3 id="13-了不了解垃圾回收器，说一下CMS的过程？"><a href="#13-了不了解垃圾回收器，说一下CMS的过程？" class="headerlink" title="13.了不了解垃圾回收器，说一下CMS的过程？"></a>13.了不了解垃圾回收器，说一下CMS的过程？</h3><blockquote>
+</blockquote>
+<h3 id="14-FullGC发生的条件？（面试官说应该有三种，只说上两种）"><a href="#14-FullGC发生的条件？（面试官说应该有三种，只说上两种）" class="headerlink" title="14.FullGC发生的条件？（面试官说应该有三种，只说上两种）"></a>14.FullGC发生的条件？（面试官说应该有三种，只说上两种）</h3><blockquote>
+</blockquote>
+<h3 id="15-了解线程池吗？主要参数？"><a href="#15-了解线程池吗？主要参数？" class="headerlink" title="15.了解线程池吗？主要参数？"></a>15.了解线程池吗？主要参数？</h3><blockquote>
+</blockquote>
+<h3 id="16-线程池的执行过程？"><a href="#16-线程池的执行过程？" class="headerlink" title="16.线程池的执行过程？"></a>16.线程池的执行过程？</h3><blockquote>
+</blockquote>
+<h3 id="17-可重入锁是怎么实现的？"><a href="#17-可重入锁是怎么实现的？" class="headerlink" title="17.可重入锁是怎么实现的？"></a>17.可重入锁是怎么实现的？</h3><blockquote>
+</blockquote>
+<h3 id="18-由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）"><a href="#18-由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）" class="headerlink" title="18.由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）"></a>18.由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）</h3><blockquote>
+</blockquote>
+<h3 id="19-CAS是什么"><a href="#19-CAS是什么" class="headerlink" title="19.CAS是什么"></a>19.CAS是什么</h3><blockquote>
+</blockquote>
+<h3 id="反问"><a href="#反问" class="headerlink" title="反问"></a>反问</h3><h3 id="20-打算实习时间"><a href="#20-打算实习时间" class="headerlink" title="20.打算实习时间"></a>20.打算实习时间</h3><blockquote>
+</blockquote>
+<h3 id="21-对来北京父母有没有想法"><a href="#21-对来北京父母有没有想法" class="headerlink" title="21.对来北京父母有没有想法"></a>21.对来北京父母有没有想法</h3><blockquote>
+</blockquote>
+<h3 id="22-现在的状态（有没有其他offer"><a href="#22-现在的状态（有没有其他offer" class="headerlink" title="22.现在的状态（有没有其他offer)"></a>22.现在的状态（有没有其他offer)</h3><blockquote>
+</blockquote>
+<p>转载<a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863">美团Java后端实习面经（一二面），已接offer~_牛客博客 (nowcoder.net)</a></p>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2022/09/17/Java%20%E7%BA%BF%E7%A8%8B%E5%92%8C%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%9C%89%E5%95%A5%E5%8C%BA%E5%88%AB/">Java 线程和操作系统的线程有啥区别</a>
+            
+        </section>
+
+
+    </article>
 </div>
 
             </div>
