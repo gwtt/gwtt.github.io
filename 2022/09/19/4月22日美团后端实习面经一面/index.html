@@ -454,7 +454,7 @@
 
 字数:
 
-<a href="">392</a> 
+<a href="">2.4k</a> 
 
 </span>
 
@@ -468,7 +468,7 @@
 
 时间:
 
-<a href="">1min</a> 
+<a href="">8min</a> 
 
 </span>
 
@@ -479,48 +479,146 @@
 
         <div class="post-content">
             <h3 id="1-自我介绍"><a href="#1-自我介绍" class="headerlink" title="1.自我介绍"></a>1.自我介绍</h3><blockquote>
+<p>略</p>
 </blockquote>
 <h3 id="2-介绍项目（基本面试官好像都喜欢挖项目）"><a href="#2-介绍项目（基本面试官好像都喜欢挖项目）" class="headerlink" title="2.介绍项目（基本面试官好像都喜欢挖项目）"></a>2.介绍项目（基本面试官好像都喜欢挖项目）</h3><blockquote>
+<p>略，后面补充</p>
 </blockquote>
 <h3 id="3-项目里提到的Mysql，开始展开提问"><a href="#3-项目里提到的Mysql，开始展开提问" class="headerlink" title="3.项目里提到的Mysql，开始展开提问"></a>3.项目里提到的Mysql，开始展开提问</h3><blockquote>
+<p>略</p>
 </blockquote>
 <h3 id="4-mysql的索引引擎，有什么，之间区别"><a href="#4-mysql的索引引擎，有什么，之间区别" class="headerlink" title="4.mysql的索引引擎，有什么，之间区别"></a>4.mysql的索引引擎，有什么，之间区别</h3><blockquote>
+<p>有InnoDB,MyISAM,Memory</p>
+<h2 id="InnoDB"><a href="#InnoDB" class="headerlink" title="InnoDB:"></a>InnoDB:</h2><ul>
+<li>主键自增</li>
+<li>支持外键</li>
+<li>DML操作支持事务</li>
+<li>支持行级锁</li>
+</ul>
+<h2 id="MyISAM"><a href="#MyISAM" class="headerlink" title="MyISAM:"></a>MyISAM:</h2><ul>
+<li>支持表锁，不支持行锁</li>
+<li>不支持外键</li>
+<li>不支持事务</li>
+<li>占用空间小，访问速度快</li>
+</ul>
+<h2 id="Memory"><a href="#Memory" class="headerlink" title="Memory:"></a>Memory:</h2><ul>
+<li>内存存放</li>
+<li>支持哈希索引</li>
+</ul>
 </blockquote>
 <h3 id="5-InnoDB采用什么结构存储？为什么？"><a href="#5-InnoDB采用什么结构存储？为什么？" class="headerlink" title="5.InnoDB采用什么结构存储？为什么？"></a>5.InnoDB采用什么结构存储？为什么？</h3><blockquote>
+<p>B+树</p>
+<ol>
+<li>节点排序（用来加快查询速度）    </li>
+<li>一个节点多个元素存取（B树高度不会很高）</li>
+<li>叶子节点有指针（可以方便支持全表扫描，范围查找）</li>
+<li>叶子节点冗余（提升范围查找的效率）</li>
+</ol>
 </blockquote>
 <h3 id="6-B-树存储怎么能确定高度？"><a href="#6-B-树存储怎么能确定高度？" class="headerlink" title="6.B+树存储怎么能确定高度？"></a>6.B+树存储怎么能确定高度？</h3><blockquote>
+<p>InnoDB最小存储单位是页，叶子节点和非叶子节点最小单位都是页，页大小Mysql 默认设定16384字节，约为16KB。我们假设主键ID为bigint类型，长度为8字节，而指针大小在InnoDB源码中设置为6字节，这样一共14字节<br> 我们一个页中能存放多少这样的索引元素，其实就代表有多少指针，即16384/14=1170;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">假设一行记录的数据大小为1k，实际上现在很多互联网业务数据记录大小通常就是1K左右</span><br></pre></td></tr></table></figure>
+
+<p>高度为2的B+树能存放1170×16=18720<br>高度为3的B+树能存放1170×1170×16 = 21902400</p>
 </blockquote>
 <h3 id="7-最左匹配（给举个例子，说出能否用索引）"><a href="#7-最左匹配（给举个例子，说出能否用索引）" class="headerlink" title="7.最左匹配（给举个例子，说出能否用索引）"></a>7.最左匹配（给举个例子，说出能否用索引）</h3><blockquote>
+<p>略</p>
 </blockquote>
 <h3 id="8-mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）"><a href="#8-mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）" class="headerlink" title="8.mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）"></a>8.mysql中行锁具体怎么锁（当时理解错了，答得MVCC，面试官也是耐心听完了，然后问我，那行锁呢？就很尴尬）</h3><blockquote>
+<p>用记录锁、间隙锁、临键锁（都是排他锁）</p>
+<p><strong>(1)记录锁(Record):</strong> 通过主键或唯一索引加锁，锁定某行记录，锁定的是已存在的记录</p>
+<p><strong>(2)间隙锁(Gap):</strong> 锁定的是索引记录中的间隔，锁定的是未存在记录的区间。</p>
+<p><strong>(3)临键锁(Next-key):</strong> 既包含已存在的记录，又包含未存在记录的区间（记录锁+间隙锁）</p>
+<p><strong>锁的触发条件</strong></p>
+<p>1.记录锁(Record)触发条件: 查询的条件中只包含表中存在的记录</p>
+<p>2.间隙锁(Gap)触发条件: 查询的条件中不包含表中任何记录</p>
+<p>3.临键锁(Next-key)触发条件: 查询的条件中既包含表中存在的记录，也包含表中不存在的记录</p>
 </blockquote>
-<h3 id="9-redis在应用时怎么保证数据一致性的（问的是项目里用的时候）"><a href="#9-redis在应用时怎么保证数据一致性的（问的是项目里用的时候）" class="headerlink" title="9.redis在应用时怎么保证数据一致性的（问的是项目里用的时候）\"></a>9.redis在应用时怎么保证数据一致性的（问的是项目里用的时候）\</h3><blockquote>
-</blockquote>
+<h3 id="9-redis在应用时怎么保证数据一致性的（问的是项目里用的时候）"><a href="#9-redis在应用时怎么保证数据一致性的（问的是项目里用的时候）" class="headerlink" title="9.redis在应用时怎么保证数据一致性的（问的是项目里用的时候）"></a>9.redis在应用时怎么保证数据一致性的（问的是项目里用的时候）</h3><blockquote>
+<h4 id="采用延时双删策略"><a href="#采用延时双删策略" class="headerlink" title="采用延时双删策略"></a>采用延时双删策略</h4><p>（1）先淘汰缓存<br>（2）再写数据库（这两步和原来一样）<br>（3）休眠1秒，再次淘汰缓存</p>
+<h3 id="先更新数据库，再删除缓存（推荐）"><a href="#先更新数据库，再删除缓存（推荐）" class="headerlink" title="先更新数据库，再删除缓存（推荐）"></a>先更新数据库，再删除缓存（推荐）</h3></blockquote>
 <h3 id="10-有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）"><a href="#10-有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）" class="headerlink" title="10.有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）"></a>10.有没有想过用本地缓存，不用redis（当时不了解memcache，随便说了个更新频繁）</h3><blockquote>
+<ol>
+<li>使用ConcurrentHashMap实现本地缓存<br>缓存的本质就是存储在内存中的KV数据结构，对应的就是jdk中线程安全的ConcurrentHashMap，但是要实现缓存，还需要考虑淘汰、最大限制、缓存过期时间淘汰等等功能；</li>
+</ol>
+<p>优点是实现简单，不需要引入第三方包，比较适合一些简单的业务场景。缺点是如果需要更多的特性，需要定制化开发，成本会比较高，并且稳定性和可靠性也难以保障。对于比较复杂的场景，建议使用比较稳定的开源工具。</p>
+<ol start="2">
+<li>基于Guava Cache实现本地缓存<br>Guava是Google团队开源的一款 Java 核心增强库，包含集合、并发原语、缓存、IO、反射等工具箱，性能和稳定性上都有保障，应用十分广泛。Guava Cache支持很多特性：</li>
+</ol>
+<p>支持最大容量限制<br>支持两种过期删除策略（插入时间和访问时间）<br>支持简单的统计功能<br>基于LRU算法实现</p>
 </blockquote>
-<h3 id="11-接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）"><a href="#11-接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）" class="headerlink" title="11.接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）"></a>11.接10问，redis一般存那种数据结构（存的list，所以本地缓存用不了）</h3><blockquote>
+<h3 id="11-接10问，redis一般存哪种数据结构（存的list，所以本地缓存用不了）"><a href="#11-接10问，redis一般存哪种数据结构（存的list，所以本地缓存用不了）" class="headerlink" title="11.接10问，redis一般存哪种数据结构（存的list，所以本地缓存用不了）"></a>11.接10问，redis一般存哪种数据结构（存的list，所以本地缓存用不了）</h3><blockquote>
+<p>存String</p>
 </blockquote>
 <h3 id="12-想没想过redis宕机怎么办？"><a href="#12-想没想过redis宕机怎么办？" class="headerlink" title="12.想没想过redis宕机怎么办？"></a>12.想没想过redis宕机怎么办？</h3><blockquote>
+<p>如果是一台机器，利用AOF和RDB机制进行redis数据恢复</p>
+<p>从机宕机:</p>
+<ul>
+<li>只要把从的redis重新启动，再和主的进行连接就可以</li>
+<li>如果从redis上面做数据的持久化，可以直接连接到主的上面，只要实现增量备份。</li>
+</ul>
+<p>主机宕机:</p>
+<ul>
+<li>先把从的redis升级为主的redis. 执行slave of one命令<br>原来的主的可以重新启动，作为从的redis, 连接到主的redis上面做主从复制。<br>可以使用Redis 提供哨兵 机制来简化上面的操作。</li>
+</ul>
 </blockquote>
 <h3 id="13-了不了解垃圾回收器，说一下CMS的过程？"><a href="#13-了不了解垃圾回收器，说一下CMS的过程？" class="headerlink" title="13.了不了解垃圾回收器，说一下CMS的过程？"></a>13.了不了解垃圾回收器，说一下CMS的过程？</h3><blockquote>
+<ul>
+<li>初始标记</li>
+<li>并发标记</li>
+<li>重新标记</li>
+<li>并发清除</li>
+</ul>
 </blockquote>
 <h3 id="14-FullGC发生的条件？（面试官说应该有三种，只说上两种）"><a href="#14-FullGC发生的条件？（面试官说应该有三种，只说上两种）" class="headerlink" title="14.FullGC发生的条件？（面试官说应该有三种，只说上两种）"></a>14.FullGC发生的条件？（面试官说应该有三种，只说上两种）</h3><blockquote>
+<ol>
+<li>年老代（Tenured）被写满；</li>
+<li>持久代（Perm）被写满；</li>
+<li>System.gc()被显示调用；</li>
+<li>上一次GC之后Heap的各域分配策略动态变化；</li>
+</ol>
 </blockquote>
 <h3 id="15-了解线程池吗？主要参数？"><a href="#15-了解线程池吗？主要参数？" class="headerlink" title="15.了解线程池吗？主要参数？"></a>15.了解线程池吗？主要参数？</h3><blockquote>
+<p>了解</p>
+<p>corePoolSize核心线程数</p>
+<p>maximumPoolSize最大线程数</p>
+<p>keepAliveTime线程空闲时间</p>
+<p>unit时间单位</p>
+<p>workQueue阻塞队列</p>
+<p>threadFactory线程工厂</p>
+<p>handler任务拒绝处理器</p>
 </blockquote>
 <h3 id="16-线程池的执行过程？"><a href="#16-线程池的执行过程？" class="headerlink" title="16.线程池的执行过程？"></a>16.线程池的执行过程？</h3><blockquote>
+<p>当我们利用线程池执行任务时:</p>
+<p>1.如果此时线程池中的线程数量小于corePoolSize，即使线程池中的线程都处于空闲状态，也要创建新的线程来处理被添加的任务。</p>
+<p>⒉.如果此时线程池中的线程数量等于corePoolSize，但是缓冲队列workQueue未满，那么任务被放入缓冲队列。</p>
+<p>3.如果此时线程池中的线程数量大于等于corePoolSize，缓冲队列workQueue满，并且线程池中的数量小于maximumPoolSize，建新的线程来处理被添加的任务。</p>
+<p>4.如果此时线程池中的线程数量大于corePoolSize，缓冲队列workQueue满，并且线程池中的数量等于maximumPoolSize，那么通过 handler所指定的策略来处理此任务。</p>
+<p>5.当线程池中的线程数量大于corePoolSize时，如果某线程空闲时间超过keepAliveTime，线程将被终止。这样，线程池可以动态的调整池中的线程数</p>
 </blockquote>
 <h3 id="17-可重入锁是怎么实现的？"><a href="#17-可重入锁是怎么实现的？" class="headerlink" title="17.可重入锁是怎么实现的？"></a>17.可重入锁是怎么实现的？</h3><blockquote>
+<p>利用AQS实现(AbstractQueueSynchronize)抽象队列同步器</p>
 </blockquote>
 <h3 id="18-由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）"><a href="#18-由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）" class="headerlink" title="18.由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）"></a>18.由于17问说不知道，提醒出了18问AQS知道吗？（答完之后，面试官说这就是可重入锁实现）</h3><blockquote>
+<p>AQS 中有两个重要的东西，一个以Node为节点实现的链表的队列(CHL队列)，还有一个STATE标志，并且通过CAS来改变它的值。</p>
+<p>CLH队列：</p>
+<p>链表结构，在头尾结点中，需要特别指出的是头结点是一个空对象结点，无任何意义，即傀儡结点；</p>
+<p>每一个Node结点都维护了一个指向前驱的指针和指向后驱的指针，结点与结点之间相互关联构成链表；</p>
+<p>入队在尾，出队在头，出队后需要激活该出队结点的后继结点，若后继结点为空或后继结点waitStatus&gt;0，则从队尾向前遍历取waitStatus&lt;0的触发阻塞唤醒；</p>
+<p>队列中节点状态值（waitStatus，只能为以下值）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//常量：表示节点的线程是已被取消的</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">CANCELLED</span> <span class="operator">=</span>  <span class="number">1</span>;</span><br><span class="line"><span class="comment">//常量：表示当前节点的后继节点的线程需要被唤醒</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">SIGNAL</span>    <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"><span class="comment">//常量：表示线程正在等待某个条件</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">CONDITION</span> <span class="operator">=</span> -<span class="number">2</span>;</span><br><span class="line"><span class="comment">//常量：表示下一个共享模式的节点应该无条件的传播下去</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">PROPAGATE</span> <span class="operator">=</span> -<span class="number">3</span>;</span><br></pre></td></tr></table></figure>
 </blockquote>
 <h3 id="19-CAS是什么"><a href="#19-CAS是什么" class="headerlink" title="19.CAS是什么"></a>19.CAS是什么</h3><blockquote>
+<p>CAS是compare and swap的缩写，即我们所说的比较交换。cas是一种基于锁的操作，而且是乐观锁。在java中锁分为乐观锁和悲观锁。悲观锁是将资源锁住，等一个之前获得锁的线程释放锁之后，下一个线程才可以访问。而乐观锁采取了一种宽泛的态度，通过某种方式不加锁来处理资源，比如通过给记录加version来获取数据，性能较悲观锁有很大的提高。</p>
+<p>CAS 操作包含三个操作数 —— 内存位置（V）、预期原值（A）和新值(B)。如果内存地址里面的值和A的值是一样的，那么就将内存里面的值更新成B。</p>
+<p>CAS是通过无限循环来获取数据的，若果在第一轮循环中，a线程获取地址里面的值被b线程修改了，那么a线程需要自旋，到下次循环才有可能机会执行。</p>
+<p>ps:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">问题:</span><br><span class="line">①.CAS容易造成ABA问题。一个线程a将数值改成了b，接着又改成了a，此时CAS认为是没有变化，其实是已经变化过了，而这个问题的解决方案可以使用版本号标识，每操作一次version加1。在java5中，已经提供了AtomicStampedReference来解决问题。</span><br><span class="line">②.CAS造成CPU利用率增加。之前说过了CAS里面是一个循环判断的过程，如果线程一直没有获取到状态，cpu资源会一直被占用。</span><br></pre></td></tr></table></figure>
+
+
 </blockquote>
 <h3 id="反问"><a href="#反问" class="headerlink" title="反问"></a>反问</h3><h3 id="20-打算实习时间"><a href="#20-打算实习时间" class="headerlink" title="20.打算实习时间"></a>20.打算实习时间</h3><blockquote>
-</blockquote>
-<h3 id="21-对来北京父母有没有想法"><a href="#21-对来北京父母有没有想法" class="headerlink" title="21.对来北京父母有没有想法"></a>21.对来北京父母有没有想法</h3><blockquote>
-</blockquote>
-<h3 id="22-现在的状态（有没有其他offer"><a href="#22-现在的状态（有没有其他offer" class="headerlink" title="22.现在的状态（有没有其他offer)"></a>22.现在的状态（有没有其他offer)</h3><blockquote>
+<p>大约寒假就可以开始</p>
 </blockquote>
 <p>转载<a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863">美团Java后端实习面经（一二面），已接offer~_牛客博客 (nowcoder.net)</a></p>
 
