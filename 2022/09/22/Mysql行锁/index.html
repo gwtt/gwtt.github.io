@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="滚~韬">
+
+
+    <meta name="subtitle" content="滚~">
+
+
+    <meta name="description" content="一个普通大学生的博客">
+
+
+
+<title>Mysql行锁 | 滚~韬的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<!-- 搜索的部分 -->
+
+
+
+    <script>
+    // function searchToggle() {
+    //     const width = $(document.body).width()
+    //     if(width > 479) {
+    //         return;
+    //     }
+    //     const search = $('.search');
+    //     const searchForm = $('.form-search')
+
+    //     if(!search.hasClass("mobile-search")) {
+    //         search.addClass("mobile-search");
+    //     } else {
+    //         search.removeClass("mobile-search");
+    //     } 
+    // }
+
+    function searchToggle() {
+        const width = $(document.body).width()
+        if(width > 479) {
+            return;
+        }
+        const search = $('.search');
+        const searchForm = $('.form-search');
+        const menuToggle = $('.menu-toggle');
+        const title = $('.navbar-header-title ');
+
+        if(!search.hasClass("mobile-search")) {
+            search.addClass("mobile-search");
+            menuToggle.addClass("open-search")
+            title.addClass("mobile-title-hidden")
+        } else {
+            search.removeClass("mobile-search");
+            menuToggle.removeClass("open-search")
+            // title.css({visibility: 'visible'})
+            title.removeClass("mobile-title-hidden")
+        } 
+    }
+
+
+
+    function search(searchInputEl, formEl, flag) {
+        const path = "/" + "search.json"; // 可以在public 下查看这个search.json
+        $(formEl).submit(function(e){
+            e.preventDefault();
+            let target = null
+            if(searchInputEl == null) {
+                const screenWidth = $(document.body).width();
+                target = screenWidth > 479 ? $('#pc-search-input') : $('#mobile-search-input');
+                console.log(target);
+            } else {
+                target = $(searchInputEl)
+            }
+
+            if(!flag && target.val() === '') {
+                return ;
+            }
+
+            $("#u-search").fadeIn(500, function() {
+                $("body > .wrapper").addClass("modal-active");
+
+                $.ajax({
+                    url: path,
+                    dataType: "json",
+                    beforeSend: function (xhr) {
+                        $input = target.val();
+                        $(".form-input").val($input);
+                        const loadingBar = $('.search-loading-bar') 
+                        loadingBar.css({
+                            width:'100%',
+                            display: 'block'
+                        });
+                    },
+                    success: function( datas ) {
+                        console.log(datas);
+                        const $resultPanel = $(".modal-body")[0];
+                        let str = `<ul class="modal-results">`;
+                        var keywords = $(".form-input").val().trim().toLowerCase().split(/[\s\-]+/);
+                        $resultPanel.innerHTML = "";
+                        let hasResult = false
+                        let text = `<div class="no-result">找不到与关键词相关的内容....</div>`;
+
+                        if ($(".form-input").val().trim().length <= 0) {
+                            // 没有结果
+                            $resultPanel.innerHTML = text;
+                            return;
+                        }
+                        datas.forEach(function (data, index) {
+                            var isMatch = true;
+                            if (!data.title || data.title.trim() === '') {
+                                data.title = "Untitled";
+                            }
+                            var data_title = data.title.trim().toLowerCase();
+                            var data_content = data.content && data.content.trim().replace(/<[^>]+>/g, "").toLowerCase() || '';
+                            var data_url = data.url;
+                            var index_title = -1;
+                            var index_content = -1;
+                            var first_occur = -1;
+                            // only match artiles with not empty contents
+                            if (data_content !== '') {
+                                keywords.forEach(function (keyword, i) {
+                                    index_title = data_title.indexOf(keyword);
+                                    index_content = data_content.indexOf(keyword);
+
+                                    if (index_title < 0 && index_content < 0) {
+                                        isMatch = false;
+                                    } else {
+                                        hasResult = true
+                                        if (index_content < 0) {
+                                            index_content = 0;
+                                        }
+                                        if (i == 0) {
+                                            first_occur = index_content;
+                                        }
+                                    }
+                                });
+                            } else {
+                                isMatch = false;
+                            }
+                            // show search results
+                            if (isMatch) {
+                                str += `<li class='result-item'><a href='${data_url}' class='result-item-detail'> <span class="title">${data_title}</span>`;
+                                var content = data.content.trim().replace(/<[^>]+>/g, "");
+                                if (first_occur >= 0) {
+                                    // cut out 200 characters
+                                    var start = first_occur - 40;
+                                    var end = first_occur + 160;
+
+                                    if (start < 0) {
+                                        start = 0;
+                                    }
+
+                                    if (start == 0) {
+                                        end = 200;
+                                    }
+
+                                    if (end > content.length) {
+                                        end = content.length;
+                                    }
+
+                                    var match_content = content.substring(start, end);
+
+                                    // highlight all keywords
+                                    keywords.forEach(function (keyword) {
+                                        var regS = new RegExp(keyword, "gi");
+                                        match_content = match_content.replace(regS, `<em class="search-keyword">${keyword}</em>`);
+                                    });
+
+                                    str += `<span class="content"> ${match_content} ...</span></a>`;
+                                }
+                                str += "</li>";
+                            }
+                        });
+                        str += "</ul>";
+                        if(hasResult) {
+                            $resultPanel.innerHTML = str;
+                        } else {
+                            $resultPanel.innerHTML = text;
+                        }
+
+                    },
+                    complete: function() {
+                        setTimeout(() => {
+                                const loadingBar = $('.search-loading-bar') 
+                                loadingBar.css({
+                                    width:'0%',
+                                    display: 'none'
+                                });
+                        }, 300)
+                    }
+                });
+            })
+
+        });
+    }
+
+    $(document).ready(function() {
+        $('.modal-close').click(function () { 
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+
+        $('.modal-overlay').click(function() {
+            $("#u-search").fadeOut();
+            $("body > .wrapper").removeClass("modal-active")
+        })
+        search(null, ".form-search", false)
+        search("#u-search-modal-form .form-input", ".u-search-modal-form", true)
+    })
+</script>
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="滚~韬的博客" type="application/atom+xml">
+</head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+
+    </script>
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+   <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+   <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+    <div class="container">
+        <!-- <div class="navbar-header header-logo"><a href="/">滚~韬</a></div> -->
+        <div class="navbar-header header-logo"><a href="/"><i class="iconfont icon-zhuye" style="font-size: 1em;"></i>滚~韬</a></div>
+        <div class="menu navbar-right">
+            <!-- 这里表示的是pc端搜索框 -->
+            
+            
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="pc-search-input"/>
+        </form>
+    </div>
+
+
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+            <input id="switch_default" type="checkbox" class="switch_default">
+            <label for="switch_default" class="toggleBtn"></label>
+        </div>
+    </div>
+</nav>
+
+
+<nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+        <div class="navbar-header">
+            <div>
+                <a href="/">滚~韬</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+            </div>
+            <div class="navbar-mobile-right">
+                
+                
+    <div class="search ">
+        <div class="search-btn" onClick="searchToggle()">
+            <img src="/image/2.png" class="search-btn-img" />
+        </div>
+        <form class="form-search">
+            <input class="input" placeholder="点此搜索" autocomplete="off" id="mobile-search-input"/>
+        </form>
+    </div>
+
+
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; 目录</div>
+            </div>
+
+        </div>
+        <div class="menu" id="mobile-menu">
+            
+            <a class="menu-item" href="/archives">文章</a>
+            
+            <a class="menu-item" href="/category">分类</a>
+            
+            <a class="menu-item" href="/tag">标签</a>
+            
+            <a class="menu-item" href="/about">关于</a>
+            
+        </div>
+    </div>
+</nav>
+
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Mysql行锁</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">九月 22&nbsp;&nbsp;16:38</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">3.1k</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">12min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="记录锁-Record-Locks"><a href="#记录锁-Record-Locks" class="headerlink" title="记录锁(Record Locks)"></a><strong>记录锁(Record Locks)</strong></h2><blockquote>
+<p>记录锁是 <strong>封锁记录，记录锁也叫行锁</strong>，例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test` <span class="keyword">WHERE</span> `id`<span class="operator">=</span><span class="number">1</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br></pre></td></tr></table></figure>
+
+<p>它会在 id=1 的记录上加上记录锁，以阻止其他事务插入，更新，删除 id=1 这一行。</p>
+</blockquote>
+<h2 id="间隙锁-Gap-Locks-（重点）"><a href="#间隙锁-Gap-Locks-（重点）" class="headerlink" title="间隙锁(Gap Locks)（重点）"></a><strong>间隙锁(Gap Locks)（重点）</strong></h2><p><strong>间隙锁是封锁索引记录中的间隔</strong>，或者第一条索引记录之前的范围，又或者最后一条索引记录之后的范围。</p>
+<p><strong>产生间隙锁的条件（RR事务隔离级别下；）：</strong></p>
+<ol>
+<li>使用普通索引锁定；</li>
+<li>使用多列唯一索引；</li>
+<li>使用唯一索引锁定多行记录。</li>
+</ol>
+<p>以上情况，都会产生间隙锁：</p>
+<blockquote>
+<p>对于使用唯一索引来搜索并给某一行记录加锁的语句，不会产生间隙锁。（这不包括搜索条件仅包括多列唯一索引的一些列的情况；在这种情况下，会产生间隙锁。）例如，如果id列具有唯一索引，则下面的语句仅对具有id值100的行使用记录锁，并不会产生间隙锁：</p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> child <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">100</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这条语句，就只会产生记录锁，不会产生间隙锁。</p>
+<h2 id="唯一索引的间隙锁"><a href="#唯一索引的间隙锁" class="headerlink" title="唯一索引的间隙锁"></a><strong>唯一索引的间隙锁</strong></h2><p><strong>测试环境：</strong></p>
+<p>环境：MySQL，InnoDB，默认的隔离级别（RR）</p>
+<p>数据表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `test` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `name` <span class="type">varchar</span>(<span class="number">8</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8;</span><br></pre></td></tr></table></figure>
+
+<p>数据：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` <span class="keyword">VALUES</span> (<span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;小罗&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` <span class="keyword">VALUES</span> (<span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;小黄&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` <span class="keyword">VALUES</span> (<span class="string">&#x27;7&#x27;</span>, <span class="string">&#x27;小明&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` <span class="keyword">VALUES</span> (<span class="string">&#x27;11&#x27;</span>, <span class="string">&#x27;小红&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>在进行测试之前，我们先来看看test表中存在的隐藏间隙：</p>
+<ol>
+<li>(-infinity, 1]</li>
+<li>(1, 5]</li>
+<li>(5, 7]</li>
+<li>(7, 11]</li>
+<li>(11, +infinity]</li>
+</ol>
+<p><strong>只使用记录锁，不会产生间隙锁</strong></p>
+<p>我们现在进行以下几个事务的测试：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 开启事务1 */</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="comment">/* 查询 id = 5 的数据并加记录锁 */</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test` <span class="keyword">WHERE</span> `id` <span class="operator">=</span> <span class="number">5</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"><span class="comment">/* 延迟30秒执行，防止锁释放 */</span></span><br><span class="line"><span class="keyword">SELECT</span> SLEEP(<span class="number">30</span>);</span><br><span class="line"></span><br><span class="line"># 注意：以下的语句不是放在一个事务中执行，而是分开多次执行，每次事务中只有一条添加语句</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务2插入一条 name = &#x27;小张&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">&#x27;小张&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务3插入一条 name = &#x27;小张&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">8</span>, <span class="string">&#x27;小东&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 提交事务1，释放事务1的锁 */</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>上诉的案例，由于主键是唯一索引，而且是只使用一个索引查询，并且只锁定一条记录，所以以上的例子，只会对 id = 5 的数据加上记录锁，而不会产生间隙锁。</p>
+<p><strong>产生间隙锁</strong></p>
+<p>然后回滚事务测试，我们继续在 id 唯一索引列上做以下的测试：</p>
+<p><img src="/2022/09/22/Mysql%E8%A1%8C%E9%94%81/image-20220922223922184.png" alt="image-20220922223922184"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 开启事务1 */</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="comment">/* 查询 id 在 5 - 7 范围的数据并加记录锁 */</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test` <span class="keyword">WHERE</span> `id` <span class="keyword">BETWEEN</span> <span class="number">5</span> <span class="keyword">AND</span> <span class="number">7</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"><span class="comment">/* 延迟30秒执行，防止锁释放 */</span></span><br><span class="line"><span class="keyword">SELECT</span> SLEEP(<span class="number">30</span>);</span><br><span class="line"></span><br><span class="line"># 注意：以下的语句不是放在一个事务中执行，而是分开多次执行，每次事务中只有一条添加语句</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务2插入一条 id = 3，name = &#x27;小张1&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="string">&#x27;小张1&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务3插入一条 id = 4，name = &#x27;小白&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">&#x27;小白&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务4插入一条 id = 6，name = &#x27;小东&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">6</span>, <span class="string">&#x27;小东&#x27;</span>); # 阻塞</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务5插入一条 id = 8， name = &#x27;大罗&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">8</span>, <span class="string">&#x27;大罗&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务6插入一条 id = 9， name = &#x27;大东&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">9</span>, <span class="string">&#x27;大东&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务7插入一条 id = 11， name = &#x27;李西&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">11</span>, <span class="string">&#x27;李西&#x27;</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务8插入一条 id = 12， name = &#x27;张三&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">12</span>, <span class="string">&#x27;张三&#x27;</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 提交事务1，释放事务1的锁 */</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>从上面我们可以看到[5,7]这一个区间，都不可插入数据，其它区间，都可以正常插入数据。所以我们可以得出结论：<strong>当我们给 [5,7]这个区间加锁的时候，会锁住 [5,7]这一个区间。</strong></p>
+<p>我们再来测试如果我们锁住不存在的数据时，会怎样：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 开启事务1 */</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="comment">/* 查询 id = 3 这一条不存在的数据并加记录锁 */</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test` <span class="keyword">WHERE</span> `id` <span class="operator">=</span> <span class="number">3</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"><span class="comment">/* 延迟30秒执行，防止锁释放 */</span></span><br><span class="line"><span class="keyword">SELECT</span> SLEEP(<span class="number">30</span>);</span><br><span class="line"># 注意：以下的语句不是放在一个事务中执行，而是分开多次执行，每次事务中只有一条添加语句</span><br><span class="line"><span class="comment">/* 事务2插入一条 id = 3，name = &#x27;小张1&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="string">&#x27;小张1&#x27;</span>); # 阻塞</span><br><span class="line"><span class="comment">/* 事务3插入一条 id = 4，name = &#x27;小白&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">&#x27;小白&#x27;</span>); # 阻塞</span><br><span class="line"><span class="comment">/* 事务4插入一条 id = 6，name = &#x27;小东&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">6</span>, <span class="string">&#x27;小东&#x27;</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务5插入一条 id = 8， name = &#x27;大罗&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">8</span>, <span class="string">&#x27;大罗&#x27;</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 提交事务1，释放事务1的锁 */</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看出，指定查询某一条记录时，如果这条记录不存在，会产生间隙锁。</p>
+<p><strong>结论</strong></p>
+<ol>
+<li>对于指定查询某一条记录的加锁语句，<strong>如果该记录不存在，会产生记录锁和间隙锁，如果记录存在，则只会产生记录锁</strong>，如：WHERE <code>id</code> = 5 FOR UPDATE;</li>
+<li>对于查找某一范围内的查询语句，会产生间隙锁，如：WHERE <code>id</code> BETWEEN 5 AND 7 FOR UPDATE;</li>
+</ol>
+<h2 id="普通索引的间隙锁"><a href="#普通索引的间隙锁" class="headerlink" title="普通索引的间隙锁"></a><strong>普通索引的间隙锁</strong></h2><p><strong>数据准备</strong></p>
+<p>创建 test1 表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 注意：number 不是唯一值</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `test1` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `number` <span class="type">int</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;数字&#x27;</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`),</span><br><span class="line">  KEY `number` (`number`) <span class="keyword">USING</span> BTREE</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB AUTO_INCREMENT<span class="operator">=</span><span class="number">1</span> <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8;</span><br></pre></td></tr></table></figure>
+
+<p>在这张表上，我们有 id number 这两个字段，id 是我们的主键，我们在 number 上，建立了一个普通索引，为了方便我们后面的测试。现在我们要先加一些数据：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` <span class="keyword">VALUES</span> (<span class="number">5</span>, <span class="number">3</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` <span class="keyword">VALUES</span> (<span class="number">7</span>, <span class="number">8</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` <span class="keyword">VALUES</span> (<span class="number">11</span>, <span class="number">12</span>);</span><br></pre></td></tr></table></figure>
+
+<p>在进行测试之前，我们先来看看test1表中 number 索引存在的隐藏间隙：</p>
+<ol>
+<li>(-infinity, 1]</li>
+<li>(1, 3]</li>
+<li>(3, 8]</li>
+<li>(8, 12]</li>
+<li>(12, +infinity]</li>
+</ol>
+<p><strong>案例说明</strong></p>
+<p>我们执行以下的事务（事务1最后提交），分别执行下面的语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 开启事务1 */</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="comment">/* 查询 number = 3 的数据并加记录锁 */</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test1` <span class="keyword">WHERE</span> `number` <span class="operator">=</span> <span class="number">3</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"><span class="comment">/* 延迟30秒执行，防止锁释放 */</span></span><br><span class="line"><span class="keyword">SELECT</span> SLEEP(<span class="number">30</span>);</span><br><span class="line"># 注意：以下的语句不是放在一个事务中执行，而是分开多次执行，每次事务中只有一条添加语句</span><br><span class="line"><span class="comment">/* 事务2插入一条 number = 0 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`number`) <span class="keyword">VALUES</span> (<span class="number">0</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务3插入一条 number = 1 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`number`) <span class="keyword">VALUES</span> (<span class="number">1</span>); # 被阻塞</span><br><span class="line"><span class="comment">/* 事务4插入一条 number = 2 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`number`) <span class="keyword">VALUES</span> (<span class="number">2</span>); # 被阻塞</span><br><span class="line"><span class="comment">/* 事务5插入一条 number = 4 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`number`) <span class="keyword">VALUES</span> (<span class="number">4</span>); # 被阻塞</span><br><span class="line"><span class="comment">/* 事务6插入一条 number = 8 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`number`) <span class="keyword">VALUES</span> (<span class="number">8</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务7插入一条 number = 9 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`number`) <span class="keyword">VALUES</span> (<span class="number">9</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务8插入一条 number = 10 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`number`) <span class="keyword">VALUES</span> (<span class="number">10</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 提交事务1 */</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>我们会发现有些语句可以正常执行，有些语句被阻塞了。我们再来看看我们表中的数据：</p>
+<p><img src="/2022/09/22/Mysql%E8%A1%8C%E9%94%81/v2-bd416a32e5f1740be516a61665ba285b_720w.jpg" alt="img">执行之后的数据</p>
+<p>这里可以看到，number (1 - 8) 的间隙中，插入语句都被阻塞了，而不在这个范围内的语句，正常执行，这就是因为有间隙锁的原因。我们再进行以下的测试，方便我们更好的理解间隙锁的区域（我们要将数据还原成原来的那样）：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 开启事务1 */</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="comment">/* 查询 number = 3 的数据并加记录锁 */</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test1` <span class="keyword">WHERE</span> `number` <span class="operator">=</span> <span class="number">3</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"><span class="comment">/* 延迟30秒执行，防止锁释放 */</span></span><br><span class="line"><span class="keyword">SELECT</span> SLEEP(<span class="number">30</span>);</span><br><span class="line"><span class="comment">/* 事务1插入一条 id = 2， number = 1 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`id`, `number`) <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="number">1</span>); # 阻塞</span><br><span class="line"><span class="comment">/* 事务2插入一条 id = 3， number = 2 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`id`, `number`) <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="number">2</span>); # 阻塞</span><br><span class="line"><span class="comment">/* 事务3插入一条 id = 6， number = 8 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`id`, `number`) <span class="keyword">VALUES</span> (<span class="number">6</span>, <span class="number">8</span>); # 阻塞</span><br><span class="line"><span class="comment">/* 事务4插入一条 id = 8， number = 8 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`id`, `number`) <span class="keyword">VALUES</span> (<span class="number">8</span>, <span class="number">8</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务5插入一条 id = 9， number = 9 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`id`, `number`) <span class="keyword">VALUES</span> (<span class="number">9</span>, <span class="number">9</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务6插入一条 id = 10， number = 12 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test1` (`id`, `number`) <span class="keyword">VALUES</span> (<span class="number">10</span>, <span class="number">12</span>); # 正常执行</span><br><span class="line"><span class="comment">/* 事务7修改 id = 11， number = 12 的数据 */</span></span><br><span class="line"><span class="keyword">UPDATE</span> `test1` <span class="keyword">SET</span> `number` <span class="operator">=</span> <span class="number">5</span> <span class="keyword">WHERE</span> `id` <span class="operator">=</span> <span class="number">11</span> <span class="keyword">AND</span> `number` <span class="operator">=</span> <span class="number">12</span>; # 阻塞</span><br><span class="line"><span class="comment">/* 提交事务1 */</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>我们来看看结果：</p>
+<p><img src="/2022/09/22/Mysql%E8%A1%8C%E9%94%81/v2-60d83dfa236fb4a25ab4c3a5df45b0d0_720w.jpg" alt="img">执行后的数据</p>
+<p>这里有一个奇怪的现象：</p>
+<ul>
+<li>事务3添加 id = 6，number = 8 的数据，给阻塞了；</li>
+<li>事务4添加 id = 8，number = 8 的数据，正常执行了。</li>
+<li>事务7将 id = 11，number = 12 的数据修改为 id = 11， number = 5的操作，给阻塞了；</li>
+</ul>
+<p>这是为什么呢？我们来看看下边的图，大家就明白了。</p>
+<p><img src="/2022/09/22/Mysql%E8%A1%8C%E9%94%81/v2-e5fe73d5f7fda8c298ce60fd35915885_720w.jpg" alt="img">隐藏的间隙锁图</p>
+<p>从图中可以看出，当 number 相同时，会根据主键 id 来排序，所以：</p>
+<ol>
+<li>事务3添加的 id = 6，number = 8，根据id排序,这条数据是在 （3, 8） 的区间里边，所以会被阻塞；</li>
+<li>事务4添加的 id = 8，number = 8，根据id排序,这条数据则是在（8, 12）区间里边，所以不会被阻塞；</li>
+<li>事务7的修改语句相当于在 （3, 8） 的区间里边插入一条数据，所以也被阻塞了。</li>
+</ol>
+<p><strong>结论</strong></p>
+<ol>
+<li>在普通索引列上，<strong>不管是何种查询，只要加锁，都会产生间隙锁，这跟唯一索引不一样；</strong></li>
+<li>在普通索引跟唯一索引中，数据间隙的分析，数据行是优先根据普通索引排序，再根据唯一索引排序。</li>
+</ol>
+<h2 id="临键锁-Next-key-Locks"><a href="#临键锁-Next-key-Locks" class="headerlink" title="临键锁(Next-key Locks)"></a><strong>临键锁(Next-key Locks)</strong></h2><p><strong>临键锁</strong>，是<strong>记录锁与间隙锁的组合</strong>，它的封锁范围，既包含索引记录，又包含索引区间。</p>
+<p><strong>注：</strong>临键锁的主要目的，也是为了避免<strong>幻读</strong>(Phantom Read)。如果把事务的隔离级别降级为RC，临键锁则也会失效。</p>
+<p><strong>只使用记录锁，不会产生间隙锁</strong></p>
+<p>我们现在进行以下几个事务的测试：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 开启事务1 */</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="comment">/* 查询 id = 5 的数据并加记录锁 */</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test` <span class="keyword">WHERE</span> `id` <span class="operator">=</span> <span class="number">5</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"><span class="comment">/* 延迟30秒执行，防止锁释放 */</span></span><br><span class="line"><span class="keyword">SELECT</span> SLEEP(<span class="number">30</span>);</span><br><span class="line"></span><br><span class="line"># 注意：以下的语句不是放在一个事务中执行，而是分开多次执行，每次事务中只有一条添加语句</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务2插入一条 name = &#x27;小张&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">&#x27;小张&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务3插入一条 name = &#x27;小张&#x27; 的数据 */</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test` (`id`, `name`) <span class="keyword">VALUES</span> (<span class="number">8</span>, <span class="string">&#x27;小东&#x27;</span>); # 正常执行</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 提交事务1，释放事务1的锁 */</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>上诉的案例，由于主键是唯一索引，而且是只使用一个索引查询，并且只锁定一条记录，所以以上的例子，只会对 id = 5 的数据加上记录锁，而不会产生间隙锁。</p>
+<ol>
+<li>记录锁、间隙锁、临键锁，都属于排它锁；</li>
+<li>记录锁就是锁住一行记录；</li>
+<li>间隙锁只有在事务隔离级别 RR 中才会产生；</li>
+<li>唯一索引只有锁住多条记录或者一条不存在的记录的时候，才会产生间隙锁，指定给某条存在的记录加锁的时候，只会加记录锁，不会产生间隙锁；</li>
+<li>普通索引不管是锁住单条，还是多条记录，都会产生间隙锁；</li>
+<li>间隙锁会封锁该条记录相邻两个键之间的空白区域，防止其它事务在这个区域内插入、修改、删除数据，这是为了防止出现 幻读 现象；</li>
+<li>普通索引的间隙，优先以普通索引排序，然后再根据主键索引排序（多普通索引情况还未研究）；</li>
+<li>事务级别是RC（读已提交）级别的话，间隙锁将会失效。</li>
+</ol>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+                    
+                        <a href="/tags/Mysql/"># Mysql</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2022/09/19/4%E6%9C%8822%E6%97%A5%E7%BE%8E%E5%9B%A2%E5%90%8E%E7%AB%AF%E5%AE%9E%E4%B9%A0%E9%9D%A2%E7%BB%8F%E4%B8%80%E9%9D%A2/">4/22美团后端实习面经一面</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 滚~韬 | Powered by <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+<!-- 搜索功能 -->
+<!-- Chic/layout.ejs -->
+<div id="u-search">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="container">
+                <form id="u-search-modal-form" class="u-search-modal-form">
+                    <button type="submit" class="form-submit-btn">
+                        <img src="/image/2.png" class="search-btn-img" />
+                    </button>
+                    <input placeholder="搜索内容..." class="form-input" id="modal-form-input">
+                </form>
+                <a class="modal-close">x</a>
+            </div>
+            <div class="search-loading">
+                <div class="search-loading-bar"></div>
+            </div>
+        </div>
+        <div class="modal-body">
+        </div>
+    </div>
+    <div class="modal-overlay"></div>
+</div>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":true}});</script></body>
+
+
+</html>
