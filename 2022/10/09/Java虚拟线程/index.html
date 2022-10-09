@@ -17,7 +17,7 @@
 
 
 
-<title>归档 | 滚~韬的博客</title>
+<title>Java虚拟线程 | 滚~韬的博客</title>
 
 
 
@@ -361,107 +361,222 @@
     }
 </script>
             <div class="main">
-                <div class="post-wrap archive">
+                <div class="container">
     
     
-        
-
-        
-            <h3>2022</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/09/01/%E6%89%8B%E5%8A%A8%E5%AE%9E%E7%8E%B0%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97/">手动实现栈和队列</a>
-            <span class="archive-item-date">九月 1</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/30/Mysql%E7%9A%84MVCC/">Mysql的MVCC</a>
-            <span class="archive-item-date">八月 30</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/29/%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E5%92%8C%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95/">聚集索引和非聚集索引</a>
-            <span class="archive-item-date">八月 29</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/28/jdk%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%92%8Ccgib%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">jdk动态代理和cglib动态代理</a>
-            <span class="archive-item-date">八月 28</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/27/%E6%89%8B%E5%86%99%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E6%A8%A1%E5%BC%8F/">手写生产者消费者模式</a>
-            <span class="archive-item-date">八月 27</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/23/%E6%B5%85%E8%B0%88%E8%82%A1%E7%A5%A8dp%E9%97%AE%E9%A2%98/">浅谈股票dp问题</a>
-            <span class="archive-item-date">八月 23</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/23/%E6%B5%85%E8%B0%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8/">浅谈垃圾回收器</a>
-            <span class="archive-item-date">八月 23</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/20/%E5%8D%81%E5%A4%A7%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/">十大排序算法</a>
-            <span class="archive-item-date">八月 20</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/18/Linux%E9%9D%A2%E8%AF%95(1)/">Linux面试(1)</a>
-            <span class="archive-item-date">八月 18</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2022/08/18/%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95/">限流算法</a>
-            <span class="archive-item-date">八月 18</span>
-        </article>
-    
-    
-    <nav class="pagination">
-        <a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/archives/page/4/">4</a><a class="page-number" href="/archives/page/5/">5</a>
-    </nav>
-
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">回到顶部</a>
+        <a onclick="go_bottom()">前去底部</a>
+    </div>
 </div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6;    // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function () {
+            tocbot.refresh(obj_merge(tocbot_default_config, { hasInnerContainers: true }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function () {
+        tocbot.init(obj_merge(tocbot_default_config, { collapseDepth: 1 }));
+    });
+
+    function expandToc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, { collapseDepth: expanded ? 1 : DEPTH_MAX }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Java虚拟线程</h1>
+            
+                <div class="post-meta">
+                    
+                        作者: <a itemprop="author" rel="author" href="/">滚~韬</a>
+                    
+
+                    
+                        <span class="post-time">
+                        日期: <a href="#">十月 9&nbsp;&nbsp;14:06</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    分类:
+                            
+                                <a href="/categories/Java/">Java</a>
+                            
+                        </span>
+                    
+
+			 
+
+<span class="post-count">
+
+字数:
+
+<a href="">945</a> 
+
+</span>
+
+
+
+ 
+
+
+
+<span class="post-count">
+
+时间:
+
+<a href="">3min</a> 
+
+</span>
+
+
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>因为在Java19之前，Java只有一种线程，然后为了与19中的虚拟线程区分开来，所以之前的线程统称为平台线程。</p>
+<p>平台线程与操作系统的内核线程是一一对应的。</p>
+<p>然后我们主要来谈论19中新添加（模仿）的线程–虚拟线程</p>
+<h3 id="虚拟线程特征"><a href="#虚拟线程特征" class="headerlink" title="虚拟线程特征"></a>虚拟线程特征</h3><ul>
+<li>是用户模式线程</li>
+<li>由Java运行时调度</li>
+<li>虚拟线程和内核线程是M对N的对应关系，也就是M个虚拟线程会被映射到N个内核线程上 </li>
+</ul>
+<h3 id="虚拟线程可以使用独占线程处理每个请求的并发风格，也就是thread-per-request"><a href="#虚拟线程可以使用独占线程处理每个请求的并发风格，也就是thread-per-request" class="headerlink" title="虚拟线程可以使用独占线程处理每个请求的并发风格，也就是thread-per-request"></a>虚拟线程可以使用独占线程处理每个请求的并发风格，也就是thread-per-request</h3><h3 id="thread-per-request特点"><a href="#thread-per-request特点" class="headerlink" title="thread-per-request特点"></a>thread-per-request特点</h3><ul>
+<li>使用独占的线程来处理该请求</li>
+<li>易于理解和编程实现</li>
+<li>易于调优和性能调优</li>
+</ul>
+<p>但是thread-per-request不能用平台线程来实现，因为平台线程是操作系统中的线程操作的一种封装，而操作系统的线程会占用资源，存在数量上限，对于一个海量级别的服务端来说，不可能一个请求来，然后去生成一个平台线程。</p>
+<p>为了实现thread-per-request，目前有这几种解决思路</p>
+<ul>
+<li>依赖于非阻塞I/O和异步编程（用少量线程处理大量的请求）</li>
+<li>可以提升系统的吞吐量</li>
+<li>开发人员必须熟悉所使用的底层框架</li>
+</ul>
+<h3 id="使用虚拟线程好处"><a href="#使用虚拟线程好处" class="headerlink" title="使用虚拟线程好处"></a>使用虚拟线程好处</h3><ul>
+<li>使用最自然的方式来编写代码</li>
+<li>把请求的处理逻辑全部在一个虚拟线程中完成</li>
+<li>降低了编写高并发服务端应用的难度</li>
+</ul>
+<p>虚拟线程不需要放入线程池</p>
+<h3 id="虚拟线程的调度"><a href="#虚拟线程的调度" class="headerlink" title="虚拟线程的调度"></a>虚拟线程的调度</h3><ul>
+<li>由JDK负责调度</li>
+<li>JDK把虚拟线程分配个平台线程</li>
+<li>平台线程则由操作系统负责调度</li>
+</ul>
+<p>一个虚拟线程所分配的平台线程被称为该虚拟线程的<strong>载体</strong>，然后一个虚拟线程可能被调度到多个载体上，载体的标识对于虚拟线程是不可见的</p>
+<p>JDK调度虚拟线程时，使用的是一个以FIFO模式工作的work-stealing ForkJoinPool，该ForkJoinPool的paralleism决定了调度时可以使用的平台线程的数量</p>
+<h3 id="虚拟线程的执行"><a href="#虚拟线程的执行" class="headerlink" title="虚拟线程的执行"></a>虚拟线程的执行</h3><ul>
+<li><p>把虚拟线程绑定到平台线程</p>
+</li>
+<li><p>从平台线程上接触绑定，当虚拟线程在等待I/O或是执行某些阻塞操作时，<strong>可以从平台线程上解除绑定</strong></p>
+<p><strong>等待阻塞操作完成之后，可以绑定到新的平台线程上继续执行</strong></p>
+</li>
+<li><p>对于应用代码来说是透明的</p>
+</li>
+</ul>
+<p>有些JDK中的阻塞操作并不会解除对平台线程的绑定,因此会阻塞平台线程和底层的操作系统线程，比如</p>
+<p>文件操作、Object.wait()方法调用，这些阻塞操作的实现会在内部对此进行补偿</p>
+<p>临时增加JDK的调度器可以使用的线程数量</p>
+<h3 id="在下面两种情况下，虚拟线程会被Pin在载体上而无法解除绑定"><a href="#在下面两种情况下，虚拟线程会被Pin在载体上而无法解除绑定" class="headerlink" title="在下面两种情况下，虚拟线程会被Pin在载体上而无法解除绑定"></a>在下面两种情况下，虚拟线程会被Pin在载体上而无法解除绑定</h3><ul>
+<li>在执行Synchronized方法或块时</li>
+<li>在执行native方法或外部方法时</li>
+</ul>
+<h3 id="创建虚拟线程"><a href="#创建虚拟线程" class="headerlink" title="创建虚拟线程"></a>创建虚拟线程</h3><blockquote>
+<h3 id="第一种"><a href="#第一种" class="headerlink" title="第一种"></a>第一种</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">thread</span> <span class="operator">=</span> Thread.ofVirtual().name(<span class="string">&quot;my virtual&quot;</span>).start(() -&gt; System.out.println(<span class="string">&quot;运行&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>一个新的虚拟线程被创建并启动，返回的时java.lang.Thread类的对象</p>
+<h3 id="第二种"><a href="#第二种" class="headerlink" title="第二种"></a>第二种</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Thread.startVirtualThread(Runnable task)</span><br></pre></td></tr></table></figure>
+
+<h3 id="第三种"><a href="#第三种" class="headerlink" title="第三种"></a>第三种</h3><p>使用线程工厂来实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">factory</span> <span class="operator">=</span> Thread.ofVirtual().factory();</span><br><span class="line"><span class="type">var</span> <span class="variable">thread</span> <span class="operator">=</span> factory.newThread(()-&gt; System.out.println(<span class="string">&quot;在工厂中创建&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<h3 id="第四种"><a href="#第四种" class="headerlink" title="第四种"></a>第四种</h3><p>使用线程池</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Executors.newVirtualThreadPerTaskExecutor();</span><br><span class="line">Executors.newThreadPerTaskExecutor(ThreadFactory threadFactory);</span><br></pre></td></tr></table></figure>
+
+<p>用Executors对象所能创建的线程数量理论上没有上限(受限于内存)</p>
+</blockquote>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>标签:</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        <a href="/tags/Juc/"># Juc</a>
+                    
+                        <a href="/tags/%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3/"># 个人理解</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">后退</a>
+                <span>· </span>
+                <a href="/">主页</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2022/10/03/Sa-token%E6%A1%86%E6%9E%B6%E7%90%86%E8%A7%A3/">Sa-token</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
             </div>
             <footer id="footer" class="footer">
     <div class="copyright">
