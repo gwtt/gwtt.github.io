@@ -564,11 +564,11 @@
 <p>把context.getEnvironment().setActiveProfiles(“wenke”) 设置为wenke，观察其对应的输出内容发生了变化，这就是@Profile的作用，有一层可选择性注册的意味。</p>
 </blockquote>
 <h3 id="Scope-注解"><a href="#Scope-注解" class="headerlink" title="@Scope 注解"></a>@Scope 注解</h3><p>在Spring中对于bean的默认处理都是单例的，我们通过上下文容器.getBean方法拿到bean容器，并对其进行实例化，这个实例化的过程其实只进行一次，即多次getBean 获取的对象都是同一个对象，也就相当于这个bean的实例在IOC容器中是public的，对于所有的bean请求来讲都可以共享此bean。</p>
-<p><img src="/2022/11/04/Springboot%E7%9A%84@bean/1515111-20190713092501745-1843106227.png" alt="img"></p>
+<p><img src="/2022/11/04/Springboot%E7%9A%84bean%E6%B3%A8%E8%A7%A3/1515111-20190713092501745-1843106227.png" alt="img"></p>
 <p>那么假如我不想把这个bean被所有的请求共享或者说每次调用我都想让它生成一个bean实例该怎么处理呢？</p>
 <p><strong>多例Bean</strong></p>
 <p>bean的非单例原型范围会使每次发出对该特定bean的请求时都创建新的bean实例，也就是说，bean被注入另一个bean，或者通过对容器的getBean()方法调用来请求它，可以用如下图来表示：</p>
-<p><img src="/2022/11/04/Springboot%E7%9A%84@bean/1515111-20190713092513090-1380293645.png" alt="img"></p>
+<p><img src="/2022/11/04/Springboot%E7%9A%84bean%E6%B3%A8%E8%A7%A3/1515111-20190713092513090-1380293645.png" alt="img"></p>
 <p>通过一个示例来说明bean的多个实例</p>
 <p>新建一个<code>AppConfigWithAliasAndScope</code>配置类，用来定义多例的bean，</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="meta">@Configuration</span></span><br><span class="line">&gt;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AppConfigWithAliasAndScope</span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 为myBean起两个名字，b1 和 b2</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@Scope</span> 默认为 singleton，但是可以指定其作用域</span></span><br><span class="line"><span class="comment">    * prototype 是多例的，即每一次调用都会生成一个新的实例。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="meta">@Bean(&#123;&quot;b1&quot;,&quot;b2&quot;&#125;)</span></span><br><span class="line">   <span class="meta">@Scope(&quot;prototype&quot;)</span></span><br><span class="line">   <span class="keyword">public</span> MyBean <span class="title function_">myBean</span><span class="params">()</span>&#123;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">MyBean</span>();</span><br><span class="line">   &#125;</span><br><span class="line">&gt;&#125;</span><br></pre></td></tr></table></figure>
@@ -663,16 +663,16 @@
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">IOC 不是一种技术，只是一种思想，一个重要的面向对象编程的法则，它能指导我们如何设计出松耦合、更优良的程序。</span><br><span class="line"></span><br><span class="line">传统应用程序都是由我们在类内部主动创建依赖对象，从而导致类与类之间高耦合，难于测试；</span><br><span class="line"></span><br><span class="line">有了IOC容器后，把创建和查找依赖对象的控制权交给了容器，由容器进行注入组合对象，所以对象与对象之间是 松散耦合，这样也方便测试，利于功能复用，更重要的是使得程序的整个体系结构变得非常灵活。</span><br><span class="line"></span><br><span class="line">其实 IOC 对编程带来的最大改变不是从代码上，而是从思想上，发生了“主从换位”的变化。应用程序原本是老大，要获取什么资源都是主动出击，但是在 IOC/DI 思想中，应用程序就变成被动的了，被动的等待 IOC 容器来创建并注入它所需要的资源了。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>示例图：</p>
-<p><img src="/2022/11/04/Springboot%E7%9A%84@bean/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70.png" alt="img"></p>
-<p>​                                                          <img src="/2022/11/04/Springboot%E7%9A%84@bean/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553166704-7.png" alt="img"></p>
+<p><img src="/2022/11/04/Springboot%E7%9A%84bean%E6%B3%A8%E8%A7%A3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70.png" alt="img"></p>
+<p>​                                                          <img src="/2022/11/04/Springboot%E7%9A%84bean%E6%B3%A8%E8%A7%A3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553166704-7.png" alt="img"></p>
 <p>（2）使用IOC的目的：降低耦合度<br>用伪代码来比较：用工厂类来做例子（注意：工厂类不是IOC模式）</p>
 <p>原始方式：一个类调用另外一个类的对象使用</p>
-<p><img src="/2022/11/04/Springboot%E7%9A%84@bean/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553195953-10.png" alt="img"></p>
+<p><img src="/2022/11/04/Springboot%E7%9A%84bean%E6%B3%A8%E8%A7%A3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553195953-10.png" alt="img"></p>
 <p>升级后：工厂模式解耦，但是也不是完全解耦 </p>
-<p><img src="/2022/11/04/Springboot%E7%9A%84@bean/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553200671-13.png" alt="img"></p>
+<p><img src="/2022/11/04/Springboot%E7%9A%84bean%E6%B3%A8%E8%A7%A3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553200671-13.png" alt="img"></p>
 <p>（3）IOC解耦过程图解<br>可能一时半会看不懂图，但是通过后面深入理解就会豁然开朗</p>
 <p>IOC的思想就是我们仅仅通过修改XML配置文件的对象路径，就可以轻松把对象创建出来去被别的类进行调用</p>
-<p><img src="/2022/11/04/Springboot%E7%9A%84@bean/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553227583-16.png" alt="img"></p>
+<p><img src="/2022/11/04/Springboot%E7%9A%84bean%E6%B3%A8%E8%A7%A3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0xCSjg4ODg4ODg=,size_16,color_FFFFFF,t_70-1667553227583-16.png" alt="img"></p>
 <p>2.IOC的底层原理<br>（1）xml解析、工厂模式、反射</p>
 <p>3.IOC接口</p>
 <p>（1）IOC思想<br>         基于IOC容器完成，IOC容器底层就是对象工厂</p>
